@@ -97,7 +97,16 @@ function amapSelect($lng,$lat)
 
     $fullUrl=$url.'?'.'key='.$key.'&location='.$lng.','.$lat;
 
-    $res=file_get_contents($fullUrl);
+    try
+    {
+        $res=file_get_contents($fullUrl);
+
+    }catch (\Exception $e)
+    {
+        sleep(2);
+
+        $res=file_get_contents($fullUrl);
+    }
 
     $res=\json_decode($res,true);
 
@@ -176,7 +185,7 @@ function tencentSelect($lng,$lat)
 
 }
 
-//数据入库
+//坐标数据入库
 function insertGeohash($Geo,$lng,$lat,$data)
 {
     //第一种情况：经纬度在中国，并且属于某个省
@@ -312,4 +321,52 @@ function insertGeohash($Geo,$lng,$lat,$data)
     }
 
     return false;
+}
+
+//坐标关联用户数据入库
+function insertUserGeo($geohash,$userid,$dateline)
+{
+    $tableNum=choseTable($userid);
+
+    $tableName='UserGeohash_'.$tableNum;
+
+    if (!Schema::connection('tssj_new_2019')->hasTable($tableName))
+    {
+        Schema::connection('tssj_new_2019')->create($tableName, function (Blueprint $table)
+        {
+            $table->increments('id')->unsigned();
+            $table->integer('userid')->unsigned()->index();
+            $table->string('geohash','10')->index();
+            $table->string('dateline','12');
+            $table->engine='InnoDB';
+        });
+    }
+
+    //插入数据
+    $tmp=DB::connection('tssj_new_2019')->table($tableName)->where(['userid'=>$userid,'geohash'=>$geohash])->first();
+
+    if ($tmp==null)
+    {
+        $arr=[
+            'userid'=>$userid,
+            'geohash'=>$geohash,
+            'dateline'=>$dateline,
+        ];
+
+        $tmp=DB::connection('tssj_new_2019')->table($tableName)->insert($arr);
+
+        return $tmp;
+
+    }else
+    {
+        return true;
+    }
+}
+
+//分表
+function choseTable($userid)
+{
+    $tableNum=$userid%200;
+
+    return $tableNum;
 }
