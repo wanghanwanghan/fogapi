@@ -43,6 +43,12 @@ class test extends Command
 
         DB::connection('tssj_old')->table('tssj_fog')->orderBy('fogid')->chunk(5000,function ($data) use ($Geo)
         {
+            $connection='tssj_new_2019';
+
+            //最后要执行数组
+            $sqlGeoArray=[];
+            $sqlUsrArray=[];
+
             foreach ($data as $one)
             {
                 if (!is_numeric($one->longitude) || !is_numeric($one->latitude)) continue;
@@ -50,17 +56,13 @@ class test extends Command
                 $lng=\sprintf("%.4f",$one->longitude);
                 $lat=\sprintf("%.4f",$one->latitude);
 
-                $res=amapSelect($lng,$lat);
-
-                //返回true说明插入基础坐标成功，返回false是未知问题
-                $res=insertGeohash($Geo,$lng,$lat,$res);
-
                 $geohash=$Geo->encode($lat,$lng,'9');
 
-                //处理不了的坐标放入这张表
-                if (!$res)
+                $res=amapSelect($lng,$lat);
+
+                if ($res===false)
                 {
-                    $tmp=DB::connection('tssj_new_2019')->table('Unknown_geohash')->where('geohash',$geohash)->first();
+                    $tmp=DB::connection($connection)->table('Unknown_geohash')->where('geohash',$geohash)->first();
 
                     if ($tmp==null)
                     {
@@ -68,9 +70,17 @@ class test extends Command
                         $arr['lng']=empty($lng)?'':$lng;
                         $arr['lat']=empty($lat)?'':$lat;
 
-                        DB::connection('tssj_new_2019')->table('Unknown_geohash')->insert($arr);
+                        DB::connection($connection)->table('Unknown_geohash')->insert($arr);
                     }
+
+                    continue;
                 }
+
+                //生成基础坐标点sql语句['tableName'=>'要插入的值']
+                $res=insertGeohash($Geo,$lng,$lat,$res);
+
+                //下面要循环拼接的sql
+                $sqlGeoArray[$res[0]][]=$res[1];
 
                 //关联当前坐标和用户
                 if (!is_numeric($one->userid))
@@ -91,36 +101,77 @@ class test extends Command
 
                 $res=insertUserGeo($geohash,$userid,$dateline);
 
-                //处理不了的用户放入这张表
-                if (!$res)
+                //下面要循环拼接的sql
+                $sqlUsrArray[$res[0]][]=$res[1];
+            }
+
+            //====================准备插入数据 拼接数组中的value====================
+
+            //最后要执行数组
+            $sqlGeoArray_tmp=[];
+            $sqlUsrArray_tmp=[];
+
+            //$sqlGeoArray
+            //$key是表名 $value是需要插入的数据["'','wx4eqy9fb','','海淀区'"]
+            //$sqlUsrArray
+            //$key是表名 $value是需要插入的数据["'',18343,'wx4g3bmcz','1453683658'"]
+
+            foreach ($sqlGeoArray as $key=>$value)
+            {
+                foreach ($value as $one)
                 {
-                    $tmp=DB::connection('tssj_new_2019')->table('Unknown_user')->where(['userid'=>$userid,'geohash'=>$geohash])->first();
-
-                    if ($tmp==null)
+                    if (isset($sqlGeoArray_tmp[$key]))
                     {
-                        $arr['userid']=$userid;
-                        $arr['geohash']=$geohash;
-                        $arr['lng']=empty($lng)?'':$lng;
-                        $arr['lat']=empty($lat)?'':$lat;
-
-                        DB::connection('tssj_new_2019')->table('Unknown_user')->insert($arr);
+                        $sqlGeoArray_tmp[$key].='('.$one.'),';
+                    }else
+                    {
+                        $sqlGeoArray_tmp[$key]='('.$one.'),';
                     }
                 }
-
-                //每处理5000条记录一下
-                $ExecCout=Redis::get('ExecCout');
-
-                if ($ExecCout)
-                {
-                    $ExecCout++;
-                }else
-                {
-                    $ExecCout=1;
-                }
-
-                Redis::set('ExecCout',$ExecCout);
             }
+
+            foreach ($sqlUsrArray as $key=>$value)
+            {
+                foreach ($value as $one)
+                {
+                    if (isset($sqlUsrArray_tmp[$key]))
+                    {
+                        $sqlUsrArray_tmp[$key].='('.$one.'),';
+                    }else
+                    {
+                        $sqlUsrArray_tmp[$key]='('.$one.'),';
+                    }
+                }
+            }
+
+            //插入数据
+            foreach ($sqlGeoArray_tmp as $key=>$value)
+            {
+                DB::connection($connection)->insert("insert ignore into ".$key.' values '.rtrim($value,','));
+            }
+
+            foreach ($sqlUsrArray_tmp as $key=>$value)
+            {
+                DB::connection($connection)->insert("insert ignore into ".$key.' values '.rtrim($value,','));
+            }
+
+            //每处理5000条记录一下
+            $ExecCout=Redis::get('ExecCout');
+
+            if ($ExecCout)
+            {
+                $ExecCout++;
+            }else
+            {
+                $ExecCout=1;
+            }
+
+            Redis::set('ExecCout',$ExecCout);
         });
+
+
+
+
 
 
 

@@ -188,6 +188,7 @@ function tencentSelect($lng,$lat)
 //坐标数据入库
 function insertGeohash($Geo,$lng,$lat,$data)
 {
+    $connection='tssj_new_2019';
     //第一种情况：经纬度在中国，并且属于某个省
     //第二种情况：经纬度在外国
     //第三种情况：经纬度不属于任何国家
@@ -201,12 +202,11 @@ function insertGeohash($Geo,$lng,$lat,$data)
     //]
     if ($data['country']=='China' && is_numeric($data['province']))
     {
-        if (!Schema::connection('tssj_new_2019')->hasTable($data['country'].'_'.$data['province'].'_geohash'))
+        if (!Schema::connection($connection)->hasTable($data['country'].'_'.$data['province'].'_geohash'))
         {
-            Schema::connection('tssj_new_2019')->create($data['country'].'_'.$data['province'].'_geohash', function (Blueprint $table)
+            Schema::connection($connection)->create($data['country'].'_'.$data['province'].'_geohash', function (Blueprint $table)
             {
-                $table->increments('id')->unsigned();
-                $table->string('geohash','10')->index();
+                $table->string('geohash','10')->unique();
                 $table->string('city','100');
                 $table->string('district','100');
                 $table->engine='InnoDB';
@@ -217,18 +217,8 @@ function insertGeohash($Geo,$lng,$lat,$data)
         $arr['city']=empty($data['city'])?'':$data['city'];
         $arr['district']=empty($data['district'])?'':$data['district'];
 
-        $tmp=DB::connection('tssj_new_2019')->table($data['country'].'_'.$data['province'].'_geohash')->where('geohash',$arr['geohash'])->first();
-
-        if ($tmp==null)
-        {
-            $tmp=DB::connection('tssj_new_2019')->table($data['country'].'_'.$data['province'].'_geohash')->insert($arr);
-
-            return $tmp;
-
-        }else
-        {
-            return true;
-        }
+        //直接insert ignore
+        return [$data['country'].'_'.$data['province'].'_geohash',"'{$arr['geohash']}','{$arr['city']}','{$arr['district']}'"];
     }
 
     //情况二：
@@ -240,12 +230,11 @@ function insertGeohash($Geo,$lng,$lat,$data)
     //]
     if ($data['country']!='China' && $data['country']!='Unknown')
     {
-        if (!Schema::connection('tssj_new_2019')->hasTable($data['country'].'_geohash'))
+        if (!Schema::connection($connection)->hasTable($data['country'].'_geohash'))
         {
-            Schema::connection('tssj_new_2019')->create($data['country'].'_geohash', function (Blueprint $table)
+            Schema::connection($connection)->create($data['country'].'_geohash', function (Blueprint $table)
             {
-                $table->increments('id')->unsigned();
-                $table->string('geohash','10')->index();
+                $table->string('geohash','10')->unique();
                 $table->string('province','100');
                 $table->string('city','100');
                 $table->string('district','100');
@@ -258,18 +247,8 @@ function insertGeohash($Geo,$lng,$lat,$data)
         $arr['city']=empty($data['city'])?'':$data['city'];
         $arr['district']=empty($data['district'])?'':$data['district'];
 
-        $tmp=DB::connection('tssj_new_2019')->table($data['country'].'_geohash')->where('geohash',$arr['geohash'])->first();
-
-        if ($tmp==null)
-        {
-            $tmp=DB::connection('tssj_new_2019')->table($data['country'].'_geohash')->insert($arr);
-
-            return $tmp;
-
-        }else
-        {
-            return true;
-        }
+        //直接insert ignore
+        return [$data['country'].'_geohash',"'{$arr['geohash']}','{$arr['province']}','{$arr['city']}','{$arr['district']}'"];
     }
 
     //情况三：
@@ -294,30 +273,19 @@ function insertGeohash($Geo,$lng,$lat,$data)
             $name='south_'.$num%2*-1;
         }
 
-        if (!Schema::connection('tssj_new_2019')->hasTable('SeaArea_'.$name.'_geohash'))
+        if (!Schema::connection($connection)->hasTable('SeaArea_'.$name.'_geohash'))
         {
-            Schema::connection('tssj_new_2019')->create('SeaArea_'.$name.'_geohash', function (Blueprint $table)
+            Schema::connection($connection)->create('SeaArea_'.$name.'_geohash', function (Blueprint $table)
             {
-                $table->increments('id')->unsigned();
-                $table->string('geohash','10')->index();
+                $table->string('geohash','10')->unique();
                 $table->engine='InnoDB';
             });
         }
 
         $arr['geohash']=$Geo->encode($lat,$lng,'9');
 
-        $tmp=DB::connection('tssj_new_2019')->table('SeaArea_'.$name.'_geohash')->where('geohash',$arr['geohash'])->first();
-
-        if ($tmp==null)
-        {
-            $tmp=DB::connection('tssj_new_2019')->table('SeaArea_'.$name.'_geohash')->insert($arr);
-
-            return $tmp;
-
-        }else
-        {
-            return true;
-        }
+        //直接insert ignore
+        return ['SeaArea_'.$name.'_geohash',"'{$arr['geohash']}'"];
     }
 
     return false;
@@ -330,37 +298,28 @@ function insertUserGeo($geohash,$userid,$dateline)
 
     $tableName='UserGeohash_'.$tableNum;
 
-    if (!Schema::connection('tssj_new_2019')->hasTable($tableName))
+    $connection='tssj_new_2019';
+
+    if (!Schema::connection($connection)->hasTable($tableName))
     {
-        Schema::connection('tssj_new_2019')->create($tableName, function (Blueprint $table)
+        Schema::connection($connection)->create($tableName, function (Blueprint $table)
         {
-            $table->increments('id')->unsigned();
-            $table->integer('userid')->unsigned()->index();
-            $table->string('geohash','10')->index();
+            $table->integer('userid')->unsigned();
+            $table->string('geohash','10');
             $table->string('dateline','12');
+            $table->unique(['userid','geohash']);
             $table->engine='InnoDB';
         });
     }
 
-    //插入数据
-    $tmp=DB::connection('tssj_new_2019')->table($tableName)->where(['userid'=>$userid,'geohash'=>$geohash])->first();
+    //直接insert ignore
+    $arr=[
+        'userid'=>$userid,
+        'geohash'=>$geohash,
+        'dateline'=>$dateline,
+    ];
 
-    if ($tmp==null)
-    {
-        $arr=[
-            'userid'=>$userid,
-            'geohash'=>$geohash,
-            'dateline'=>$dateline,
-        ];
-
-        $tmp=DB::connection('tssj_new_2019')->table($tableName)->insert($arr);
-
-        return $tmp;
-
-    }else
-    {
-        return true;
-    }
+    return [$tableName,"{$arr['userid']},'{$arr['geohash']}','{$arr['dateline']}'"];
 }
 
 //分表
