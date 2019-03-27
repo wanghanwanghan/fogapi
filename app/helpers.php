@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
@@ -99,13 +98,13 @@ function amapSelect($lng,$lat)
 
     try
     {
-        $res=file_get_contents($fullUrl);
+        $res=\file_get_contents($fullUrl);
 
     }catch (\Exception $e)
     {
-        sleep(2);
+        sleep(5);
 
-        $res=file_get_contents($fullUrl);
+        return false;
     }
 
     $res=\json_decode($res,true);
@@ -144,26 +143,6 @@ function amapSelect($lng,$lat)
             $country=filter1($country);
 
             if (empty($country)) $country='Unknown';
-
-            if (($country_name=\Illuminate\Support\Facades\Redis::get('CountryName'))!='')
-            {
-                $country_name=\json_decode($country_name,true);
-
-                if (!in_array($country,$country_name))
-                {
-                    array_push($country_name,$country);
-
-                    $encode=\json_encode($country_name);
-
-                    \Illuminate\Support\Facades\Redis::set('CountryName',$encode);
-                }
-
-            }else
-            {
-                $encode=\json_encode([$country]);
-
-                \Illuminate\Support\Facades\Redis::set('CountryName',$encode);
-            }
         }
 
         $tmp['country']=$country;
@@ -328,4 +307,21 @@ function choseTable($userid)
     $tableNum=$userid%200;
 
     return $tableNum;
+}
+
+//自制分页
+function myPage($data,$limit,$page=1)
+{
+    $tmp=[];
+
+    $offset=($page-1)*$limit;
+
+    for ($i=$offset;$i<=$limit*$page-1;$i++)
+    {
+        if (!isset($data[$i])) break;
+
+        $tmp[]=$data[$i];
+    }
+
+    return $tmp;
 }

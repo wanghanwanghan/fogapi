@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2167114e42f8b89e42a247fae64e9a36",
+    "content-hash": "f28b0506ee0e4b015e76af92039e7d1e",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -2777,6 +2777,57 @@
                 "environment"
             ],
             "time": "2019-01-29T11:11:52+00:00"
+        },
+        {
+            "name": "yadakhov/insert-on-duplicate-key",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yadakhov/insert-on-duplicate-key.git",
+                "reference": "13962f769aed9887138bc7e78fd4aac97a7ebf9c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yadakhov/insert-on-duplicate-key/zipball/13962f769aed9887138bc7e78fd4aac97a7ebf9c",
+                "reference": "13962f769aed9887138bc7e78fd4aac97a7ebf9c",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require-dev": {
+                "illuminate/database": "^5.1",
+                "phpunit/dbunit": "^2.0",
+                "phpunit/phpunit": "~5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Yadakhov\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yada Khov",
+                    "email": "yada.khov@gmail.com",
+                    "homepage": "https://github.com/yadakhov"
+                }
+            ],
+            "description": "A trait for MySQL INSERT ON DUPLICATE KEY UPDATE.",
+            "homepage": "https://github.com/yadakhov/insert-on-duplicate-key",
+            "keywords": [
+                "database",
+                "eloquent",
+                "mysql"
+            ],
+            "time": "2017-04-27T16:19:41+00:00"
         },
         {
             "name": "youthage/laravel-geohash",

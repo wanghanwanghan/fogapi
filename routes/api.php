@@ -13,15 +13,10 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('wanghan',function (Request $request){
+Route::get('ppp/wanghan',function (Request $request)
+{
 
-    $Geo=new \Geohash\GeoHash;
-
-    $res=$Geo->decode('yb74uvyqf');
-
-    $res=amapSelect($res[1],$res[0]);
-
-    dd($res);
+    dd($request);
 
 });
 
