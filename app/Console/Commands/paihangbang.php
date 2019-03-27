@@ -70,14 +70,14 @@ class paihangbang extends Command
 
             foreach ($res as $two)
             {
-                $data=DB::connection($connection)->table($one)->where('userid',$two->userid)->first();
+                $data=DB::connection($connection)->table('paihangbang')->where('userid',$two->userid)->first();
 
                 if ($data!=null)
                 {
-                    DB::connection($connection)->table($one)->update(['userid'=>$two,'total'=>$two->total+$data->total]);
+                    DB::connection($connection)->table('paihangbang')->where('userid',$two->userid)->update(['total'=>$two->total+$data->total]);
                 }else
                 {
-                    DB::connection($connection)->table($one)->insert(['userid'=>$two,'total'=>$two->total]);
+                    DB::connection($connection)->table('paihangbang')->insert(['userid'=>$two->userid,'total'=>$two->total]);
                 }
             }
 

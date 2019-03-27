@@ -13,10 +13,8 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('ppp/wanghan',function (Request $request)
+Route::get('wanghan',function (Request $request)
 {
-
-    dd($request);
 
 });
 
