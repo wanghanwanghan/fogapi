@@ -56,7 +56,7 @@ class paihangbang extends Command
         }
 
         $table=[
-            'tssj_fog','tssj_fog_2015','tssj_fog_2016',
+            'tssj_fog_2015','tssj_fog_2016',
             'tssj_fog_2017','tssj_fog_201801','tssj_fog_201802',
             'tssj_fog_201803','tssj_fog_201804','tssj_fog_201805',
             'tssj_fog_201806','tssj_fog_201807','tssj_fog_201808',
