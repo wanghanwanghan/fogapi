@@ -325,3 +325,25 @@ function myPage($data,$limit,$page=1)
 
     return $tmp;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
