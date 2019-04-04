@@ -15,6 +15,19 @@ class SignInController extends BaseController
         $key=Carbon::now()->format('Ymd');
         $userid=$request->userid;
 
+        //判断是否已经签到
+        try
+        {
+            $res=Redis::connection('SignIn')->getbit($key,$userid);
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.602')]);
+        }
+
+        if ($res) return response()->json(['resCode'=>Config::get('resCode.603')]);
+
+        //签到写入redis
         try
         {
             Redis::connection('SignIn')->setbit($key,$userid,1);
@@ -25,5 +38,34 @@ class SignInController extends BaseController
         }
 
         return response()->json(['resCode'=>Config::get('resCode.200')]);
+    }
+
+    //用户当周签到情况
+    public function showSign(Request $request)
+    {
+        //一周开始的第一天
+        $star=Carbon::now()->startOfWeek()->format('Ymd');
+
+        //一周结束的最后一天
+        $stop=Carbon::now()->endOfWeek()->format('Ymd');
+
+        for ($i=$star;$i<=$stop;)
+        {
+            try
+            {
+                $sign=Redis::connection('SignIn')->getbit($star,$request->userid);
+
+            }catch (\Exception $e)
+            {
+                return response()->json(['resCode'=>Config::get('resCode.602')]);
+            }
+
+            $res[$i]=$sign;
+
+            //下一天
+            $i=Carbon::parse($i.' +1 days')->format('Ymd');
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'resData'=>$res]);
     }
 }

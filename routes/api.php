@@ -17,7 +17,9 @@ use Geohash\GeoHash;
 Route::group(['middleware'=>['init']],function ()
 {
     //每日签到
-    Route::match(['get','post'],'wanghan','QuanMinZhanLing\\SignInController@signIn');
+    Route::match(['post'],'wanghan','QuanMinZhanLing\\SignInController@signIn');
+    //展示签到
+    Route::match(['get'],'wanghan','QuanMinZhanLing\\SignInController@showSign');
 
 
 

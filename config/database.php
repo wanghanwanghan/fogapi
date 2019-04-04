@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'aliyun'),
 
     /*
     |--------------------------------------------------------------------------
@@ -167,6 +167,14 @@ return [
             'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
             'port' => '63213',
             'database' => 10,
+        ],
+
+        //格子当天交易次数
+        'BuyGridInfo' => [
+            'host' => '183.136.232.245',
+            'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
+            'port' => '63213',
+            'database' => 12,
         ],
 
         //session
