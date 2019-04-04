@@ -33,24 +33,11 @@ return [
 
     'connections' => [
 
-        'tssj_new_2021' => [
+        'tssj_earth' => [
             'driver' => 'mysql',
             'host' => '183.136.232.214',
             'port' => '3306',
-            'database' => 'tssj_new_2021',
-            'username' => 'chinabody',
-            'password' => 'chinaiiss(!@#)',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_general_ci',
-            'strict' => false,
-            'engine' => 'innoDB',
-        ],
-
-        'tssj_new_2020' => [
-            'driver' => 'mysql',
-            'host' => '183.136.232.214',
-            'port' => '3306',
-            'database' => 'tssj_new_2020',
+            'database' => 'tssj_earth',
             'username' => 'chinabody',
             'password' => 'chinaiiss(!@#)',
             'charset' => 'utf8mb4',
@@ -81,6 +68,21 @@ return [
             'password' => 'chinaiiss(!@#)',
             'charset' => 'utf8',
             'collation' => 'utf8_general_ci',
+            'strict' => false,
+            'engine' => null,
+        ],
+
+        'aliyun' => [
+            'driver' => 'mysql',
+            'host' => '47.106.169.68',
+            'port' => '63306',
+            'database' => 'mac',
+            'username' => 'root',
+            'password' => 'zbxlbj@2018*()',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
             'strict' => false,
             'engine' => null,
         ],
@@ -167,6 +169,29 @@ return [
             'database' => 10,
         ],
 
+        //session
+        'Session' => [
+            'host' => '183.136.232.245',
+            'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
+            'port' => '63213',
+            'database' => 13,
+        ],
+
+        //每日签到
+        'SignIn' => [
+            'host' => '183.136.232.245',
+            'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
+            'port' => '63213',
+            'database' => 14,
+        ],
+
+        //防止暴力请求
+        'RequestToken' => [
+            'host' => '183.136.232.245',
+            'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
+            'port' => '63213',
+            'database' => 15,
+        ],
     ],
 
 ];

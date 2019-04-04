@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Config;
 
 //去掉特殊字符
 function filter1($str)
@@ -82,11 +84,11 @@ function baiduTranslate($q,$from='auto',$to='en')
 }
 
 //调用高德经纬度查询
-function amapSelect($lng,$lat)
+function amapSelect($lng,$lat,$flood=4)
 {
-    $lng=\sprintf("%.4f",$lng);
+    $lng=\sprintf("%.{$flood}f",$lng);
 
-    $lat=\sprintf("%.4f",$lat);
+    $lat=\sprintf("%.{$flood}f",$lat);
 
     $url=\Illuminate\Support\Facades\Config::get('myDefine.AmapUrl');
 
@@ -326,9 +328,20 @@ function myPage($data,$limit,$page=1)
     return $tmp;
 }
 
+//使用requestToken 防止用户暴力请求
+function useRequestToken($userid)
+{
+    $key=$userid;
 
+    if (Redis::connection('RequestToken')->set($key,1,'nx','ex',Config::get('myDefine.RequestTokenExpireTime')))
+    {
+        return true;
 
-
+    }else
+    {
+        return false;
+    }
+}
 
 
 

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTssjFogTable extends Migration
+class CreateAnnouncementTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateTssjFogTable extends Migration
      */
     public function up()
     {
-        Schema::create('tssj_fog', function (Blueprint $table) {
+        Schema::create('announcement', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
         });
@@ -26,6 +26,6 @@ class CreateTssjFogTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tssj_fog');
+        Schema::dropIfExists('announcement');
     }
 }

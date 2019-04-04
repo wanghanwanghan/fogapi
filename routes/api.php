@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Geohash\GeoHash;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,8 +14,14 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('wanghan',function (Request $request)
+Route::group(['middleware'=>['init']],function ()
 {
+    //每日签到
+    Route::match(['get','post'],'wanghan','QuanMinZhanLing\\SignInController@signIn');
+
+
 
 });
+
+
 
