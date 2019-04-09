@@ -63,6 +63,7 @@ class center extends Command
 
         $geo=new GeoHash();
 
+        //==========================================================================================================
         $n=1;//北
         $s=1;//南
         $w=1;//西
@@ -73,18 +74,18 @@ class center extends Command
         $lat+=0.025;
 
         //坐标轴和m0先不画
-        for ($i=1;$i<=1000;$i++)
+        for ($i=1;$i<=1300;$i++)
         {
             $lng='116.397392';
             $lng-=0.035;
 
-            for ($j=1;$j<=1000;$j++)
+            for ($j=1;$j<=1300;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
                 DB::connection('aliyun')->table('grid')->insert([
-                    'lat'=>$lat,
-                    'lng'=>$lng,
+                    'lat'=>number_format($lat,6),
+                    'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
                     'name'=>"w{$j}n{$i}",
                     'price'=>10,
@@ -98,9 +99,119 @@ class center extends Command
             }
 
             $lat+=0.025;
-
         }
+        //==========================================================================================================
+        $n=1;//北
+        $s=1;//南
+        $w=1;//西
+        $e=1;//东
 
+        //往西南 lat减少 lng减少 w西增加 s南增加
+        $lat='39.9104';
+        $lat-=0.025;
+
+        //坐标轴和m0先不画
+        for ($i=1;$i<=1300;$i++)
+        {
+            $lng='116.397392';
+            $lng-=0.035;
+
+            for ($j=1;$j<=1300;$j++)
+            {
+                $hash=$geo->encode($lat,$lng,12);
+
+                DB::connection('aliyun')->table('grid')->insert([
+                    'lat'=>number_format($lat,6),
+                    'lng'=>number_format($lng,6),
+                    'geohash'=>$hash,
+                    'name'=>"w{$j}s{$i}",
+                    'price'=>10,
+                    'hightPrice'=>10,
+                    'belong'=>0,
+                    'totle'=>0,
+                    'showGrid'=>'1'
+                ]);
+
+                $lng-=0.035;
+            }
+
+            $lat-=0.025;
+        }
+        //==========================================================================================================
+        $n=1;//北
+        $s=1;//南
+        $w=1;//西
+        $e=1;//东
+
+        //往东北 lat增加 lng增加 e东增加 n北增加
+        $lat='39.9104';
+        $lat+=0.025;
+
+        //坐标轴和m0先不画
+        for ($i=1;$i<=1300;$i++)
+        {
+            $lng='116.397392';
+            $lng+=0.035;
+
+            for ($j=1;$j<=1300;$j++)
+            {
+                $hash=$geo->encode($lat,$lng,12);
+
+                DB::connection('aliyun')->table('grid')->insert([
+                    'lat'=>number_format($lat,6),
+                    'lng'=>number_format($lng,6),
+                    'geohash'=>$hash,
+                    'name'=>"e{$j}n{$i}",
+                    'price'=>10,
+                    'hightPrice'=>10,
+                    'belong'=>0,
+                    'totle'=>0,
+                    'showGrid'=>'1'
+                ]);
+
+                $lng+=0.035;
+            }
+
+            $lat+=0.025;
+        }
+        //==========================================================================================================
+        $n=1;//北
+        $s=1;//南
+        $w=1;//西
+        $e=1;//东
+
+        //往东南 lat减少 lng增加 e东增加 s南增加
+        $lat='39.9104';
+        $lat-=0.025;
+
+        //坐标轴和m0先不画
+        for ($i=1;$i<=1300;$i++)
+        {
+            $lng='116.397392';
+            $lng+=0.035;
+
+            for ($j=1;$j<=1300;$j++)
+            {
+                $hash=$geo->encode($lat,$lng,12);
+
+                DB::connection('aliyun')->table('grid')->insert([
+                    'lat'=>number_format($lat,6),
+                    'lng'=>number_format($lng,6),
+                    'geohash'=>$hash,
+                    'name'=>"e{$j}s{$i}",
+                    'price'=>10,
+                    'hightPrice'=>10,
+                    'belong'=>0,
+                    'totle'=>0,
+                    'showGrid'=>'1'
+                ]);
+
+                $lng+=0.035;
+            }
+
+            $lat-=0.025;
+        }
+        //==========================================================================================================
 
 
 
