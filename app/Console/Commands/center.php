@@ -40,16 +40,24 @@ class center extends Command
         //m0 ['lat'=>'39.9104','lng'=>'116.397392']
         //     纬度0.025        经度0.035
 
-        if (!Schema::connection('aliyun')->hasTable('test'))
+        if (!Schema::connection('aliyun')->hasTable('grid'))
         {
-            Schema::connection('aliyun')->create('test', function (Blueprint $table)
-            {
-                $table->increments('id')->unsigned();
-                $table->string('lng','15');
-                $table->string('lat','15');
+            Schema::connection('aliyun')->create('grid', function (Blueprint $table) {
+
+                $table->increments('id')->unsigned()->comment('自增主键');
+                $table->string('lat','15')->comment('纬度');
+                $table->string('lng','15')->comment('经度');
                 $table->string('geohash','15');
-                $table->string('name','150');
+                $table->string('name','150')->comment('老康命名');
+                $table->integer('price')->unsigned()->default(10)->comment('当前价格');
+                $table->integer('hightPrice')->unsigned()->default(10)->comment('历史最高价格');
+                $table->integer('belong')->unsigned()->default(0)->comment('当前所属');
+                $table->integer('totle')->unsigned()->default(0)->comment('交易总数');//当天交易次数放到redis
+                $table->char('showGrid','1')->default('1')->comment('格子是否开放');
                 $table->timestamps();
+                $table->index('geohash');
+                $table->index('name');
+
             });
         }
 
@@ -60,21 +68,37 @@ class center extends Command
         $w=1;//西
         $e=1;//东
 
-        //往西北 lat增加 lng减少 w增加 n增加
+        //往西北 lat增加 lng减少 w西增加 n北增加
         $lat='39.9104';
+        $lat+=0.025;
 
+        //坐标轴和m0先不画
         for ($i=1;$i<=1000;$i++)
         {
             $lng='116.397392';
+            $lng-=0.035;
 
-            $lng-=0.025;
-
-            for ($j=1;$j<=22;$j++)
+            for ($j=1;$j<=1000;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('aliyun')->table('test')->insert(['lng'=>$lng,'lat'=>$lat,'geohash'=>$hash]);
+                DB::connection('aliyun')->table('grid')->insert([
+                    'lat'=>$lat,
+                    'lng'=>$lng,
+                    'geohash'=>$hash,
+                    'name'=>"w{$j}n{$i}",
+                    'price'=>10,
+                    'hightPrice'=>10,
+                    'belong'=>0,
+                    'totle'=>0,
+                    'showGrid'=>'1'
+                ]);
+
+                $lng-=0.035;
             }
+
+            $lat+=0.025;
+
         }
 
 
