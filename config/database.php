@@ -163,41 +163,58 @@ return [
         'client' => 'predis',
 
         'default' => [
-            'host' => '183.136.232.245',
-            'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
-            'port' => '63213',
-            'database' => 10,
-        ],
-
-        //格子当天交易次数
-        'BuyGridInfo' => [
-            'host' => '183.136.232.245',
-            'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
-            'port' => '63213',
-            'database' => 12,
+            'host' => '183.136.232.213',
+            'password' => 'wanghan123',
+            'port' => '6379',
+            'database' => 0,
         ],
 
         //session
         'Session' => [
-            'host' => '183.136.232.245',
-            'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
-            'port' => '63213',
+            'host' => '183.136.232.213',
+            'password' => 'wanghan123',
+            'port' => '6379',
+            'database' => 0,
+        ],
+
+
+
+
+
+
+
+
+
+
+        //存用户的金币和购地卡数量
+        'UserInfo' => [
+            'host' => '183.136.232.213',
+            'password' => 'wanghan123',
+            'port' => '6379',
+            'database' => 12,
+        ],
+
+        //每个格子当天交易次数，每个格子交易总次数
+        'BuyGridInfo' => [
+            'host' => '183.136.232.213',
+            'password' => 'wanghan123',
+            'port' => '6379',
             'database' => 13,
         ],
 
         //每日签到
         'SignIn' => [
-            'host' => '183.136.232.245',
-            'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
-            'port' => '63213',
+            'host' => '183.136.232.213',
+            'password' => 'wanghan123',
+            'port' => '6379',
             'database' => 14,
         ],
 
         //防止暴力请求
         'RequestToken' => [
-            'host' => '183.136.232.245',
-            'password' => 'xIJy-r5mDW%X5tIJD=om+9Ti.0E2,@HL',
-            'port' => '63213',
+            'host' => '183.136.232.213',
+            'password' => 'wanghan123',
+            'port' => '6379',
             'database' => 15,
         ],
     ],

@@ -343,7 +343,10 @@ function useRequestToken($userid)
     }
 }
 
+function writeLog()
+{
 
+}
 
 
 

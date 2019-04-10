@@ -69,17 +69,18 @@ class center extends Command
         $w=1;//西
         $e=1;//东
 
+        //向上   550   向下880    向左1250  向右550
         //往西北 lat增加 lng减少 w西增加 n北增加
         $lat='39.9104';
         $lat+=0.025;
 
         //坐标轴和m0先不画
-        for ($i=1;$i<=1300;$i++)
+        for ($i=1;$i<=550;$i++)
         {
             $lng='116.397392';
             $lng-=0.035;
 
-            for ($j=1;$j<=1300;$j++)
+            for ($j=1;$j<=1250;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
@@ -106,17 +107,18 @@ class center extends Command
         $w=1;//西
         $e=1;//东
 
+        //向上   550   向下880    向左1250  向右550
         //往西南 lat减少 lng减少 w西增加 s南增加
         $lat='39.9104';
         $lat-=0.025;
 
         //坐标轴和m0先不画
-        for ($i=1;$i<=1300;$i++)
+        for ($i=1;$i<=880;$i++)
         {
             $lng='116.397392';
             $lng-=0.035;
 
-            for ($j=1;$j<=1300;$j++)
+            for ($j=1;$j<=1250;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
@@ -143,17 +145,18 @@ class center extends Command
         $w=1;//西
         $e=1;//东
 
+        //向上   550   向下880    向左1250  向右550
         //往东北 lat增加 lng增加 e东增加 n北增加
         $lat='39.9104';
         $lat+=0.025;
 
         //坐标轴和m0先不画
-        for ($i=1;$i<=1300;$i++)
+        for ($i=1;$i<=550;$i++)
         {
             $lng='116.397392';
             $lng+=0.035;
 
-            for ($j=1;$j<=1300;$j++)
+            for ($j=1;$j<=550;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
@@ -180,17 +183,18 @@ class center extends Command
         $w=1;//西
         $e=1;//东
 
+        //向上   550   向下880    向左1250  向右550
         //往东南 lat减少 lng增加 e东增加 s南增加
         $lat='39.9104';
         $lat-=0.025;
 
         //坐标轴和m0先不画
-        for ($i=1;$i<=1300;$i++)
+        for ($i=1;$i<=880;$i++)
         {
             $lng='116.397392';
             $lng+=0.035;
 
-            for ($j=1;$j<=1300;$j++)
+            for ($j=1;$j<=550;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
@@ -212,8 +216,121 @@ class center extends Command
             $lat-=0.025;
         }
         //==========================================================================================================
+        $n=1;//北
+        $s=1;//南
+        $w=1;//西
+        $e=1;//东
+
+        //向上   550   向下880    向左1250  向右550
+        //画4个坐标轴和m0
+        $lat='39.9104';
+        $lng='116.397392';
+
+        //西
+        for ($i=1;$i<=1250;$i++)
+        {
+            $lng-=0.035;
+
+            $hash=$geo->encode($lat,$lng,12);
+
+            DB::connection('aliyun')->table('grid')->insert([
+                'lat'=>number_format($lat,6),
+                'lng'=>number_format($lng,6),
+                'geohash'=>$hash,
+                'name'=>"w{$i}",
+                'price'=>10,
+                'hightPrice'=>10,
+                'belong'=>0,
+                'totle'=>0,
+                'showGrid'=>'1'
+            ]);
+        }
+
+        $lat='39.9104';
+        $lng='116.397392';
+
+        //南
+        for ($i=1;$i<=880;$i++)
+        {
+            $lat-=0.025;
+
+            $hash=$geo->encode($lat,$lng,12);
+
+            DB::connection('aliyun')->table('grid')->insert([
+                'lat'=>number_format($lat,6),
+                'lng'=>number_format($lng,6),
+                'geohash'=>$hash,
+                'name'=>"s{$i}",
+                'price'=>10,
+                'hightPrice'=>10,
+                'belong'=>0,
+                'totle'=>0,
+                'showGrid'=>'1'
+            ]);
+        }
+
+        $lat='39.9104';
+        $lng='116.397392';
+
+        //东
+        for ($i=1;$i<=550;$i++)
+        {
+            $lng+=0.035;
+
+            $hash=$geo->encode($lat,$lng,12);
+
+            DB::connection('aliyun')->table('grid')->insert([
+                'lat'=>number_format($lat,6),
+                'lng'=>number_format($lng,6),
+                'geohash'=>$hash,
+                'name'=>"e{$i}",
+                'price'=>10,
+                'hightPrice'=>10,
+                'belong'=>0,
+                'totle'=>0,
+                'showGrid'=>'1'
+            ]);
+        }
+
+        $lat='39.9104';
+        $lng='116.397392';
+
+        //北
+        for ($i=1;$i<=550;$i++)
+        {
+            $lat+=0.025;
+
+            $hash=$geo->encode($lat,$lng,12);
+
+            DB::connection('aliyun')->table('grid')->insert([
+                'lat'=>number_format($lat,6),
+                'lng'=>number_format($lng,6),
+                'geohash'=>$hash,
+                'name'=>"n{$i}",
+                'price'=>10,
+                'hightPrice'=>10,
+                'belong'=>0,
+                'totle'=>0,
+                'showGrid'=>'1'
+            ]);
+        }
 
 
+        $lat='39.9104';
+        $lng='116.397392';
+
+        //m0
+        DB::connection('aliyun')->table('grid')->insert([
+            'lat'=>number_format($lat,6),
+            'lng'=>number_format($lng,6),
+            'geohash'=>$hash,
+            'name'=>"m0",
+            'price'=>10,
+            'hightPrice'=>10,
+            'belong'=>0,
+            'totle'=>0,
+            'showGrid'=>'1'
+        ]);
 
 
 

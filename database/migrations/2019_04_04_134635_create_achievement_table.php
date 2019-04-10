@@ -13,11 +13,12 @@ class CreateAchievementTable extends Migration
     {
         Schema::create('achievement', function (Blueprint $table) {
 
-            $table->increments('id')->unsigned()->comment('自增主键');
+            $table->integer('id')->unsigned()->comment('成就id');
             $table->string('name','30')->comment('成就名称');
             $table->smallInteger('totle')->unsigned()->comment('允许完成的总次数');
             $table->smallInteger('price')->unsigned()->comment('奖励的价格');
-            
+            $table->primary('id');
+
         });
     }
 
