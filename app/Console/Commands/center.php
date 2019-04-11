@@ -40,9 +40,9 @@ class center extends Command
         //m0 ['lat'=>'39.9104','lng'=>'116.397392']
         //     纬度0.025        经度0.035
 
-        if (!Schema::connection('aliyun')->hasTable('grid'))
+        if (!Schema::connection('masterDB')->hasTable('grid'))
         {
-            Schema::connection('aliyun')->create('grid', function (Blueprint $table) {
+            Schema::connection('masterDB')->create('grid', function (Blueprint $table) {
 
                 $table->increments('id')->unsigned()->comment('自增主键');
                 $table->string('lat','15')->comment('纬度');
@@ -84,7 +84,7 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('aliyun')->table('grid')->insert([
+                DB::connection('masterDB')->table('grid')->insert([
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
@@ -122,7 +122,7 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('aliyun')->table('grid')->insert([
+                DB::connection('masterDB')->table('grid')->insert([
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
@@ -160,7 +160,7 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('aliyun')->table('grid')->insert([
+                DB::connection('masterDB')->table('grid')->insert([
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
@@ -198,7 +198,7 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('aliyun')->table('grid')->insert([
+                DB::connection('masterDB')->table('grid')->insert([
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
@@ -233,7 +233,7 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('aliyun')->table('grid')->insert([
+            DB::connection('masterDB')->table('grid')->insert([
                 'lat'=>number_format($lat,6),
                 'lng'=>number_format($lng,6),
                 'geohash'=>$hash,
@@ -256,7 +256,7 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('aliyun')->table('grid')->insert([
+            DB::connection('masterDB')->table('grid')->insert([
                 'lat'=>number_format($lat,6),
                 'lng'=>number_format($lng,6),
                 'geohash'=>$hash,
@@ -279,7 +279,7 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('aliyun')->table('grid')->insert([
+            DB::connection('masterDB')->table('grid')->insert([
                 'lat'=>number_format($lat,6),
                 'lng'=>number_format($lng,6),
                 'geohash'=>$hash,
@@ -302,7 +302,7 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('aliyun')->table('grid')->insert([
+            DB::connection('masterDB')->table('grid')->insert([
                 'lat'=>number_format($lat,6),
                 'lng'=>number_format($lng,6),
                 'geohash'=>$hash,
@@ -320,7 +320,7 @@ class center extends Command
         $lng='116.397392';
 
         //m0
-        DB::connection('aliyun')->table('grid')->insert([
+        DB::connection('masterDB')->table('grid')->insert([
             'lat'=>number_format($lat,6),
             'lng'=>number_format($lng,6),
             'geohash'=>$hash,

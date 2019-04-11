@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'aliyun'),
+    'default' => env('DB_CONNECTION', 'masterDB'),
 
     /*
     |--------------------------------------------------------------------------
@@ -33,32 +33,6 @@ return [
 
     'connections' => [
 
-        'tssj_earth' => [
-            'driver' => 'mysql',
-            'host' => '183.136.232.214',
-            'port' => '3306',
-            'database' => 'tssj_earth',
-            'username' => 'chinabody',
-            'password' => 'chinaiiss(!@#)',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_general_ci',
-            'strict' => false,
-            'engine' => 'innoDB',
-        ],
-
-        'tssj_new_2019' => [
-            'driver' => 'mysql',
-            'host' => '183.136.232.214',
-            'port' => '3306',
-            'database' => 'tssj_new_2019',
-            'username' => 'chinabody',
-            'password' => 'chinaiiss(!@#)',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_general_ci',
-            'strict' => false,
-            'engine' => 'innoDB',
-        ],
-
         'tssj_old' => [
             'driver' => 'mysql',
             'host' => '183.136.232.214',
@@ -72,7 +46,22 @@ return [
             'engine' => null,
         ],
 
-        'aliyun' => [
+        'masterDB' => [
+            'driver' => 'mysql',
+            'host' => '47.106.169.68',
+            'port' => '63306',
+            'database' => 'mac',
+            'username' => 'root',
+            'password' => 'zbxlbj@2018*()',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+
+        'gridTradeInfoDB' => [
             'driver' => 'mysql',
             'host' => '47.106.169.68',
             'port' => '63306',
@@ -184,9 +173,15 @@ return [
 
 
 
+        //log相关键值或队列
+        'WriteLog' => [
+            'host' => '183.136.232.213',
+            'password' => 'wanghan123',
+            'port' => '6379',
+            'database' => 11,
+        ],
 
-
-        //存用户的金币和购地卡数量
+        //存用户的金币（hash），购地卡数量
         'UserInfo' => [
             'host' => '183.136.232.213',
             'password' => 'wanghan123',
@@ -194,8 +189,8 @@ return [
             'database' => 12,
         ],
 
-        //每个格子当天交易次数，每个格子交易总次数
-        'BuyGridInfo' => [
+        //每个格子当天交易次数，格子头像缓存（hash）
+        'GridInfo' => [
             'host' => '183.136.232.213',
             'password' => 'wanghan123',
             'port' => '6379',

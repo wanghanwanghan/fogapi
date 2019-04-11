@@ -24,8 +24,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        //* * * * * /usr/local/php/bin/php /root/project/api.com/artisan schedule:run >> /dev/null 2>&
+
+        //买格子后的日志，记录到数据库
+        $schedule->command('Grid:TradeInfo')->everyMinute()->withoutOverlapping();
+
+
+
+
+
+
     }
 
     /**

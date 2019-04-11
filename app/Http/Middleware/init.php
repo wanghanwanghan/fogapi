@@ -16,12 +16,12 @@ class init
      */
     public function handle($request, Closure $next)
     {
-        if (!($request->userid!='' && is_numeric($request->userid)))
+        if (!($request->uid!='' && is_numeric($request->uid)))
         {
             return response()->json(['resCode'=>Config::get('resCode.601')]);
         }
 
-        if (!useRequestToken($request->userid))
+        if (!useRequestToken($request->uid))
         {
             return response()->json(['resCode'=>Config::get('resCode.600')]);
         }

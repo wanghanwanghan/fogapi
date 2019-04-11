@@ -329,9 +329,9 @@ function myPage($data,$limit,$page=1)
 }
 
 //使用requestToken 防止用户暴力请求
-function useRequestToken($userid)
+function useRequestToken($uid)
 {
-    $key=$userid;
+    $key=$uid;
 
     if (Redis::connection('RequestToken')->set($key,1,'nx','ex',Config::get('myDefine.RequestTokenExpireTime')))
     {
