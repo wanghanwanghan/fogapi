@@ -13,7 +13,7 @@ class SignInController extends BaseController
     public function signIn(Request $request)
     {
         $key=Carbon::now()->format('Ymd');
-        $userid=$request->userid;
+        $userid=$request->uid;
 
         //判断是否已经签到
         try
@@ -53,7 +53,7 @@ class SignInController extends BaseController
         {
             try
             {
-                $sign=Redis::connection('SignIn')->getbit($star,$request->userid);
+                $sign=Redis::connection('SignIn')->getbit($i,$request->uid);
 
             }catch (\Exception $e)
             {

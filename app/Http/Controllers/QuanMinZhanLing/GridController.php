@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Http\Controllers\Server\ContentCheckBase;
+use App\Model\GridModel;
 use Carbon\Carbon;
 use Geohash\GeoHash;
 use Illuminate\Http\Request;
@@ -183,8 +185,33 @@ class GridController extends BaseController
         return response()->json(['resCode' => Config::get('resCode.200'),'current'=>$info,'near'=>$near]);
     }
 
+    //重命名格子
+    public function renameGrid(Request $request)
+    {
+        $uid=trim($request->uid);
+        $gName=trim($request->gName);
+        $newName=trim($request->newName);
 
+        //内容检查
+        if ($newName=='') return response()->json(['resCode' => Config::get('resCode.612')]);
 
+        $res=(new ContentCheckBase())->check($newName);
+
+        if (!empty($res) || $res!=null || $res!='') return response()->json(['resCode' => Config::get('resCode.613'),'data'=>$res]);
+
+        //插入数据
+        $girdId=GridModel::where(['name'=>$gName,'belong'=>$uid])->first();
+
+        GridInfoModel::updateOrCreate(['uid'=>$uid,'gid'=>$girdId->id],['name'=>$newName,'showName'=>1]);
+
+        return response()->json(['resCode' => Config::get('resCode.200')]);
+    }
+
+    //上传格子图片
+    public function uploadPic(Request $request)
+    {
+
+    }
 
 
 

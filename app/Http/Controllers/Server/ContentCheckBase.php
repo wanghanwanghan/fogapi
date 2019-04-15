@@ -26,10 +26,8 @@ class ContentCheckBase
         6=>'低质灌水'
     ];
 
-    public function check(Request $request)
+    public function check($content)
     {
-        $content=trim($request->input('content'));
-
         if ($content=='' || empty($content)) return response()->json('content is null');
         if (strlen($content)>=15) return response()->json('content must less than 15');
 
@@ -82,6 +80,6 @@ class ContentCheckBase
             }
         }
 
-        return response()->json($res);
+        return $res;
     }
 }

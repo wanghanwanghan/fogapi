@@ -1,0 +1,53 @@
+=================================================================
+重命名格子
+
+post
+http://newfogapi.wodeluapp.com/api/RenameGrid
+
+参数
+int        uid=17469    用户主键
+string   gName=w1n1     格子名称
+string newName=草泥马   新格子名称
+=================================================================
+获取用户签到当周的情况
+
+get
+http://newfogapi.wodeluapp.com/api/SignIn
+
+参数
+int uid=17469    用户主键
+=================================================================
+用户签到
+
+post
+http://newfogapi.wodeluapp.com/api/SignIn
+
+参数
+int uid=17469    用户主键
+=================================================================
+获取用户金币和购地卡
+
+post
+http://newfogapi.wodeluapp.com/api/GetUserInfo
+
+参数
+int uid=17469    用户主键
+=================================================================
+买格子接口
+
+post
+http://newfogapi.wodeluapp.com/api/BuyGrid
+
+参数
+int    uid=17469    用户主键
+string name=w1n1    格子名称
+=================================================================
+获取一个格子详细信息和周围24格子头像
+
+post
+http://newfogapi.wodeluapp.com/api/GetGridInfo
+
+参数
+string name=w1n1    格子名称
+array  near=['w2n1','w3n1','w4n1',.......]    附近24个格子名称
+=================================================================
