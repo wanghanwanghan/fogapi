@@ -100,11 +100,11 @@ class UserController extends BaseController
         {
             $res=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first();
 
-            Redis::connection('UserInfo')->hset($uid,'name',trim($res->name));
+            Redis::connection('UserInfo')->hset($uid,'name',trim($res->username));
             Redis::connection('UserInfo')->hset($uid,'avatar',trim($res->avatar));
 
-            $userinfo['name']=$res->name;
-            $userinfo['avatar']=$res->avatar;
+            $userinfo['name']=trim($res->username);
+            $userinfo['avatar']=trim($res->avatar);
         }
 
         return $userinfo;

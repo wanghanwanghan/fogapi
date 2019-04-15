@@ -32,8 +32,6 @@ class Kernel extends ConsoleKernel
 
 
 
-
-
     }
 
     /**

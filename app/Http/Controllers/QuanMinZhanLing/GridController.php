@@ -141,12 +141,6 @@ class GridController extends BaseController
         //格子不存在
         if (!$gridInfo) return response()->json(['resCode' => Config::get('resCode.605')]);
 
-        //格子是不可交易状态
-        if ($gridInfo->showGrid != 1) return response()->json(['resCode' => Config::get('resCode.606')]);
-
-        //格子没有所有者
-        if ($gridInfo->belong==0) return response()->json(['resCode' => Config::get('resCode.611')]);
-
         //查询格子扩展信息
         $gridExt=GridInfoModel::where(['gid'=>$gridInfo->id,'uid'=>$gridInfo->belong])->first();
 
@@ -165,25 +159,23 @@ class GridController extends BaseController
         $uObj=new UserController();
         $userInfo=$uObj->getUserNameAndAvatar($gridInfo->belong);
 
-        $info['showName']=$showName;
-        $info['showPic1']=$showPic1;
-        $info['price']=$gridInfo->price + $gridInfo->totle;
-        $info['gName']=$gridInfo->name;
-        $info['belongName']=$userInfo['name'];
-        $info['belongAvatar']=$userInfo['avatar'];
-        $info['currentCount']=$this->getBuyLimit($gridInfo->name);
-        $info['maxCount']=Config::get('myDefine.GridTodayBuyTotle');
+        $info['showName']=$showName;//用户自定义名字
+        $info['showPic1']=$showPic1;//用户自定义图片
+        $info['price']=$gridInfo->price + $gridInfo->totle;//价格
+        $info['gName']=$gridInfo->name;//格子坐标例如w1n1
+        $info['belongName']=$userInfo['name'];//所有者名字
+        $info['belongAvatar']=$userInfo['avatar'];//所有者头像
+        $info['currentCount']=$this->getBuyLimit($gridInfo->name);//当天交易几次
+        $info['maxCount']=Config::get('myDefine.GridTodayBuyTotle');//当天可交易几次
 
-        //取出格子信息
-        $nearUid = DB::connection('masterDB')->table('grid')->whereIn('name',$near)->where('belong','>','0')->get(['name','belong'])->toArray();
-
-        $tmp=[];
+        //取出附近格子信息
+        $nearUid = DB::connection('masterDB')->table('grid')->whereIn('name',$near)->get(['name','belong'])->toArray();
 
         foreach ($nearUid as $row)
         {
-            $one=$uObj->getUserNameAndAvatar($row['belong']);
+            $one=$uObj->getUserNameAndAvatar($row->belong);
 
-            $tmp[$row['name']]=$one['avatar'];
+            $tmp[$row->name]=$one['avatar'];
         }
 
         $near=$tmp;

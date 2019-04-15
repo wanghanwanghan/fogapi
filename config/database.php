@@ -48,11 +48,11 @@ return [
 
         'masterDB' => [
             'driver' => 'mysql',
-            'host' => '47.106.169.68',
-            'port' => '63306',
-            'database' => 'mac',
-            'username' => 'root',
-            'password' => 'zbxlbj@2018*()',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'grid_game',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
             'unix_socket' => '',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
@@ -63,11 +63,11 @@ return [
 
         'gridTradeInfoDB' => [
             'driver' => 'mysql',
-            'host' => '47.106.169.68',
-            'port' => '63306',
-            'database' => 'mac',
-            'username' => 'root',
-            'password' => 'zbxlbj@2018*()',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'grid_trade',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
             'unix_socket' => '',
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',

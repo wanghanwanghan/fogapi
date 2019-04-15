@@ -8,6 +8,7 @@ Route::group(['middleware'=>['init']],function ()
 {
     //每日签到
     Route::match(['post'],'wanghan','QuanMinZhanLing\\SignInController@signIn');
+
     //展示签到
     Route::match(['get'],'wanghan','QuanMinZhanLing\\SignInController@showSign');
 
@@ -23,7 +24,14 @@ Route::group(['middleware'=>['init']],function ()
 
 Route::group(['middleware'=>[]],function ()
 {
+    //获取一个格子和周围格子的信息
     Route::match(['post'],'GetGridInfo','QuanMinZhanLing\\GridController@getGridInfo');
+
+    //内容审核
+    Route::match(['post'],'test','Server\\ContentCheckBase@check');
+
+
+
 
 
 
