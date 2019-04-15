@@ -5,7 +5,6 @@ namespace App\Http\Controllers\QuanMinZhanLing;
 use App\Http\Controllers\Server\ContentCheckBase;
 use App\Model\GridModel;
 use Carbon\Carbon;
-use Geohash\GeoHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
