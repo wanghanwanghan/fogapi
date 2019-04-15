@@ -7,10 +7,10 @@ use Geohash\GeoHash;
 Route::group(['middleware'=>['init']],function ()
 {
     //每日签到
-    Route::match(['post'],'wanghan','QuanMinZhanLing\\SignInController@signIn');
+    Route::match(['post'],'SignIn','QuanMinZhanLing\\SignInController@signIn');
 
     //展示签到
-    Route::match(['get'],'wanghan','QuanMinZhanLing\\SignInController@showSign');
+    Route::match(['get'],'SignIn','QuanMinZhanLing\\SignInController@showSign');
 
     //买格子
     Route::match(['post'],'BuyGrid','QuanMinZhanLing\\GridController@buyGrid');
@@ -28,7 +28,7 @@ Route::group(['middleware'=>[]],function ()
     Route::match(['post'],'GetGridInfo','QuanMinZhanLing\\GridController@getGridInfo');
 
     //内容审核
-    Route::match(['post'],'test','Server\\ContentCheckBase@check');
+    Route::match(['post'],'ContentCheck','Server\\ContentCheckBase@check');
 
 
 
