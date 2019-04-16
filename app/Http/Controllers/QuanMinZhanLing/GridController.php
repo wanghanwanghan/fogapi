@@ -4,6 +4,7 @@ namespace App\Http\Controllers\QuanMinZhanLing;
 
 use App\Http\Controllers\Server\ContentCheckBase;
 use App\Model\GridModel;
+use App\Model\GridTradeInfoModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -210,6 +211,40 @@ class GridController extends BaseController
     public function uploadPic(Request $request)
     {
 
+    }
+
+    //格子详情
+    public function gridDetails(Request $request)
+    {
+        $uid=$request->uid;
+        $gName=trim($request->gName);
+
+        $info1=GridModel::where(['name'=>$gName,'belong'=>$uid])->first();
+
+        $info2=GridInfoModel::where(['gid'=>$info1->id,'uid'=>$uid,'showName'=>1])->first();
+
+        $info3=getTssjUserInfo($uid);
+
+        $suffix=string2Number($gName);
+        $suffix=$suffix%50;
+
+        GridTradeInfoModel::suffix($suffix);
+        $info4=GridTradeInfoModel::where(['gname'=>$gName,'belong'=>0])->first();
+
+        //以下拼数组
+        $gridInfo['gname']=$info1->name;
+        $gridInfo['name']=$info2->name;
+        $gridInfo['belong']=$info3->username;
+        $gridInfo['tradeNow']=Redis::connection('GridInfo')->get($gName.'_'.Carbon::now()->format('Ymd'));
+        $gridInfo['tradeAll']=Config::get('myDefine.GridTodayBuyTotle');
+        $gridInfo['totle']=$info1->totle;
+        $gridInfo['price']=$info1->price + $info1->totle;
+        $gridInfo['highPrice']=$info1->hightprice;
+        $gridInfo['firstTrade']=date('Y-m-d H:i:s',$info4->paytime);
+        $gridInfo['recentlyTrade']=$info1->updated_at;
+        $gridInfo['status']=$info1->showGrid;
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$gridInfo]);
     }
 
 

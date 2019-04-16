@@ -19,6 +19,14 @@ Route::group(['middleware'=>['init']],function ()
     Route::match(['post'],'RenameGrid','QuanMinZhanLing\\GridController@renameGrid');
     Route::match(['post'],'UploadPic','QuanMinZhanLing\\GridController@uploadPic');
 
+    //格子详情
+    Route::match(['post'],'GridDetails','QuanMinZhanLing\\GridController@gridDetails');
+
+
+
+
+
+
 
 });
 

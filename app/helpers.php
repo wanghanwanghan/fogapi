@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 
 //去掉特殊字符
 function filter1($str)
@@ -343,11 +344,13 @@ function useRequestToken($uid)
     }
 }
 
+//写log
 function writeLog()
 {
 
 }
 
+//发送curl
 function curlSend($url,$data,$isPost=true,$headerArray=[]):array
 {
     $curl=curl_init();//初始化
@@ -384,7 +387,13 @@ function curlSend($url,$data,$isPost=true,$headerArray=[]):array
     }
 }
 
+//获取以前tssj用户信息
+function getTssjUserInfo($uid)
+{
+    $userinfo=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first();
 
+    return $userinfo;
+}
 
 
 

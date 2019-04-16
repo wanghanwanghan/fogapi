@@ -1,13 +1,22 @@
 =================================================================
+格子详情
+
+post
+http://newfogapi.wodeluapp.com/api/GridDetails
+
+参数
+int      uid=17469    用户主键
+string   gName=w1n1   格子名称
+=================================================================
 重命名格子
 
 post
 http://newfogapi.wodeluapp.com/api/RenameGrid
 
 参数
-int        uid=17469    用户主键
-string   gName=w1n1     格子名称
-string newName=草泥马   新格子名称
+int    uid=17469      用户主键
+string gName=w1n1     格子名称
+string newName=草泥马  新格子名称
 =================================================================
 获取用户签到当周的情况
 
