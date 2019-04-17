@@ -390,7 +390,16 @@ function curlSend($url,$data,$isPost=true,$headerArray=[]):array
 //获取以前tssj用户信息
 function getTssjUserInfo($uid)
 {
-    $userinfo=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first();
+    if ($uid==0)
+    {
+        $userinfo=new stdClass();
+
+        $userinfo->username='系统';
+
+    }else
+    {
+        $userinfo=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first();
+    }
 
     return $userinfo;
 }

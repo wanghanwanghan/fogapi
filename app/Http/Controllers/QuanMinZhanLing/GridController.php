@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use App\Model\GridInfoModel;
+use Illuminate\Support\Facades\Schema;
 
 class GridController extends BaseController
 {
@@ -137,6 +138,10 @@ class GridController extends BaseController
         //只需取得头像的格子名称Array
         $near=$request->near;
 
+        $near=json_decode($near,true);
+
+        if (!is_array($near)) return response()->json(['resCode' => Config::get('resCode.604')]);
+
         //取出格子信息
         $gridInfo = DB::connection('masterDB')->table('grid')->where('name', $name)->first();
 
@@ -219,30 +224,39 @@ class GridController extends BaseController
         $uid=$request->uid;
         $gName=trim($request->gName);
 
-        $info1=GridModel::where(['name'=>$gName,'belong'=>$uid])->first();
+        //必然有信息，但是可能是没有交易过的
+        $info1=GridModel::where('name',$gName)->first();
 
-        $info2=GridInfoModel::where(['gid'=>$info1->id,'uid'=>$uid,'showName'=>1])->first();
+        //可能是空
+        $info2=GridInfoModel::where(['gid'=>$info1->id,'uid'=>$info1->belong,'showName'=>1])->first();
 
-        $info3=getTssjUserInfo($uid);
+        //必然有信息
+        $info3=getTssjUserInfo($info1->belong);
 
         $suffix=string2Number($gName);
         $suffix=$suffix%50;
 
-        GridTradeInfoModel::suffix($suffix);
-        $info4=GridTradeInfoModel::where(['gname'=>$gName,'belong'=>0])->first();
+        if (Schema::connection('gridTradeInfoDB')->hasTable('grid_trade_info_'.$suffix))
+        {
+            GridTradeInfoModel::suffix($suffix);
+            $info4=GridTradeInfoModel::where(['gname'=>$gName,'belong'=>0])->first();
+        }else
+        {
+            $info4=null;
+        }
 
         //以下拼数组
         $gridInfo['gname']=$info1->name;
-        $gridInfo['name']=$info2->name;
+        $gridInfo['name']=$info2==null ? null : $info2->name;
         $gridInfo['belong']=$info3->username;
-        $gridInfo['tradeNow']=Redis::connection('GridInfo')->get($gName.'_'.Carbon::now()->format('Ymd'));
+        $gridInfo['tradeNow']=(int)Redis::connection('GridInfo')->get($gName.'_'.Carbon::now()->format('Ymd'));
         $gridInfo['tradeAll']=Config::get('myDefine.GridTodayBuyTotle');
         $gridInfo['totle']=$info1->totle;
         $gridInfo['price']=$info1->price + $info1->totle;
-        $gridInfo['highPrice']=$info1->hightprice;
-        $gridInfo['firstTrade']=date('Y-m-d H:i:s',$info4->paytime);
-        $gridInfo['recentlyTrade']=$info1->updated_at;
-        $gridInfo['status']=$info1->showGrid;
+        $gridInfo['highPrice']=$info1->hightPrice;
+        $gridInfo['firstTrade']=$info4==null ? null : date('Y-m-d H:i:s',$info4->paytime);
+        $gridInfo['recentlyTrade']=$info1->updated_at==null ? null : ($info1->updated_at)->format('Y-m-d H:i:s');
+        $gridInfo['status']=(int)$info1->showGrid;
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$gridInfo]);
     }

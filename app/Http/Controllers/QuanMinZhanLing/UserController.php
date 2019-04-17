@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\QuanMinZhanLing;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -28,7 +29,7 @@ class UserController extends BaseController
         }
     }
 
-    //增加或减少用户金钱
+    //买卖结束后增加或减少用户金钱
     public function exprUserMoney($uid,$belongid,$money)
     {
         //买方扣款 被买方加款
@@ -108,6 +109,8 @@ class UserController extends BaseController
 
         return $userinfo;
     }
+
+
 
 
 }

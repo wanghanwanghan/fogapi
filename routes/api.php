@@ -22,8 +22,8 @@ Route::group(['middleware'=>['init']],function ()
     //格子详情
     Route::match(['post'],'GridDetails','QuanMinZhanLing\\GridController@gridDetails');
 
-
-
+    //成就领取单机领取按钮，数据入库
+    Route::match(['post'],'AchievementComplete','QuanMinZhanLing\\AchievementController@achievementComplete');
 
 
 
@@ -56,6 +56,7 @@ Route::group(['middleware'=>[]],function ()
 
 
 
-
+    //统计用户成就
+    Route::match(['get','post'],'RequestAchievement','QuanMinZhanLing\\AchievementController@requestAchievement');
 });
 

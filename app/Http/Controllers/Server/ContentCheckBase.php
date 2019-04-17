@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Server;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class ContentCheckBase

@@ -29,6 +29,9 @@ class Kernel extends ConsoleKernel
         //买格子后的日志，记录到数据库
         $schedule->command('Grid:TradeInfo')->everyMinute()->withoutOverlapping();
 
+        //延时统计用户成就
+        $schedule->command('Grid:Achievement')->everyFiveMinutes()->withoutOverlapping();
+
 
 
 
