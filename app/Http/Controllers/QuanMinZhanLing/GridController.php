@@ -62,6 +62,12 @@ class GridController extends BaseController
 
             ]);
 
+            //给格子一个默认名称
+
+
+
+
+
             //扣款
             (new UserController())->exprUserMoney($uid,$gridInfo->belong,$payMoney);
 
@@ -170,6 +176,7 @@ class GridController extends BaseController
         $info['showPic1']=$showPic1;//用户自定义图片
         $info['price']=$gridInfo->price + $gridInfo->totle;//价格
         $info['gName']=$gridInfo->name;//格子坐标例如w1n1
+        $info['belong']=$gridInfo->belong;//所有者uid
         $info['belongName']=$userInfo['name'];//所有者名字
         $info['belongAvatar']=$userInfo['avatar'];//所有者头像
         $info['currentCount']=$this->getBuyLimit($gridInfo->name);//当天交易几次

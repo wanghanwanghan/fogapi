@@ -5,31 +5,15 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 use Geohash\GeoHash;
 
 class center extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'wanghan:center';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = '从m0开始画中心点';
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         parent::__construct();
@@ -88,7 +72,7 @@ class center extends Command
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
-                    'name'=>"w{$j}n{$i}",
+                    'name'=>"n{$j}w{$i}",
                     'price'=>10,
                     'hightPrice'=>10,
                     'belong'=>0,
@@ -126,7 +110,7 @@ class center extends Command
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
-                    'name'=>"w{$j}s{$i}",
+                    'name'=>"s{$j}w{$i}",
                     'price'=>10,
                     'hightPrice'=>10,
                     'belong'=>0,
@@ -164,7 +148,7 @@ class center extends Command
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
-                    'name'=>"e{$j}n{$i}",
+                    'name'=>"n{$j}e{$i}",
                     'price'=>10,
                     'hightPrice'=>10,
                     'belong'=>0,
@@ -202,7 +186,7 @@ class center extends Command
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
-                    'name'=>"e{$j}s{$i}",
+                    'name'=>"s{$j}e{$i}",
                     'price'=>10,
                     'hightPrice'=>10,
                     'belong'=>0,
@@ -318,6 +302,8 @@ class center extends Command
 
         $lat='39.9104';
         $lng='116.397392';
+
+        $hash=$geo->encode($lat,$lng,12);
 
         //m0
         DB::connection('masterDB')->table('grid')->insert([
