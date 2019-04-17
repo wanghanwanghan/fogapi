@@ -5,12 +5,12 @@ namespace App\Http\Controllers\QuanMinZhanLing;
 use App\Http\Controllers\Server\ContentCheckBase;
 use App\Model\GridModel;
 use App\Model\GridTradeInfoModel;
+use App\Model\GridInfoModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
-use App\Model\GridInfoModel;
 use Illuminate\Support\Facades\Schema;
 
 class GridController extends BaseController
@@ -63,10 +63,23 @@ class GridController extends BaseController
             ]);
 
             //给格子一个默认名称
+            $res=GridInfoModel::where(['uid'=>$uid,'gid'=>$gridInfo->id])->first();
 
+            if ($res==null)
+            {
+                //第一次买这个格子
+                $count=(int)Redis::connection('UserInfo')->hget($uid,'BuyGridTotle');
 
+                $count++;
 
+                Redis::connection('UserInfo')->hset($uid,'BuyGridTotle',$count);
 
+                $userInfo=(new UserController())->getUserNameAndAvatar($uid);
+
+                $newName=substr($userInfo['name'],0,5).'的格子'.$count;
+
+                GridInfoModel::updateOrCreate(['uid'=>$uid,'gid'=>$gridInfo->id],['name'=>$newName,'showName'=>1]);
+            }
 
             //扣款
             (new UserController())->exprUserMoney($uid,$gridInfo->belong,$payMoney);

@@ -106,6 +106,12 @@ class UserController extends BaseController
             $userinfo['avatar']=trim($res->avatar);
         }
 
+        if ($uid==0)
+        {
+            $userinfo['name']='系统';
+            $userinfo['avatar']='';
+        }
+
         return $userinfo;
     }
 
