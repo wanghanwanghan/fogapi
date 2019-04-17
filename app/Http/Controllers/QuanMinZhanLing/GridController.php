@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Schema;
 
 class GridController extends BaseController
 {
+    //交易保护的redisKey
+    public $TradeGuardKey='TradeGuard_';
+
     //买格子
     public function buyGrid(Request $request)
     {
@@ -29,8 +32,11 @@ class GridController extends BaseController
         //格子不存在
         if (!$gridInfo) return response()->json(['resCode' => Config::get('resCode.605')]);
 
+        //不能买自己的格子
+        if ($uid==$gridInfo->belong) return response()->json(['resCode' => Config::get('resCode.615')]);
+
         //格子是不可交易状态
-        if ($gridInfo->showGrid != 1) return response()->json(['resCode' => Config::get('resCode.606')]);
+        if ($gridInfo->showGrid != 1 || $this->getTradeGuard($name) > 0) return response()->json(['resCode' => Config::get('resCode.606')]);
 
         //查看格子当天剩余购买次数
         $buyTotle = $this->getBuyLimit($name);
@@ -76,7 +82,7 @@ class GridController extends BaseController
 
                 $userInfo=(new UserController())->getUserNameAndAvatar($uid);
 
-                $newName=substr($userInfo['name'],0,5).'的格子'.$count;
+                $newName=mb_substr($userInfo['name'],0,5).'的格子'.$count;
 
                 GridInfoModel::updateOrCreate(['uid'=>$uid,'gid'=>$gridInfo->id],['name'=>$newName,'showName'=>1]);
             }
@@ -89,6 +95,9 @@ class GridController extends BaseController
 
             //该用户购地卡减1
             (new UserController())->setBuyCardCount($uid);
+
+            //交易保护
+            $this->setTradeGuard($name);
 
         }catch (\Exception $e)
         {
@@ -146,6 +155,42 @@ class GridController extends BaseController
         Redis::connection('GridInfo')->expire($key,86400);
 
         return true;
+    }
+
+    //给格子加上交易保护
+    public function setTradeGuard($gName)
+    {
+        $key=$this->TradeGuardKey.trim($gName);
+
+        try
+        {
+            Redis::connection('GridInfo')->set($key);
+
+            Redis::connection('GridInfo')->expire($key,Config::get('myDefine.TradeGuard'));
+
+        }catch (\Exception $e)
+        {
+            return true;
+        }
+
+        return true;
+    }
+
+    //获取格子的交易保护剩余时间
+    public function getTradeGuard($gName)
+    {
+        $key=$this->TradeGuardKey.trim($gName);
+
+        try
+        {
+            $ttl=(int)Redis::connection('GridInfo')->get($key);
+
+        }catch (\Exception $e)
+        {
+            return 0;
+        }
+
+        return $ttl;
     }
 
     //获取当前格子信息和周围格子头像
