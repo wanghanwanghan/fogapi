@@ -404,8 +404,42 @@ function getTssjUserInfo($uid)
     return $userinfo;
 }
 
+//获取base64格式图片内容
+function uploadMyImg($base64Pic)
+{
+    if ($base64Pic=='' || $base64Pic==null || empty($base64Pic))
+    {
+        return false;
+    }
 
+    //变成二进制
+    $picContent=base64_decode($base64Pic);
 
+    return $picContent;
+}
+
+function storeFile($content,$uid,$type)
+{
+    $suffix=$uid%5;
+
+    $path=public_path(DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR);
+
+    if ($type=='pic1')
+    {
+        $filename=$uid."_$type".".jpg";
+    }
+
+    try
+    {
+        file_put_contents($path.$filename,$content);
+
+    }catch (Exception $e)
+    {
+        return false;
+    }
+
+    return $path.$filename;
+}
 
 
 

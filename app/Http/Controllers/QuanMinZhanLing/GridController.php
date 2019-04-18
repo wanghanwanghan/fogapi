@@ -286,7 +286,33 @@ class GridController extends BaseController
     //上传格子图片
     public function uploadPic(Request $request)
     {
+        $uid=$request->uid;
+        $gName=$request->gName;
+        $base64Pic=$request->picContent;
 
+        $grid=GridModel::where('name',$gName)->first();
+
+        if ($grid->belong!=$uid) return response()->json(['resCode' => Config::get('resCode.618')]);
+
+        //得到orm实力
+        $gridInfo=GridInfoModel::firstOrNew(['uid'=>$uid,'gid'=>$grid->id]);
+
+        //保存用户上传的图片base64格式
+        $img=uploadMyImg($base64Pic);
+
+        if (!$img) return response()->json(['resCode' => Config::get('resCode.619')]);
+
+        //保存图片到服务器
+        $path=storeFile($img,$uid,'pic1');
+
+        if (!$path) return response()->json(['resCode' => Config::get('resCode.620')]);
+
+        //path入库，等待后台审核
+        $gridInfo->pic1=$path;
+        $gridInfo->showPic1=0;
+        $gridInfo->save();
+
+        return response()->json(['resCode' => Config::get('resCode.200')]);
     }
 
     //格子详情

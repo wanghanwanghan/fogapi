@@ -1,4 +1,13 @@
 =================================================================
+格子图片上传
+
+post
+http://newfogapi.wodeluapp.com/api/UploadPic/pic1
+
+参数
+int      uid=17469                     用户主键
+string   pic=KJHUYIdfhdkfHDJH78787JY   base64_encode后的图片内容
+=================================================================
 格子详情
 
 post
