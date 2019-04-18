@@ -288,7 +288,7 @@ class GridController extends BaseController
     {
         $uid=$request->uid;
         $gName=$request->gName;
-        $base64Pic=$request->picContent;
+        $base64Pic=$request->pic;
 
         $grid=GridModel::where('name',$gName)->first();
 

@@ -6,6 +6,7 @@ http://newfogapi.wodeluapp.com/api/UploadPic/pic1
 
 参数
 int      uid=17469                     用户主键
+string   gName=n1w1                    格子名称
 string   pic=KJHUYIdfhdkfHDJH78787JY   base64_encode后的图片内容
 =================================================================
 格子详情

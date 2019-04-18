@@ -418,14 +418,22 @@ function uploadMyImg($base64Pic)
     return $picContent;
 }
 
+//图片贮存到服务器
 function storeFile($content,$uid,$type)
 {
     $suffix=$uid%5;
 
-    $path=public_path(DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR);
-
     if ($type=='pic1')
     {
+        $path=public_path(DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR);
+
+        $pathStoreInDB=DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR;
+
+        if (!is_dir($path))
+        {
+            mkdir($path,0777,true);
+        }
+
         $filename=$uid."_$type".".jpg";
     }
 
@@ -438,7 +446,7 @@ function storeFile($content,$uid,$type)
         return false;
     }
 
-    return $path.$filename;
+    return $pathStoreInDB.$filename;
 }
 
 

@@ -15,7 +15,7 @@
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary"></h6>
+                <h6 class="m-0 font-weight-bold text-primary">未审核：<span id="noPassTotle" style="color: red">0</span></h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -25,26 +25,11 @@
                             <th>格子主键</th>
                             <th>用户主键</th>
                             <th>格子编号</th>
-                            <th>用户名称</th>
                             <th>格子图片</th>
                             <th>审核操作</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr>
-                            <td style="vertical-align: middle">1</td>
-                            <td style="vertical-align: middle">1</td>
-                            <td style="vertical-align: middle">w1n1</td>
-                            <td style="vertical-align: middle">可爱多</td>
-                            <td style="vertical-align: middle">
-                                <img src="https://static.laravelacademy.org/wp-content/uploads/2017/09/laravel-routing.png" onclick="showpic();" width="80px;" height="50px;">
-                            </td>
-                            <td style="vertical-align: middle">
-                                <a href="#" onclick="namePass();" class="btn btn-success btn-circle btn-sm">
-                                    <i class="fas fa-check"></i>
-                                </a>
-                            </td>
-                        </tr>
+                        <tbody id="img_tbody">
                         </tbody>
                     </table>
                 </div>
@@ -73,7 +58,7 @@
 
         }
         //通过审核
-        function namePass()
+        function picPass(stringId)
         {
             swal({
                 title: "确定通过吗",
@@ -86,10 +71,25 @@
                     if (willDelete) {
 
                         //发送请求
+                        var url ='/admin/grid/ajax';
+
+                        var data=
+                            {
+                                _token   : $("input[name=_token]").val(),
+                                type     : 'picPass',
+                                stringId : stringId
+                            };
+
+                        $.post(url,data,function (response) {
+
+                        },'json');
 
                         swal("成功", {
                             icon: "success",
                         });
+
+                        location.reload();
+
                     } else {
                         //swal("取消");
                     }
@@ -109,7 +109,31 @@
 
             $.post(url,data,function (response)
             {
-                return;
+                $.each(response.data,function(key,value)
+                {
+                    //创建一行
+                    var newTr=$("<tr></tr>");
+
+                    //添加gid
+                    newTr.append("<td style='vertical-align: middle'>"+value.gid+"</td>");
+
+                    //添加uid
+                    newTr.append("<td style='vertical-align: middle'>"+value.uid+"</td>");
+
+                    //格子编号
+                    newTr.append("<td style='vertical-align: middle'>"+value.name+"</td>");
+
+                    //图片
+                    newTr.append("<td style='vertical-align: middle'><img src="+value.pic1+" onclick=showpic(); width='80px;' height='50px;'></td>");
+
+                    //按钮
+                    newTr.append("<td style='vertical-align: middle'><a href='#' id="+value.uid+","+value.gid+" onclick=picPass($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a></td>");
+
+                    $("#img_tbody").append(newTr);
+
+                });
+
+                $("#noPassTotle").html(response.count);
 
             },'json');
 
