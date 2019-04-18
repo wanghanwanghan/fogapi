@@ -164,7 +164,7 @@ class GridController extends BaseController
 
         try
         {
-            Redis::connection('GridInfo')->set($key);
+            Redis::connection('GridInfo')->set($key,'wait..');
 
             Redis::connection('GridInfo')->expire($key,Config::get('myDefine.TradeGuard'));
 
@@ -183,7 +183,9 @@ class GridController extends BaseController
 
         try
         {
-            $ttl=(int)Redis::connection('GridInfo')->get($key);
+            $ttl=(int)Redis::connection('GridInfo')->ttl($key);
+
+            if ($ttl <= 0) $ttl=0;
 
         }catch (\Exception $e)
         {
@@ -196,6 +198,8 @@ class GridController extends BaseController
     //获取当前格子信息和周围格子头像
     public function getGridInfo(Request $request)
     {
+        $uid=$request->uid;
+
         //点到的格子name
         $name=$request->name;
 
@@ -239,6 +243,8 @@ class GridController extends BaseController
         $info['belongAvatar']=$userInfo['avatar'];//所有者头像
         $info['currentCount']=$this->getBuyLimit($gridInfo->name);//当天交易几次
         $info['maxCount']=Config::get('myDefine.GridTodayBuyTotle');//当天可交易几次
+        $info['tradeGuard']=$this->getTradeGuard($gridInfo->name);//获取交易保护redisTTL
+        $info['canIBuyThisGrid']=$uObj->canIBuyThisGrid($uid,$gridInfo);//返回resCode
 
         //取出附近格子信息
         $nearUid = DB::connection('masterDB')->table('grid')->whereIn('name',$near)->get(['name','belong'])->toArray();

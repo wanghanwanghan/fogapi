@@ -9,11 +9,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 
-class Achievement extends Command
+class Achievement2 extends Command
 {
-    protected $signature = 'Grid:Achievement';
+    protected $signature = 'Grid:Achievement2';
 
-    protected $description = '延时统计用户成就';
+    protected $description = '延时统计用户成就，只统计同时拥有格子的成就';
 
     public function __construct()
     {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Server;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 
 class ContentCheckBase
 {
@@ -27,8 +28,9 @@ class ContentCheckBase
 
     public function check($content)
     {
-        if ($content=='' || empty($content)) return response()->json('content is null');
-        if (strlen($content)>=15) return response()->json('content must less than 15');
+        if ($content=='' || empty($content)) return response()->json(['resCode' => Config::get('resCode.616')]);
+
+        if (mb_strlen($content) > 8) return response()->json(['resCode' => Config::get('resCode.617')]);
 
         //缓存25天
         $token=Cache::remember('ContentCheckToken',36000,function ()

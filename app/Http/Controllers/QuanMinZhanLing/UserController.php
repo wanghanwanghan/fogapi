@@ -115,7 +115,41 @@ class UserController extends BaseController
         return $userinfo;
     }
 
+    //can i buy this grid ?
+    public function canIBuyThisGrid($uid,$gridInfo)
+    {
+        //钱不够
+        $money=$this->getUserMoney($uid);
 
+        $need=$gridInfo->price + $gridInfo->totle;
+
+        if ($money < $need) return Config::get('resCode.607');
+        //=========================================================================
+
+        //购地卡不够
+        $card=$this->getBuyCardCount($uid);
+
+        if ($card <= 0) return Config::get('resCode.610');
+        //=========================================================================
+
+        //格子达到交易上线
+        $limit=(new GridController())->getBuyLimit($gridInfo->name);
+
+        if ($limit >= Config::get('myDefine.GridTodayBuyTotle')) return Config::get('resCode.609');
+        //=========================================================================
+
+        //交易保护中
+        $tradeGuard=(new GridController())->getTradeGuard($gridInfo->name);
+
+        if ($tradeGuard > 0) return Config::get('resCode.606');
+        //=========================================================================
+
+        //是否限定
+        if ($gridInfo->showGrid==0) return Config::get('resCode.606');
+        //=========================================================================
+
+        return Config::get('resCode.200');
+    }
 
 
 }

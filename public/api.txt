@@ -57,6 +57,7 @@ post
 http://newfogapi.wodeluapp.com/api/GetGridInfo
 
 参数
+int    uid=17469    用户主键
 string name=w1n1    格子名称
 array  near=['w2n1','w3n1','w4n1',.......]    附近24个格子名称
 =================================================================
