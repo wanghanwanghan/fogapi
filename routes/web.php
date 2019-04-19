@@ -7,9 +7,19 @@ Route::group(['prefix'=>'admin'],function ()
     //管理后台路由
     Route::get('/',function (){
 
+        $res=\Carbon\Carbon::now()->startOfMonth();
+
+        dd($res);
+
         return view('admin.index');
 
     })->name('main');
+
+    //系统公告
+    Route::match(['get','post'],'/sys/create','admin\\AdminSysController@sysCreate')->name('sysCreate');
+    Route::match(['post'],'/sys/ajax','admin\\AdminSysController@sysAjax');
+
+
 
     //审核
     Route::match(['get','post'],'/grid/name','admin\\AdminGridController@gridName')->name('gridName');

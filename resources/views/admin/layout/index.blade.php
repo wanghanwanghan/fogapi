@@ -55,6 +55,20 @@
 
       <!-- Heading -->
       <div class="sidebar-heading">
+        系统公告
+      </div>
+
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('sysCreate')}}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>发布公告</span></a>
+      </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
+      <!-- Heading -->
+      <div class="sidebar-heading">
         审核自定义
       </div>
 

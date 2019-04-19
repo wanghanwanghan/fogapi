@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\UserTradeInfoModel;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Schema;
 
 class UserController extends BaseController
 {
@@ -95,7 +98,10 @@ class UserController extends BaseController
         $userinfo['name']=Redis::connection('UserInfo')->hget($uid,'name');
         $userinfo['avatar']=Redis::connection('UserInfo')->hget($uid,'avatar');
 
-        if ($userinfo['name']===null && $uid!=0)
+        //自动更新
+        if (rand(1,100) > 90) $update=true;
+
+        if (($userinfo['name']===null && $uid!=0) || ($update==true && $uid!=0))
         {
             $res=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first();
 
@@ -121,7 +127,7 @@ class UserController extends BaseController
         //钱不够
         $money=$this->getUserMoney($uid);
 
-        $need=$gridInfo->price + $gridInfo->totle;
+        $need=(new GridController())->needToPay($gridInfo);
 
         if ($money < $need) return Config::get('resCode.607');
         //=========================================================================
@@ -135,7 +141,7 @@ class UserController extends BaseController
         //格子达到交易上线
         $limit=(new GridController())->getBuyLimit($gridInfo->name);
 
-        if ($limit >= Config::get('myDefine.GridTodayBuyTotle')) return Config::get('resCode.609');
+        if ($limit >= (new GridController())->getGridTodayBuyTotle($gridInfo->name)) return Config::get('resCode.609');
         //=========================================================================
 
         //交易保护中
@@ -151,5 +157,35 @@ class UserController extends BaseController
         return Config::get('resCode.200');
     }
 
+    //获取最近的交易信息
+    public function getRecentlyTradeInfo(Request $request)
+    {
+        $uid=$request->uid;
+        $page=$request->page;
+        $paytime=$request->paytime;
+
+        $limit=10;
+        $offset=($page-1)*$limit;
+
+        //unix时间戳
+        $suffix=date('Ym',$paytime);
+
+        if (!Schema::connection('masterDB')->hasTable('buy_sale_info_'.$suffix)) return response()->json(['resCode' => Config::get('resCode.621')]);
+
+        UserTradeInfoModel::suffix($suffix);
+
+        //select * from `buy_sale_info_201904` where (`uid` = ? or `belong` = ?) and `paytime` >= ? order by `paytime` desc limit 10 offset 0
+        $res=UserTradeInfoModel::where(function ($query) use ($uid)
+        {
+            $query->where('uid',$uid)->orWhere('belong',$uid);
+        })
+            ->where('paytime','>=',$paytime)
+            ->orderBy('paytime','desc')
+            ->limit($limit)
+            ->offset($offset)
+            ->get()->toArray();
+
+        return response()->json(['resCode' => Config::get('resCode.200'),'data'=>$res]);
+    }
 
 }

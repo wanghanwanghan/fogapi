@@ -48,13 +48,17 @@ Route::group(['middleware'=>[]],function ()
     //获取一个格子和周围格子的信息
     Route::match(['post'],'GetGridInfo','QuanMinZhanLing\\GridController@getGridInfo');
 
+    //获取最近的交易信息
+    Route::match(['post'],'GetRecentlyTradeInfo','QuanMinZhanLing\\UserController@getRecentlyTradeInfo');
+
+
+
+
+
+
+
     //内容审核
     Route::match(['post'],'ContentCheck','Server\\ContentCheckBase@check');
-
-
-
-
-
 
     //统计用户成就
     Route::match(['get','post'],'RequestAchievement','QuanMinZhanLing\\AchievementController@requestAchievement');

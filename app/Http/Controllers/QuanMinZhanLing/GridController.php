@@ -42,7 +42,7 @@ class GridController extends BaseController
         $buyTotle = $this->getBuyLimit($name);
 
         //超出限制，不可以买
-        if ($buyTotle >= Config::get('myDefine.GridTodayBuyTotle')) return response()->json(['resCode' => Config::get('resCode.609')]);
+        if ($buyTotle >= $this->getGridTodayBuyTotle($name)) return response()->json(['resCode' => Config::get('resCode.609')]);
 
         //用户当天购地卡使用情况
         if ((new UserController())->getBuyCardCount($uid) <= 0) return response()->json(['resCode' => Config::get('resCode.610')]);
@@ -50,7 +50,7 @@ class GridController extends BaseController
         $money=(new UserController())->getUserMoney($uid);
 
         //需要花费的价格
-        $payMoney=$gridInfo->price + $gridInfo->totle;
+        $payMoney=$this->needToPay($gridInfo);
 
         //没钱了，不能买
         if ($money < $payMoney) return response()->json(['resCode'=>Config::get('resCode.607')]);
@@ -157,6 +157,18 @@ class GridController extends BaseController
         return true;
     }
 
+    //购买格子需要花多少钱
+    public function needToPay($grid)
+    {
+        return $grid->price + $grid->totle;
+    }
+
+    //格子当天最大交易次数
+    public function getGridTodayBuyTotle($gName)
+    {
+        return Config::get('myDefine.GridTodayBuyTotle');
+    }
+
     //给格子加上交易保护
     public function setTradeGuard($gName)
     {
@@ -236,13 +248,13 @@ class GridController extends BaseController
 
         $info['showName']=$showName;//用户自定义名字
         $info['showPic1']=$showPic1;//用户自定义图片
-        $info['price']=$gridInfo->price + $gridInfo->totle;//价格
+        $info['price']=$this->needToPay($gridInfo);//价格
         $info['gName']=$gridInfo->name;//格子坐标例如w1n1
         $info['belong']=$gridInfo->belong;//所有者uid
         $info['belongName']=$userInfo['name'];//所有者名字
         $info['belongAvatar']=$userInfo['avatar'];//所有者头像
         $info['currentCount']=$this->getBuyLimit($gridInfo->name);//当天交易几次
-        $info['maxCount']=Config::get('myDefine.GridTodayBuyTotle');//当天可交易几次
+        $info['maxCount']=$this->getGridTodayBuyTotle($gridInfo->name);//当天可交易几次
         $info['tradeGuard']=$this->getTradeGuard($gridInfo->name);//获取交易保护redisTTL
         $info['canIBuyThisGrid']=$uObj->canIBuyThisGrid($uid,$gridInfo);//返回resCode
 
@@ -347,9 +359,9 @@ class GridController extends BaseController
         $gridInfo['name']=$info2==null ? null : $info2->name;
         $gridInfo['belong']=$info3->username;
         $gridInfo['tradeNow']=(int)Redis::connection('GridInfo')->get($gName.'_'.Carbon::now()->format('Ymd'));
-        $gridInfo['tradeAll']=Config::get('myDefine.GridTodayBuyTotle');
+        $gridInfo['tradeAll']=$this->getGridTodayBuyTotle($info1->name);
         $gridInfo['totle']=$info1->totle;
-        $gridInfo['price']=$info1->price + $info1->totle;
+        $gridInfo['price']=$this->needToPay($info1);
         $gridInfo['highPrice']=$info1->hightPrice;
         $gridInfo['firstTrade']=$info4==null ? null : date('Y-m-d H:i:s',$info4->paytime);
         $gridInfo['recentlyTrade']=$info1->updated_at==null ? null : ($info1->updated_at)->format('Y-m-d H:i:s');
