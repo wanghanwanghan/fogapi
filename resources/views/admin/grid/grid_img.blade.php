@@ -42,7 +42,7 @@
     <script>
 
         //展示大图
-        function showpic() {
+        function showpic(url) {
 
             layer.open({
                 type: 2,
@@ -50,49 +50,80 @@
                 closeBtn: 0,
                 scrollbar: false,
                 resize:false,
-                area: ['500px','300px'],
+                area: ['200px','200px'],
                 skin: 'layui-layer-nobg', //没有背景色
                 shadeClose: true,
-                content: 'https://static.laravelacademy.org/wp-content/uploads/2017/09/laravel-routing.png'
+                content: 'http://newfogapi.wodeluapp.com'+url
             });
 
         }
         //通过审核
         function picPass(stringId)
         {
-            swal({
-                title: "确定通过吗",
-                text: "一旦同意，不可退回",
+            swal("纪申你要考虑清楚", {
+                title: "通过审核，还是删除不合格图片？",
                 icon: "warning",
-                buttons: true,
-                dangerMode: true,
+                buttons: {
+                    nothing: "什么都不做",
+                    nopass: {
+                        text: "删除图片",
+                        value: "nopass",
+                    },
+                    pass: '通过审核',
+                },
             })
-                .then((willDelete) => {
-                    if (willDelete) {
+                .then((value) => {
+                    switch (value) {
 
-                        //发送请求
-                        var url ='/admin/grid/ajax';
+                        case "pass":
 
-                        var data=
-                            {
-                                _token   : $("input[name=_token]").val(),
-                                type     : 'picPass',
-                                stringId : stringId
-                            };
+                            //====================================================
+                            var url ='/admin/grid/ajax';
 
-                        $.post(url,data,function (response) {
+                            var data=
+                                {
+                                    _token   : $("input[name=_token]").val(),
+                                    type     : 'picPass',
+                                    stringId : stringId
+                                };
 
-                        },'json');
+                            $.post(url,data,function (response) {
 
-                        swal("成功", {
-                            icon: "success",
-                        });
+                            },'json');
 
-                        location.reload();
+                            swal("通过审核", "app上已经可以显示了", "success");
 
-                    } else {
-                        //swal("取消");
+                            //====================================================
+
+                            break;
+
+                        case "nopass":
+
+                            //====================================================
+                            var url ='/admin/grid/ajax';
+
+                            var data=
+                                {
+                                    _token   : $("input[name=_token]").val(),
+                                    type     : 'picNoPass',
+                                    stringId : stringId
+                                };
+
+                            $.post(url,data,function (response) {
+
+                            },'json');
+
+                            swal("删除成功", "图片已经没有了，不能恢复了", "success");
+                            //====================================================
+
+                            break;
+
+                        default:
+                            swal("考虑好了再审");
                     }
+
+                    //刷新页面
+                    location.reload();
                 });
         }
 
@@ -124,7 +155,7 @@
                     newTr.append("<td style='vertical-align: middle'>"+value.name+"</td>");
 
                     //图片
-                    newTr.append("<td style='vertical-align: middle'><img src="+value.pic1+" onclick=showpic(); width='80px;' height='50px;'></td>");
+                    newTr.append("<td style='vertical-align: middle'><img src="+value.pic1+" onclick=showpic('"+value.pic1+"'); width='80px;' height='50px;'></td>");
 
                     //按钮
                     newTr.append("<td style='vertical-align: middle'><a href='#' id="+value.uid+","+value.gid+" onclick=picPass($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a></td>");

@@ -303,7 +303,7 @@ class GridController extends BaseController
         if (!$img) return response()->json(['resCode' => Config::get('resCode.619')]);
 
         //保存图片到服务器
-        $path=storeFile($img,$uid,'pic1');
+        $path=storeFile($img,$uid,$grid,'pic1');
 
         if (!$path) return response()->json(['resCode' => Config::get('resCode.620')]);
 

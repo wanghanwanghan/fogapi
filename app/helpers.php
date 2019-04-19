@@ -419,7 +419,7 @@ function uploadMyImg($base64Pic)
 }
 
 //图片贮存到服务器
-function storeFile($content,$uid,$type)
+function storeFile($content,$uid,$grid,$type)
 {
     $suffix=$uid%5;
 
@@ -434,7 +434,7 @@ function storeFile($content,$uid,$type)
             mkdir($path,0777,true);
         }
 
-        $filename=$uid."_$type".".jpg";
+        $filename=$uid.'_'.$grid->id."_$type".".jpg";
     }
 
     try

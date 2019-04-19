@@ -14,7 +14,7 @@ class UserController extends BaseController
     {
         $res=Redis::connection('UserInfo')->hget($uid,'money');
 
-        if ($res)
+        if ($res!=null)
         {
             //有数据
             return $res;
