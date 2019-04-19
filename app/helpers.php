@@ -26,6 +26,199 @@ function filter1($str)
     return str_replace($arr,'',$str);
 }
 
+//过滤铭感词
+function filter2($filterWord,$str)
+{
+    //黑名单词汇
+    //$filterWord=['我','爱','拉芳'];
+
+    //需要过滤的句子
+    //$str='我爱拉芳';
+
+    $tmp=array_combine($filterWord,array_fill(0,count($filterWord),'*'));
+
+    return strtr($str,$tmp);
+}
+
+//只替换一次
+function filter3($needle,$replace,$haystack)
+{
+    //needle in a haystack "草堆寻针" 是个英文俗语 相当于中文的 "大海捞针"
+
+    $pos = strpos($haystack,$needle);
+
+    if ($pos === false)
+    {
+        return $haystack;
+    }
+
+    return substr_replace($haystack,$replace,$pos,strlen($needle));
+}
+
+//二维数组按照某一列排序
+function arraySort1($array,$cond)
+{
+    //$array=[
+    //    ['name'=>'张1','age'=>'23'],
+    //    ['name'=>'李2','age'=>'64'],
+    //    ['name'=>'王3','age'=>'55'],
+    //    ['name'=>'赵4','age'=>'66'],
+    //    ['name'=>'孙5','age'=>'17']
+    //];
+
+    //SORT_DESC降序，SORT_ASC升序，age排序字段
+    //$sort=['asc/desc','age'];
+
+    if ($cond[0]=='asc')
+    {
+        $cond[0]='SORT_ASC';
+
+    }else
+    {
+        $cond[0]='SORT_DESC';
+    }
+
+    $sort=['D'=>$cond[0],'F'=>$cond[1]];
+
+    $arrSort=[];
+
+    foreach($array as $uniqid=>$row)
+    {
+        foreach($row as $key=>$value)
+        {
+            $arrSort[$key][$uniqid]=$value;
+        }
+    }
+
+    array_multisort($arrSort[$sort['F']],constant($sort['D']),$array);
+
+    return $array;
+}
+
+//快速排序
+function arraySort2($array)
+{
+    if (count($array)<=1) return $array;
+
+    $key=$array[0];
+
+    $left_arr=[];
+    $right_arr=[];
+
+    for ($i=1;$i<count($array);$i++)
+    {
+        if ($array[$i]<=$key)
+        {
+            $left_arr[]=$array[$i];
+        }
+        else
+        {
+            $right_arr[]=$array[$i];
+        }
+    }
+
+    $left_arr=arraySort2($left_arr);
+    $right_arr=arraySort2($right_arr);
+
+    return array_merge($left_arr,[$key],$right_arr);
+}
+
+//为字符串的指定位置添加指定字符
+function mbSubstrReplace($string, $replacement,$start,$length=NULL)
+{
+    if (is_array($string))
+    {
+        $num = count($string);
+        // $replacement
+        $replacement = is_array($replacement) ? array_slice($replacement, 0, $num) : array_pad(array($replacement), $num, $replacement);
+        // $start
+        if (is_array($start))
+        {
+            $start = array_slice($start, 0, $num);
+            foreach ($start as $key => $value) $start[$key] = is_int($value) ? $value : 0;
+        }else
+        {
+            $start = array_pad(array($start), $num, $start);
+        }
+        // $length
+        if (!isset($length))
+        {
+            $length = array_fill(0, $num, 0);
+        }elseif (is_array($length))
+        {
+            $length = array_slice($length, 0, $num);
+            foreach ($length as $key => $value) $length[$key] = isset($value) ? (is_int($value) ? $value : $num) : 0;
+        }else
+        {
+            $length = array_pad(array($length), $num, $length);
+        }
+        // Recursive call
+        return array_map(__FUNCTION__, $string, $replacement, $start, $length);
+    }
+    preg_match_all('/./us', (string)$string, $smatches);
+    preg_match_all('/./us', (string)$replacement, $rmatches);
+    if ($length === NULL) $length = mb_strlen($string);
+    array_splice($smatches[0], $start, $length, $rmatches[0]);
+    return join($smatches[0]);
+}
+//为字符串的指定位置添加指定字符
+function insertSomething(&$str, array $offset, $delimiter = '-')
+{
+    foreach ($offset as $i=>$v)
+    {
+        $str=mbSubstrReplace($str,$delimiter,$i+$v,0);
+    }
+    return $str;
+}
+
+//ip地址查询
+function addressForIP($ip)
+{
+    $res_json=file_get_contents('http://apis.juhe.cn/ip/ip2addr?ip='.$ip.'&dtype=json&key=ffb7c65113fddc659264139050eaccf2');
+
+    $res_arry=json_decode($res_json,true);
+
+    if ($res_arry['error_code']!='0' || $res_arry['resultcode']!='200')
+    {
+        return ['area'=>'查询失败','location'=>'loading...'];
+    }else
+    {
+        return $res_arry['result'];
+    }
+}
+
+//修改一维或多维数组的键名，参数一：需要修改的数组，参数二：['从什么'=>'改成什么']
+function changeArrKey($arr,$example)
+{
+    $res = [];
+
+    foreach ($arr as $key => $value)
+    {
+        if (is_array($value))
+        {
+            if (array_key_exists($key,$example))
+            {
+                $key = $example[$key];
+            }
+
+            $res[$key] = changeArrKey($value,$example);
+
+        }else
+        {
+            if (array_key_exists($key,$example))
+            {
+                $res[$example[$key]] = $value;
+
+            }else
+            {
+                $res[$key] = $value;
+            }
+        }
+    }
+
+    return $res;
+}
+
 //只含有26个字母或者数字的并且都是半角的字符串，转换成数字
 function string2Number($str)
 {

@@ -25,6 +25,19 @@ Route::group(['middleware'=>['init']],function ()
     //成就领取单机领取按钮，数据入库
     Route::match(['post'],'AchievementComplete','QuanMinZhanLing\\AchievementController@achievementComplete');
 
+    //增加用户金钱，比如完成每日任务，签到等
+    Route::match(['post'],'SetUserMoney',function (Request $request){
+
+        $uid=$request->uid;
+        $money=$request->money;
+
+        $user=new \App\Http\Controllers\QuanMinZhanLing\UserController();
+
+        $user->exprUserMoney($uid,0,$money,'+');
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'money'=>$user->getUserMoney(trim($request->uid))]);
+
+    });
 
 
 

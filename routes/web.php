@@ -7,10 +7,6 @@ Route::group(['prefix'=>'admin'],function ()
     //管理后台路由
     Route::get('/',function (){
 
-        $res=\Carbon\Carbon::now()->startOfMonth();
-
-        dd($res);
-
         return view('admin.index');
 
     })->name('main');

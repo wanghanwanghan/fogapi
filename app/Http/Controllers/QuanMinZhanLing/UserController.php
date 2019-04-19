@@ -32,8 +32,17 @@ class UserController extends BaseController
     }
 
     //买卖结束后增加或减少用户金钱
-    public function exprUserMoney($uid,$belongid,$money)
+    public function exprUserMoney($uid,$belongid,$money,$expr='-')
     {
+        if ($expr=='+' && $belongid==0)
+        {
+            $res=Redis::connection('UserInfo')->hget($uid,'money');
+
+            Redis::connection('UserInfo')->hset($uid,'money',$res + $money);
+
+            return true;
+        }
+
         //买方扣款 被买方加款
         if ($belongid==0)
         {

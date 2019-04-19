@@ -259,11 +259,25 @@ class GridController extends BaseController
         $info['canIBuyThisGrid']=$uObj->canIBuyThisGrid($uid,$gridInfo);//返回resCode
 
         //取出附近格子信息
-        $nearUid = DB::connection('masterDB')->table('grid')->whereIn('name',$near)->get(['name','belong'])->toArray();
+        $nearUid = DB::connection('masterDB')->table('grid')->whereIn('name',$near)->get(['id','name','belong'])->toArray();
 
         foreach ($nearUid as $row)
         {
-            $one=$uObj->getUserNameAndAvatar($row->belong);
+            //一个一个查吧
+            $one=GridInfoModel::where([
+                'gid'=>$row->id,
+                'uid'=>$row->belong,
+                'showPic1'=>1
+            ])->get(['pic1'])->first();
+
+            if ($one==null)
+            {
+                $one=$uObj->getUserNameAndAvatar($row->belong);
+            }else
+            {
+                $step=$one->pic1;
+                $one['avatar']=$step;
+            }
 
             $tmp[$row->name]=$one['avatar'];
         }
