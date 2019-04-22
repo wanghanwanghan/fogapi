@@ -173,6 +173,12 @@ class UserController extends BaseController
         $page=$request->page;
         $paytime=$request->paytime;
 
+        if (empty($paytime) || $paytime=='')
+        {
+            $paytime=Carbon::now()->firstOfMonth()->toDateTimeString();
+            $paytime=strtotime($paytime);
+        }
+
         $limit=10;
         $offset=($page-1)*$limit;
 
@@ -193,6 +199,12 @@ class UserController extends BaseController
             ->limit($limit)
             ->offset($offset)
             ->get()->toArray();
+
+        foreach ($res as &$val)
+        {
+            isset($val['paytime']) ? $val['paytime']=formatDate($val['paytime']) : null;
+        }
+        unset($val);
 
         return response()->json(['resCode' => Config::get('resCode.200'),'data'=>$res]);
     }

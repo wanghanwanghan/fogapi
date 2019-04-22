@@ -642,7 +642,24 @@ function storeFile($content,$uid,$grid,$type)
     return $pathStoreInDB.$filename;
 }
 
+//多少小时前，多少分钟前
+function formatDate($timestamp)
+{
+    $todaytimestamp = time();
 
+    if(intval($todaytimestamp-$timestamp) < 3600)
+    {
+        return intval(($todaytimestamp-$timestamp)/60) .'分钟前';
+
+    }elseif(intval($todaytimestamp-$timestamp) < 86400)
+    {
+        return intval(($todaytimestamp-$timestamp)/3600) .'小时前';
+
+    }else
+    {
+        return date('n月j日',$timestamp);
+    }
+}
 
 
 

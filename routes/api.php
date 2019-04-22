@@ -39,6 +39,15 @@ Route::group(['middleware'=>['init']],function ()
 
     });
 
+    //设置用户每日任务
+    Route::match(['post'],'SetDailyTasksForUser','QuanMinZhanLing\\DailyTasksController@setDailyTasksForUser');
+
+
+
+
+
+
+
 
 
 });
@@ -63,6 +72,13 @@ Route::group(['middleware'=>[]],function ()
 
     //获取最近的交易信息
     Route::match(['post'],'GetRecentlyTradeInfo','QuanMinZhanLing\\UserController@getRecentlyTradeInfo');
+
+    //获取用户每日任务
+    Route::match(['post'],'GetDailyTasksForUser','QuanMinZhanLing\\DailyTasksController@getDailyTasksForUser');
+
+    //获取每天随机的5个每日任务
+    Route::match(['get'],'GetDailyTasks','QuanMinZhanLing\\DailyTasksController@getDailyTasks');
+
 
 
 

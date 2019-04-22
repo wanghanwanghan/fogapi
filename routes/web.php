@@ -7,6 +7,8 @@ Route::group(['prefix'=>'admin'],function ()
     //管理后台路由
     Route::get('/',function (){
 
+
+
         return view('admin.index');
 
     })->name('main');
