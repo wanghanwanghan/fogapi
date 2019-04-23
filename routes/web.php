@@ -9,14 +9,12 @@ Route::group(['prefix'=>'admin'],function ()
 
 
 
-        $w=[3000=>'wanghan','3000'=>'duanran'];
+        $res=\Illuminate\Support\Facades\DB::connection('masterDB')
+            ->table('buy_sale_info_201904')
+            ->where('uid',22357)->groupBy('gname')->select('gname','count(1)')->toSql();
 
 
-
-
-
-        dd($w);
-
+        dd($res);
 
 
 

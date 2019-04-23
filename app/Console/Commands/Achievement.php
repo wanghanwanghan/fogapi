@@ -240,7 +240,34 @@ class Achievement extends Command
     //同一格子累计交易系列
     public function check4xxx($uid)
     {
+        //获取用户成就数组
+        $userAch=$this->getAchievementInRedis($uid);
 
+        $res='pass';
+        if (!(isset($userAch['4xxx']['4001']) && $userAch['4xxx']['4001']!=0)) $res='noPass';
+
+        //全都完成了，不统计这人了
+        if ($res=='pass') return true;
+
+        //生成最近一年的数组
+        $i=12;
+        while($i >= 1)
+        {
+            $m=$i-1;
+
+            //只统计最近一年的表
+            $yearArr[]=date('Ym',strtotime('-'.$m.'month'));
+
+            $i--;
+        }
+
+
+
+
+
+
+
+        return true;
     }
 
 

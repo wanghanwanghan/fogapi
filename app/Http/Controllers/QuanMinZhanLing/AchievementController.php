@@ -49,6 +49,25 @@ class AchievementController extends BaseController
 
         if (!$this->checkTable($uid)) return response()->json(['resCode' => Config::get('resCode.614')]);
 
+        //写入redis
+        $userInfo=Redis::connection('UserInfo')->hget($uid,'Achievement');
+
+        try
+        {
+            $userInfo=json_decode($userInfo,true);
+
+            $achPrefix=substr($aid,0,1);
+
+            $userInfo[$achPrefix.'xxx'][$aid]=2;
+
+            //写入redis
+            Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userInfo));
+
+        }catch (\Exception $e)
+        {
+
+        }
+
         //数据入库
         AchievementInfoModel::suffix($this->suffix);
 
