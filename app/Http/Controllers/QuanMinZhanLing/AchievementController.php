@@ -3,19 +3,26 @@
 namespace App\Http\Controllers\QuanMinZhanLing;
 
 use App\Model\AchievementInfoModel;
+use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 
 class AchievementController extends BaseController
 {
     public $suffix;
+
     public $connection='masterDB';
 
-    //统计用户成就
-    public function requestAchievement(Request $request)
+    //从数据库取成就的缓存key
+    public $KeyForDB='AchievementCacheForDB';
+
+    //获取/统计用户成就
+    public function getAchievementForUser(Request $request)
     {
         $uid=trim($request->uid);
 
@@ -33,11 +40,12 @@ class AchievementController extends BaseController
 
         //有数据
         $achievementInfo=json_decode($achievementInfo,true);
+
         return response()->json(['resCode' => Config::get('resCode.200'),'data'=>$achievementInfo]);
     }
 
     //领取金币后，数据入库
-    public function achievementComplete(Request $request)
+    public function setAchievementForUser(Request $request)
     {
         $uid=trim($request->uid);
         $aid=trim($request->aid);
@@ -69,7 +77,7 @@ class AchievementController extends BaseController
                 $table->integer('aid')->unsigned()->comment('成就表主键')->index();
                 $table->integer('uid')->unsigned()->comment('用户主键')->index();
                 $table->char('isComplete','1')->comment('是否领取完奖励');
-                $table->timestamps();
+                $table->timestamps();//完成时间
 
             });
 
@@ -81,7 +89,27 @@ class AchievementController extends BaseController
         return true;
     }
 
+    //获取所有成就信息
+    public function getAchievement(Request $request)
+    {
+        //当天第一次请求时间
+        $star=time();
 
+        //当天结束时间
+        $stop=Carbon::now()->endOfDay()->timestamp;
+
+        //差多少分钟
+        $m=($stop-$star)/60;
+
+        $m=intval($m);
+
+        $achievement=Cache::remember($this->KeyForDB,$m,function()
+        {
+            return DB::connection($this->connection)->table('achievement')->get()->toArray();
+        });
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$achievement]);
+    }
 
 
 

@@ -18,12 +18,18 @@ class DailyTasksController extends BaseController
     //从数据库取每日任务id的缓存key
     public $KeyForDB='DailyTasksCacheForDB';
 
+    //获取redis中的key
+    public function getRedisKey($uid)
+    {
+        $date=Carbon::now()->format('Ym');
+
+        return $this->DailyTasksKey."{$date}_".$uid;
+    }
+
     //获取每日任务完成情况
     public function getDailyTasksForUser(Request $request)
     {
         $uid=$request->uid;
-
-        $key=$this->DailyTasksKey.$uid;
 
         //每日任务id数组
         $dailyTasksId=Cache::remember($this->KeyForDB.'_1',120,function()
@@ -35,7 +41,7 @@ class DailyTasksController extends BaseController
 
         try
         {
-            $res=Redis::connection('UserInfo')->hgetall($key);
+            $res=Redis::connection('UserInfo')->hgetall($this->getRedisKey($uid));
 
         }catch (\Exception $e)
         {
@@ -91,11 +97,9 @@ class DailyTasksController extends BaseController
             //完成了
             $tmp['4']=1;
 
-            $key=$this->DailyTasksKey.$uid;
+            Redis::connection('UserInfo')->hset($this->getRedisKey($uid),4,1);
 
-            Redis::connection('UserInfo')->hset($key,4,1);
-
-            Redis::connection('UserInfo')->expire($key,86400);
+            Redis::connection('UserInfo')->expire($this->getRedisKey($uid),86400);
         }
 
         return true;
@@ -126,11 +130,9 @@ class DailyTasksController extends BaseController
             //完成了
             $tmp['5']=1;
 
-            $key=$this->DailyTasksKey.$uid;
+            Redis::connection('UserInfo')->hset($this->getRedisKey($uid),5,1);
 
-            Redis::connection('UserInfo')->hset($key,5,1);
-
-            Redis::connection('UserInfo')->expire($key,86400);
+            Redis::connection('UserInfo')->expire($this->getRedisKey($uid),86400);
         }
 
         return true;
@@ -141,7 +143,7 @@ class DailyTasksController extends BaseController
     {
         $uid=$request->uid;
 
-        $key=$this->DailyTasksKey.$uid;
+        $key=$this->getRedisKey($uid);
 
         //每日任务id
         $dailyTasksId=trim($request->tid);

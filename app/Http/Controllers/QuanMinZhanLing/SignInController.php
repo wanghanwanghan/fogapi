@@ -43,31 +43,6 @@ class SignInController extends BaseController
     //用户当周签到情况
     public function showSign(Request $request)
     {
-        //一周开始的第一天
-        //$star=Carbon::now()->startOfWeek()->format('Ymd');
-
-        //一周结束的最后一天
-        //$stop=Carbon::now()->endOfWeek()->format('Ymd');
-
-        //for ($i=$star;$i<=$stop;)
-        //{
-        //    try
-        //    {
-        //        $sign=Redis::connection('SignIn')->getbit($i,$request->uid);
-
-        //    }catch (\Exception $e)
-        //    {
-        //        return response()->json(['resCode'=>Config::get('resCode.602')]);
-        //    }
-
-        //   $res[$i]=$sign;
-
-        //    //下一天
-        //    $i=Carbon::parse($i.' +1 days')->format('Ymd');
-        //}
-
-        //return response()->json(['resCode'=>Config::get('resCode.200'),'resData'=>$res]);
-
         $star=Carbon::now()->format('Ymd');
         $stop=Carbon::parse($star.' -7 days')->format('Ymd');
         $uid=trim($request->uid);

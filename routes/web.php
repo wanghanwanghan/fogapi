@@ -8,6 +8,11 @@ Route::group(['prefix'=>'admin'],function ()
     Route::get('/',function (){
 
 
+        $haveCount=\Illuminate\Support\Facades\DB::connection('masterDB')->table('buy_sale_info_201904')->where('uid',111)->count();
+
+
+        dd($haveCount,'321');
+
 
         return view('admin.index');
 

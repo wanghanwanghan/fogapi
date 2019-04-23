@@ -171,12 +171,20 @@ class UserController extends BaseController
     {
         $uid=$request->uid;
         $page=$request->page;
-        $paytime=$request->paytime;
+        $paytime=trim($request->paytime);
 
         if (empty($paytime) || $paytime=='')
         {
             $paytime=Carbon::now()->firstOfMonth()->toDateTimeString();
             $paytime=strtotime($paytime);
+
+        }elseif (strlen($paytime)==8 && is_numeric($paytime))
+        {
+            $paytime=Carbon::parse($paytime)->timestamp;
+
+        }else
+        {
+            return response()->json(['resCode' => Config::get('resCode.604')]);
         }
 
         $limit=10;

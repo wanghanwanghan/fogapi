@@ -9,9 +9,6 @@ Route::group(['middleware'=>['init']],function ()
     //每日签到
     Route::match(['post'],'SignIn','QuanMinZhanLing\\SignInController@signIn');
 
-    //展示签到
-    Route::match(['get'],'SignIn','QuanMinZhanLing\\SignInController@showSign');
-
     //买格子
     Route::match(['post'],'BuyGrid','QuanMinZhanLing\\GridController@buyGrid');
 
@@ -23,7 +20,7 @@ Route::group(['middleware'=>['init']],function ()
     Route::match(['post'],'GridDetails','QuanMinZhanLing\\GridController@gridDetails');
 
     //成就领取单机领取按钮，数据入库
-    Route::match(['post'],'AchievementComplete','QuanMinZhanLing\\AchievementController@achievementComplete');
+    Route::match(['post'],'SetAchievementForUser','QuanMinZhanLing\\AchievementController@setAchievementForUser');
 
     //增加用户金钱，比如完成每日任务，签到等
     Route::match(['post'],'SetUserMoney',function (Request $request){
@@ -54,6 +51,9 @@ Route::group(['middleware'=>['init']],function ()
 
 Route::group(['middleware'=>[]],function ()
 {
+    //展示签到
+    Route::match(['get'],'SignIn','QuanMinZhanLing\\SignInController@showSign');
+
     //获取用户金钱和购地卡数量
     Route::match(['post'],'GetUserInfo',function (Request $request){
 
@@ -79,8 +79,8 @@ Route::group(['middleware'=>[]],function ()
     //获取每天随机的5个每日任务
     Route::match(['get'],'GetDailyTasks','QuanMinZhanLing\\DailyTasksController@getDailyTasks');
 
-
-
+    //获取成就主表
+    Route::match(['get'],'GetAchievement','QuanMinZhanLing\\AchievementController@getAchievement');
 
 
 
@@ -89,7 +89,7 @@ Route::group(['middleware'=>[]],function ()
     //内容审核
     Route::match(['post'],'ContentCheck','Server\\ContentCheckBase@check');
 
-    //统计用户成就
-    Route::match(['get','post'],'RequestAchievement','QuanMinZhanLing\\AchievementController@requestAchievement');
+    //获取/统计用户成就
+    Route::match(['get','post'],'GetAchievementForUser','QuanMinZhanLing\\AchievementController@getAchievementForUser');
 });
 

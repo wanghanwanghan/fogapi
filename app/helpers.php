@@ -661,8 +661,36 @@ function formatDate($timestamp)
     }
 }
 
+//encode for AES
+function encodeForAES($str)
+{
+    $method=['AES-128-ECB','AES-256-ECB'];//加密方法
 
+    $salt='WoYaoZhanLingDiQiu';//盐值
 
+    $codeStr=bin2hex(openssl_encrypt($str,array_random($method),$salt,OPENSSL_RAW_DATA));
+
+    return $codeStr;
+}
+
+//decode for AES
+function decodeForAES($str,$secret)
+{
+    $method1='AES-128-ECB';
+    $method2='AES-256-ECB';
+
+    $salt='WoYaoZhanLingDiQiu';
+
+    $res=openssl_decrypt(pack("H*",$secret),$method1,$salt,OPENSSL_RAW_DATA);
+
+    if ($res==$str) return true;
+
+    $res=openssl_decrypt(pack("H*",$secret),$method2,$salt,OPENSSL_RAW_DATA);
+
+    if ($res==$str) return true;
+
+    return false;
+}
 
 
 
