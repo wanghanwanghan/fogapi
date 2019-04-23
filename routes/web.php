@@ -8,10 +8,18 @@ Route::group(['prefix'=>'admin'],function ()
     Route::get('/',function (){
 
 
-        $haveCount=\Illuminate\Support\Facades\DB::connection('masterDB')->table('buy_sale_info_201904')->where('uid',111)->count();
+
+        $w=[3000=>'wanghan','3000'=>'duanran'];
 
 
-        dd($haveCount,'321');
+
+
+
+        dd($w);
+
+
+
+
 
 
         return view('admin.index');

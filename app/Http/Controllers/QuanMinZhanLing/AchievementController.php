@@ -38,10 +38,7 @@ class AchievementController extends BaseController
         //没数据
         if ($achievementInfo==null) return response()->json(['resCode' => Config::get('resCode.200'),'data'=>null]);
 
-        //有数据
-        $achievementInfo=json_decode($achievementInfo,true);
-
-        return response()->json(['resCode' => Config::get('resCode.200'),'data'=>$achievementInfo]);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$achievementInfo]);
     }
 
     //领取金币后，数据入库

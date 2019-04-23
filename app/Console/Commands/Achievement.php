@@ -61,9 +61,17 @@ class Achievement extends Command
             $this->check2xxx($uid);
         }
 
-        //3xxx系列是同时
+        foreach ($allUid as $uid)
+        {
+            //3xxx系列是同时
+            $this->check3xxx($uid);
+        }
 
-        //4xxx系列是同一格子
+        foreach ($allUid as $uid)
+        {
+            //4xxx系列是同一格子
+            $this->check4xxx($uid);
+        }
     }
     //=========================================================================================================================
 
@@ -138,7 +146,23 @@ class Achievement extends Command
     //累计购买/卖出系列
     public function check2xxx($uid)
     {
-        //生成最近一年数组
+        //获取用户成就数组
+        $userAch=$this->getAchievementInRedis($uid);
+
+        $res='pass';
+        if (!(isset($userAch['2xxx']['2001']) && $userAch['2xxx']['2001']!=0)) $res='noPass';
+        if (!(isset($userAch['2xxx']['2002']) && $userAch['2xxx']['2002']!=0)) $res='noPass';
+        if (!(isset($userAch['2xxx']['2003']) && $userAch['2xxx']['2003']!=0)) $res='noPass';
+        if (!(isset($userAch['2xxx']['2004']) && $userAch['2xxx']['2004']!=0)) $res='noPass';
+        if (!(isset($userAch['2xxx']['2005']) && $userAch['2xxx']['2005']!=0)) $res='noPass';
+        if (!(isset($userAch['2xxx']['2006']) && $userAch['2xxx']['2006']!=0)) $res='noPass';
+        if (!(isset($userAch['2xxx']['2007']) && $userAch['2xxx']['2007']!=0)) $res='noPass';
+        if (!(isset($userAch['2xxx']['2008']) && $userAch['2xxx']['2008']!=0)) $res='noPass';
+
+        //全都完成了，不统计这人了
+        if ($res=='pass') return true;
+
+        //生成最近一年的数组
         $i=12;
         while($i >= 1)
         {
@@ -155,18 +179,50 @@ class Achievement extends Command
         $sale=0;
         for ($i=11;$i>=0;$i--)
         {
-            if (!Schema::connection('masterDB')->hasTable('buy_sale_info_',$yearArr[$i])) break;
+            if (!Schema::connection('masterDB')->hasTable('buy_sale_info_'.$yearArr[$i])) break;
 
-            $mbuy =DB::connection('masterDB')->table('buy_sale_info_',$yearArr[$i])->where('uid',$uid)->count();
-            $msale=DB::connection('masterDB')->table('buy_sale_info_',$yearArr[$i])->where('belong',$uid)->count();
+            $mbuy =DB::connection('masterDB')->table('buy_sale_info_'.$yearArr[$i])->where('uid',$uid)->count();
+            $msale=DB::connection('masterDB')->table('buy_sale_info_'.$yearArr[$i])->where('belong',$uid)->count();
 
             $buy=$buy+$mbuy;
             $sale=$sale+$msale;
         }
 
-        //修改redis中的值
-        $userAch=$this->getAchievementInRedis($uid);
+        //获取2xxx成就系列
+        $achAll=DB::connection('masterDB')->table('achievement')->where('id','like','2%')->get(['id','scheduleTotle'])->toArray();
 
+        foreach ($achAll as $oneAch)
+        {
+            if (!isset($userAch['2xxx'][$oneAch->id]))
+            {
+                //没完成某个2xxx系列
+                $buyArr =[2001,2002,2003,2004];
+                $saleArr=[2005,2006,2007,2008];
+
+                if (in_array($oneAch->id,$buyArr))
+                {
+                    //当前id是购买
+                    if ($buy >= $oneAch->scheduleTotle)
+                    {
+                        //实际购买次数，大于当前成就需求次数
+                        $userAch['2xxx'][$oneAch->id]=1;
+                    }
+
+                }elseif (in_array($oneAch->id,$saleArr))
+                {
+                    //当前id是卖出
+                    if ($sale >= $oneAch->scheduleTotle)
+                    {
+                        //实际卖出次数，大于当前成就需求次数
+                        $userAch['2xxx'][$oneAch->id]=1;
+                    }
+
+                }else
+                {}
+            }
+        }
+
+        //修改redis中的值
         $userAch['2xxx']['buyTotle']=$buy;
         $userAch['2xxx']['saleTotle']=$sale;
 
@@ -175,6 +231,17 @@ class Achievement extends Command
         return true;
     }
 
+    //同时拥有几个格子系列
+    public function check3xxx($uid)
+    {
+        //bbk说不做了
+    }
+
+    //同一格子累计交易系列
+    public function check4xxx($uid)
+    {
+
+    }
 
 
 
