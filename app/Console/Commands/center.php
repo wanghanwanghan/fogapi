@@ -39,9 +39,11 @@ class center extends Command
                 $table->integer('totle')->unsigned()->default(0)->comment('交易总数');//当天交易次数放到redis
                 $table->char('showGrid','1')->default('1')->comment('格子是否开放');
                 $table->timestamps();
-                $table->index('geohash');
+                $table->primary(['id','belong']);
                 $table->index('name');
+                $table->index('belong');
 
+                //Alter table grid partition by linear key(belong) partitions 50;
             });
         }
 
