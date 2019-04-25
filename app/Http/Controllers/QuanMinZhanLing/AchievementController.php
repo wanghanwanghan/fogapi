@@ -38,6 +38,23 @@ class AchievementController extends BaseController
         //没数据
         if ($achievementInfo==null) return response()->json(['resCode' => Config::get('resCode.200'),'data'=>null]);
 
+        //处理数组
+        $achievementInfo=json_decode($achievementInfo,true);
+        foreach ($achievementInfo as $one)
+        {
+            $key=array_keys($one);
+            $val=array_values($one);
+
+            $count=count($key);
+
+            for ($i=0;$i<$count;$i++)
+            {
+                $tmp[$key[$i]]=$val[$i];
+            }
+        }
+
+        $achievementInfo=array_sort($tmp);
+
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$achievementInfo]);
     }
 
@@ -52,21 +69,13 @@ class AchievementController extends BaseController
         //写入redis
         $userInfo=Redis::connection('UserInfo')->hget($uid,'Achievement');
 
-        try
-        {
-            $userInfo=json_decode($userInfo,true);
+        $userInfo=json_decode($userInfo,true);
 
-            $achPrefix=substr($aid,0,1);
+        $achPrefix=substr($aid,0,1);
 
-            $userInfo[$achPrefix.'xxx'][$aid]=2;
+        $userInfo[$achPrefix.'xxx'][$aid]=2;
 
-            //写入redis
-            Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userInfo));
-
-        }catch (\Exception $e)
-        {
-
-        }
+        Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userInfo));
 
         //数据入库
         AchievementInfoModel::suffix($this->suffix);

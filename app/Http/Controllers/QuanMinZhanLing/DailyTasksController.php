@@ -21,7 +21,7 @@ class DailyTasksController extends BaseController
     //获取redis中的key
     public function getRedisKey($uid)
     {
-        $date=Carbon::now()->format('Ym');
+        $date=Carbon::now()->format('Ymd');
 
         return $this->DailyTasksKey."{$date}_".$uid;
     }
@@ -99,7 +99,7 @@ class DailyTasksController extends BaseController
 
             Redis::connection('UserInfo')->hset($this->getRedisKey($uid),4,1);
 
-            Redis::connection('UserInfo')->expire($this->getRedisKey($uid),86400);
+            Redis::connection('UserInfo')->expireat($this->getRedisKey($uid),Carbon::now()->endOfDay()->timestamp);
         }
 
         return true;
@@ -132,7 +132,7 @@ class DailyTasksController extends BaseController
 
             Redis::connection('UserInfo')->hset($this->getRedisKey($uid),5,1);
 
-            Redis::connection('UserInfo')->expire($this->getRedisKey($uid),86400);
+            Redis::connection('UserInfo')->expireat($this->getRedisKey($uid),Carbon::now()->endOfDay()->timestamp);
         }
 
         return true;
@@ -153,6 +153,11 @@ class DailyTasksController extends BaseController
 
         try
         {
+            $nowStatus=Redis::connection('UserInfo')->hget($key,$dailyTasksId);
+
+            //2是已领取状态
+            if ($nowStatus==2) return response()->json(['resCode'=>Config::get('resCode.200')]);
+
             Redis::connection('UserInfo')->hset($key,$dailyTasksId,$status);
 
             Redis::connection('UserInfo')->expire($key,86400);

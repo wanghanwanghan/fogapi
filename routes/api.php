@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Config;
 //防暴力请求中间件，请求中必须带uid
 Route::group(['middleware'=>['init']],function ()
 {
-    //每日签到
-    Route::match(['post'],'SignIn','QuanMinZhanLing\\SignInController@signIn');
-
     //买格子
     Route::match(['post'],'BuyGrid','QuanMinZhanLing\\GridController@buyGrid');
 
@@ -36,8 +33,6 @@ Route::group(['middleware'=>['init']],function ()
 
     });
 
-    //设置用户每日任务
-    Route::match(['post'],'SetDailyTasksForUser','QuanMinZhanLing\\DailyTasksController@setDailyTasksForUser');
 
 
 
@@ -51,6 +46,9 @@ Route::group(['middleware'=>['init']],function ()
 
 Route::group(['middleware'=>[]],function ()
 {
+    //每日签到
+    Route::match(['post'],'SignIn','QuanMinZhanLing\\SignInController@signIn');
+
     //展示签到
     Route::match(['get'],'SignIn','QuanMinZhanLing\\SignInController@showSign');
 
@@ -75,6 +73,9 @@ Route::group(['middleware'=>[]],function ()
 
     //获取用户每日任务
     Route::match(['post'],'GetDailyTasksForUser','QuanMinZhanLing\\DailyTasksController@getDailyTasksForUser');
+
+    //设置用户每日任务
+    Route::match(['post'],'SetDailyTasksForUser','QuanMinZhanLing\\DailyTasksController@setDailyTasksForUser');
 
     //获取每天随机的5个每日任务
     Route::match(['get'],'GetDailyTasks','QuanMinZhanLing\\DailyTasksController@getDailyTasks');
