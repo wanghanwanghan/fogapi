@@ -16,9 +16,6 @@ Route::group(['middleware'=>['init']],function ()
     //格子详情
     Route::match(['post'],'GridDetails','QuanMinZhanLing\\GridController@gridDetails');
 
-    //成就领取单机领取按钮，数据入库
-    Route::match(['post'],'SetAchievementForUser','QuanMinZhanLing\\AchievementController@setAchievementForUser');
-
     //增加用户金钱，比如完成每日任务，签到等
     Route::match(['post'],'SetUserMoney',function (Request $request){
 
@@ -92,5 +89,8 @@ Route::group(['middleware'=>[]],function ()
 
     //获取/统计用户成就
     Route::match(['get','post'],'GetAchievementForUser','QuanMinZhanLing\\AchievementController@getAchievementForUser');
+
+    //成就领取单机领取按钮，数据入库
+    Route::match(['post'],'SetAchievementForUser','QuanMinZhanLing\\AchievementController@setAchievementForUser');
 });
 

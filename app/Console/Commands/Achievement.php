@@ -234,7 +234,42 @@ class Achievement extends Command
     //同时拥有几个格子系列
     public function check3xxx($uid)
     {
-        //bbk说不做了
+        //获取用户成就数组
+        $userAch=$this->getAchievementInRedis($uid);
+
+        $res='pass';
+        if (!(isset($userAch['3xxx']['3001']) && $userAch['3xxx']['3001']!=0)) $res='noPass';
+        if (!(isset($userAch['3xxx']['3002']) && $userAch['3xxx']['3002']!=0)) $res='noPass';
+        if (!(isset($userAch['3xxx']['3003']) && $userAch['3xxx']['3003']!=0)) $res='noPass';
+        if (!(isset($userAch['3xxx']['3004']) && $userAch['3xxx']['3004']!=0)) $res='noPass';
+
+        //全都完成了，不统计这人了
+        if ($res=='pass') return true;
+
+        //统计当前时点这人有多少个格子
+        $gridTotle=DB::connection('masterDB')->table('grid')->where('belong',$uid)->count();
+
+        //获取3xxx成就系列
+        $achAll=DB::connection('masterDB')->table('achievement')->where('id','like','3%')->get(['id','scheduleTotle'])->toArray();
+
+        foreach ($achAll as $oneAch)
+        {
+            if (!isset($userAch['3xxx'][$oneAch->id]))
+            {
+                if ($gridTotle >= $oneAch->scheduleTotle)
+                {
+                    //实际购买次数，大于当前成就需求次数
+                    $userAch['3xxx'][$oneAch->id]=1;
+                }
+            }
+        }
+
+        //修改redis中的值
+        $userAch['3xxx']['gridTotle']=$gridTotle;
+
+        Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userAch));
+
+        return true;
     }
 
     //同一格子累计交易系列
@@ -261,11 +296,47 @@ class Achievement extends Command
             $i--;
         }
 
+        //循环统计最近一年的表
+        for ($i=11;$i>=0;$i--)
+        {
+            if (!Schema::connection('masterDB')->hasTable('buy_sale_info_'.$yearArr[$i])) break;
 
+            //只把每个表交易次数最多的前50名取出
+            $sql="select gname,count(1) as totle from buy_sale_info_{$yearArr[$i]} where uid={$uid} or belong={$uid} group by gname limit 50";
 
+            $tmp[$yearArr[$i]]=DB::connection('masterDB')->select($sql);
+        }
 
+        //整理数组
+        $step=[];
+        foreach ($tmp as $oneMonth)
+        {
+            if (empty($oneMonth)) continue;
 
+            //循环每个月份的前50
+            foreach ($oneMonth as $oneOBJ)
+            {
+                if (isset($step[$oneOBJ->gname]))
+                {
+                    $step[$oneOBJ->gname]+=$step[$oneOBJ->totle];
+                }else
+                {
+                    $step[$oneOBJ->gname]=$step[$oneOBJ->totle];
+                }
+            }
+        }
 
+        $userAch=$this->getAchievementInRedis($uid);
+
+        //50取5
+        arsort($step);
+
+        //从第0个开始取，取5个
+        $limit5=array_slice($step,0,5);
+
+        $userAch['4xxx']['limit5']=$limit5;
+
+        Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userAch));
 
         return true;
     }

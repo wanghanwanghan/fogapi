@@ -9,6 +9,7 @@ Route::group(['prefix'=>'admin'],function ()
 
 
 
+
         return view('admin.index');
 
     })->name('main');
