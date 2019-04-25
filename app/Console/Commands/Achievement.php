@@ -318,10 +318,10 @@ class Achievement extends Command
             {
                 if (isset($step[$oneOBJ->gname]))
                 {
-                    $step[$oneOBJ->gname]+=$step[$oneOBJ->totle];
+                    $step[$oneOBJ->gname]+=$oneOBJ->totle;
                 }else
                 {
-                    $step[$oneOBJ->gname]=$step[$oneOBJ->totle];
+                    $step[$oneOBJ->gname]=$oneOBJ->totle;
                 }
             }
         }
@@ -335,6 +335,21 @@ class Achievement extends Command
         $limit5=array_slice($step,0,5);
 
         $userAch['4xxx']['limit5']=$limit5;
+
+        //获取4xxx成就系列
+        $achAll=DB::connection('masterDB')->table('achievement')->where('id','like','4%')->get(['id','scheduleTotle'])->toArray();
+
+        foreach ($achAll as $oneAch)
+        {
+            if (!isset($userAch['4xxx'][$oneAch->id]))
+            {
+                if (max($limit5) >= $oneAch->scheduleTotle)
+                {
+                    //实际购买次数，大于当前成就需求次数
+                    $userAch['4xxx'][$oneAch->id]=1;
+                }
+            }
+        }
 
         Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userAch));
 

@@ -40,6 +40,7 @@ class AchievementController extends BaseController
 
         //处理数组
         $achievementInfo=json_decode($achievementInfo,true);
+
         foreach ($achievementInfo as $one)
         {
             $key=array_keys($one);
