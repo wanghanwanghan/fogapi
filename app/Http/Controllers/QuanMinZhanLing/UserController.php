@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\GridModel;
 use App\Model\UserTradeInfoModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -50,6 +51,8 @@ class UserController extends BaseController
 
             Redis::connection('UserInfo')->hset($uid,'money',$res - $money);
 
+            $this->setTradeTotleForCareer($uid);
+
         }else
         {
             $res=Redis::connection('UserInfo')->hget($uid,'money');
@@ -59,6 +62,9 @@ class UserController extends BaseController
             $res=Redis::connection('UserInfo')->hget($belongid,'money');
 
             Redis::connection('UserInfo')->hset($belongid,'money',$res + $money);
+
+            $this->setTradeTotleForCareer($uid);
+            $this->setTradeTotleForCareer($belongid);
         }
 
         return true;
@@ -217,4 +223,38 @@ class UserController extends BaseController
         return response()->json(['resCode' => Config::get('resCode.200'),'data'=>$res]);
     }
 
+    //格子生涯概况
+    public function getGridCareer(Request $request)
+    {
+        $uid=$request->uid;
+
+        //当前拥有格子数量
+        $currentGridTotle=GridModel::where('belong',$uid)->count();
+
+        //最高交易价格
+        $maximumGridPirce=GridModel::where('belong',$uid)->orderBy('hightPrice','desc')->first()->hightPrice;
+
+        //最多拥有格子数量
+        $maximumGridTotle=Redis::connection('UserInfo')->hget($uid,'BuyGridTotle');
+
+        //累计交易次数，这个需求分布到了买卖格子接口，一条一条记录吧
+        $tradeTotle=Redis::connection('UserInfo')->hget($uid,'TradeGridTotle');
+
+        $res['currentGridTotle']=(string)$currentGridTotle;
+        $res['maximumGridPirce']=(string)$maximumGridPirce;
+        $res['maximumGridTotle']=(string)$maximumGridTotle;
+        $res['tradeTotle']=$tradeTotle==null ? "0" : $tradeTotle;
+
+        return response()->json(['resCode' => Config::get('resCode.200'),'data'=>$res]);
+    }
+
+    //记录格子生涯的累计交易次数
+    public function setTradeTotleForCareer($uid,$num=1)
+    {
+        $tradeTotle=Redis::connection('UserInfo')->hget($uid,'TradeGridTotle');
+
+        Redis::connection('UserInfo')->hset($uid,'TradeGridTotle',(int)$tradeTotle+$num);
+
+        return true;
+    }
 }

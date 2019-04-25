@@ -8,7 +8,9 @@ Route::group(['prefix'=>'admin'],function ()
     Route::get('/',function (){
 
 
+        $highPirce=\App\Model\GridModel::where('belong',97105)->count();
 
+        dd($highPirce);
 
         return view('admin.index');
 

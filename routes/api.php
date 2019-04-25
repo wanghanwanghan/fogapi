@@ -83,6 +83,8 @@ Route::group(['middleware'=>[]],function ()
 
 
 
+    //获取格子生涯概况
+    Route::match(['get'],'GetGridCareer','QuanMinZhanLing\\UserController@getGridCareer');
 
     //内容审核
     Route::match(['post'],'ContentCheck','Server\\ContentCheckBase@check');

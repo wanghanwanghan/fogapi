@@ -152,7 +152,7 @@ return [
         'client' => 'predis',
 
         'default' => [
-            'host' => '183.136.232.213',
+            'host' => '183.136.232.236',
             'password' => 'wanghan123',
             'port' => '6379',
             'database' => 0,
@@ -160,7 +160,7 @@ return [
 
         //session
         'Session' => [
-            'host' => '183.136.232.213',
+            'host' => '183.136.232.236',
             'password' => 'wanghan123',
             'port' => '6379',
             'database' => 0,
@@ -175,7 +175,7 @@ return [
 
         //log相关键值或队列
         'WriteLog' => [
-            'host' => '183.136.232.213',
+            'host' => '183.136.232.236',
             'password' => 'wanghan123',
             'port' => '6379',
             'database' => 11,
@@ -183,7 +183,7 @@ return [
 
         //存用户的金币（hash），购地卡数量
         'UserInfo' => [
-            'host' => '183.136.232.213',
+            'host' => '183.136.232.236',
             'password' => 'wanghan123',
             'port' => '6379',
             'database' => 12,
@@ -191,7 +191,7 @@ return [
 
         //每个格子当天交易次数，格子头像缓存（hash）
         'GridInfo' => [
-            'host' => '183.136.232.213',
+            'host' => '183.136.232.236',
             'password' => 'wanghan123',
             'port' => '6379',
             'database' => 13,
@@ -199,7 +199,7 @@ return [
 
         //每日签到
         'SignIn' => [
-            'host' => '183.136.232.213',
+            'host' => '183.136.232.236',
             'password' => 'wanghan123',
             'port' => '6379',
             'database' => 14,
@@ -207,11 +207,13 @@ return [
 
         //防止暴力请求
         'RequestToken' => [
-            'host' => '183.136.232.213',
+            'host' => '183.136.232.236',
             'password' => 'wanghan123',
             'port' => '6379',
             'database' => 15,
         ],
+
+        //4月25日剩余18g
     ],
 
 ];
