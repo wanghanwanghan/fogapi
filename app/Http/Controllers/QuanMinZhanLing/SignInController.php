@@ -9,11 +9,16 @@ use Illuminate\Support\Facades\Redis;
 
 class SignInController extends BaseController
 {
+    public $key='ContinuousSignIn_';
+
     //用户签到
     public function signIn(Request $request)
     {
         $key=Carbon::now()->format('Ymd');
+
         $userid=$request->uid;
+
+        $continuousSignIn=$this->key.$userid;
 
         //判断是否已经签到
         try
@@ -25,7 +30,34 @@ class SignInController extends BaseController
             return response()->json(['resCode'=>Config::get('resCode.602')]);
         }
 
+        //已经签到
         if ($res) return response()->json(['resCode'=>Config::get('resCode.603')]);
+
+        //bbk需求
+        try
+        {
+            $res=Redis::connection('SignIn')->get($continuousSignIn);
+
+            $res=json_decode($res,true);
+
+            //是不是连续签到
+            if ($res['nextSignIn']!='' && $res['nextSignIn']==$key)
+            {
+                $res['continuation']=isset($res['continuation']) ? $res['continuation'] + 1 : 1;
+
+            }else
+            {
+                $res['continuation']=1;
+            }
+
+            $res['nextSignIn']=Carbon::now()->addDay()->format('Ymd');
+
+            Redis::connection('SignIn')->set($continuousSignIn,json_encode($res));
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.602')]);
+        }
 
         //签到写入redis
         try
@@ -65,6 +97,29 @@ class SignInController extends BaseController
             $i=Carbon::parse($i.' -1 days')->format('Ymd');
         }
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'resData'=>$res]);
+        //bbk需求
+        $continuousSignIn=$this->key.$uid;
+
+        try
+        {
+            $res=Redis::connection('SignIn')->get($continuousSignIn);
+
+            $res=json_decode($res,true);
+
+            if ($res['nextSignIn']==$star && $res['continuation']==7)
+            {
+                $res['continuation']=0;
+
+            }else
+            {
+                $res['continuation']=isset($res['continuation']) ? $res['continuation'] : 0;
+            }
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.602')]);
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'resData'=>$res['continuation']]);
     }
 }
