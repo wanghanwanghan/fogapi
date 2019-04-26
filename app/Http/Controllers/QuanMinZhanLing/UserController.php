@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\GridInfoModel;
 use App\Model\GridModel;
 use App\Model\UserTradeInfoModel;
 use Carbon\Carbon;
@@ -13,6 +14,85 @@ use Illuminate\Support\Facades\Schema;
 
 class UserController extends BaseController
 {
+    //获取用户的全部格子信息
+    public function getUserGridInfo(Request $request)
+    {
+        $uid=$request->uid;
+        $page=$request->page;
+
+        if ($page)
+        {
+            if ($request->limit=='' || !is_numeric($request->limit)) $limit=10;
+
+            $offset=($page-1)*$limit;
+
+            $gridInfo=GridModel::where('belong',$uid)->limit($limit)->offset($offset)->get(['id','name','price','totle','updated_at'])->toArray();
+
+        }else
+        {
+            $gridInfo=GridModel::where('belong',$uid)->get(['id','name','price','totle','updated_at'])->toArray();
+        }
+
+        if (empty($gridInfo)) return response()->json(['resCode'=>Config::get('resCode.605')]);
+
+        //取出id
+        $id=array_pluck($gridInfo,'id');
+
+        $gridInfoExt=GridInfoModel::where('uid',$uid)->whereIn('gid',$id)
+            ->orderBy('updated_at','desc')
+            ->get(['gid','name','showName','pic1','showPic1'])->toArray();
+
+        if (empty($gridInfoExt))
+        {
+            foreach ($gridInfo as &$one)
+            {
+                $one['price']=$one['price']+$one['totle'];
+                $one['name']=null;
+                $one['pic1']=null;
+            }
+            unset($one);
+
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$gridInfo]);
+        }
+
+        //不为空
+        foreach ($gridInfoExt as $ext)
+        {
+            foreach ($gridInfo as &$info)
+            {
+                if ($info['id']==$ext['gid'])
+                {
+                    $info['gName']=$info['name'];
+
+                    if ($ext['showName']==1)
+                    {
+                        $info['name']=$ext['name'];
+                    }else
+                    {
+                        $info['name']=null;
+                    }
+
+                    if ($ext['showPic1']==1)
+                    {
+                        $info['pic1']=$ext['pic1'];
+                    }else
+                    {
+                        $info['pic1']=null;
+                    }
+
+                    $info['timestamp']=Carbon::parse($info['updated_at'])->timestamp;
+                    $info['price']=$info['price']+$info['totle'];
+                }
+            }
+        }
+        unset($info);
+
+        $gridInfo=arraySort1($gridInfo,['desc','updated_at']);
+        $gridInfo=changeArrKey($gridInfo,['updated_at'=>'updatedAt']);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$gridInfo]);
+    }
+
     //获取用户金钱
     public function getUserMoney($uid)
     {

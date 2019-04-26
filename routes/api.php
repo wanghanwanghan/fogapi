@@ -82,6 +82,8 @@ Route::group(['middleware'=>[]],function ()
 
 
 
+    //获取用户格子全部信息
+    Route::match(['get'],'GetUserGridInfo','QuanMinZhanLing\\UserController@getUserGridInfo');
 
     //获取格子生涯概况
     Route::match(['get'],'GetGridCareer','QuanMinZhanLing\\UserController@getGridCareer');

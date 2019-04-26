@@ -30,6 +30,7 @@ class CreateGridInfoTable extends Migration
                 $table->string('showPic4','1')->nullable()->comment('可不可以显示图片4');
                 $table->timestamps();
 
+                //updated_at加索引
             });
         }
     }

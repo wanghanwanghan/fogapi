@@ -56,7 +56,7 @@ function filter3($needle,$replace,$haystack)
 }
 
 //二维数组按照某一列排序
-function arraySort1($array,$cond)
+function arraySort1($array,$cond=['desc','id'])
 {
     //$array=[
     //    ['name'=>'张1','age'=>'23'],
@@ -78,7 +78,7 @@ function arraySort1($array,$cond)
         $cond[0]='SORT_DESC';
     }
 
-    $sort=['D'=>$cond[0],'F'=>$cond[1]];
+    $sort=['Rule'=>$cond[0],'SortKey'=>$cond[1]];
 
     $arrSort=[];
 
@@ -90,7 +90,7 @@ function arraySort1($array,$cond)
         }
     }
 
-    array_multisort($arrSort[$sort['F']],constant($sort['D']),$array);
+    array_multisort($arrSort[$sort['SortKey']],constant($sort['Rule']),$array);
 
     return $array;
 }
