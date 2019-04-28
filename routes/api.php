@@ -94,6 +94,9 @@ Route::group(['middleware'=>[]],function ()
     //获取/统计用户成就
     Route::match(['get','post'],'GetAchievementForUser','QuanMinZhanLing\\AchievementController@getAchievementForUser');
 
+    //获取排行榜信息
+    Route::match(['get','post'],'GetRankList','QuanMinZhanLing\\RankListController@getRankList');
+
     //成就领取单机领取按钮，数据入库
     Route::match(['post'],'SetAchievementForUser','QuanMinZhanLing\\AchievementController@setAchievementForUser');
 });

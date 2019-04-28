@@ -166,6 +166,7 @@ class RankList extends Command
             $data[]=[
 
                 'row'=>$i,
+                'uid'=>$oneGrid['belong'],
                 'avatar'=>$userInfo['avatar'],
                 'userName'=>$userInfo['name'],
                 'gridName'=>$oneGrid['name'],
