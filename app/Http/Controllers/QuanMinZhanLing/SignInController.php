@@ -45,6 +45,8 @@ class SignInController extends BaseController
             {
                 $res['continuation']=isset($res['continuation']) ? $res['continuation'] + 1 : 1;
 
+                if ($res['continuation']==8) $res['continuation']=1;
+
             }else
             {
                 $res['continuation']=1;
@@ -106,8 +108,14 @@ class SignInController extends BaseController
 
             $res=json_decode($res,true);
 
-            if ($res['nextSignIn']==$star && $res['continuation']==7)
+            if ($res!=null && $res['nextSignIn']==$star && $res['continuation']==7)
             {
+                //第8天的时候
+                $res['continuation']=0;
+
+            }elseif (isset($res['nextSignIn']) && $star - (int)$res['nextSignIn'] > 1)
+            {
+                //签到间隔大于1天
                 $res['continuation']=0;
 
             }else
@@ -120,6 +128,10 @@ class SignInController extends BaseController
             return response()->json(['resCode'=>Config::get('resCode.602')]);
         }
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'resData'=>$res['continuation']]);
+        $today=Redis::connection('SignIn')->getbit($star,$uid);
+
+        $res['today']=(int)$today;
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'resData'=>$res]);
     }
 }

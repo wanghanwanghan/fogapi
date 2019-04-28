@@ -692,6 +692,13 @@ function decodeForAES($str,$secret)
     return false;
 }
 
+//obj to array
+function obj2arr(&$object)
+{
+    //10万数据量性能也不会差
+    $object=json_decode(json_encode($object),true);
 
+    return $object;
+}
 
 

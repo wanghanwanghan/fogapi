@@ -173,7 +173,7 @@ return [
 
 
 
-        //log相关键值或队列
+        //log相关键值或队列，排行榜
         'WriteLog' => [
             'host' => '183.136.232.236',
             'password' => 'wanghan123',

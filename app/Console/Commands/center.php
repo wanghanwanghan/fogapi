@@ -312,7 +312,7 @@ class center extends Command
             'lat'=>number_format($lat,6),
             'lng'=>number_format($lng,6),
             'geohash'=>$hash,
-            'name'=>"m0",
+            'name'=>"c0",
             'price'=>10,
             'hightPrice'=>10,
             'belong'=>0,
