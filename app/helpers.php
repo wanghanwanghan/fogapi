@@ -630,6 +630,20 @@ function storeFile($content,$uid,$grid,$type)
         $filename=$uid.'_'.$grid->id."_$type".".jpg";
     }
 
+    if ($type=='avatar')
+    {
+        $path=public_path(DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR);
+
+        $pathStoreInDB=DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR;
+
+        if (!is_dir($path))
+        {
+            mkdir($path,0777,true);
+        }
+
+        $filename=$uid.'_avatar.jpg';
+    }
+
     try
     {
         //file_put_contents($path.$filename,$content);

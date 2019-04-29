@@ -206,11 +206,26 @@ class UserController extends BaseController
         {
             $res=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first();
 
-            Redis::connection('UserInfo')->hset($uid,'name',trim($res->username));
-            Redis::connection('UserInfo')->hset($uid,'avatar',trim($res->avatar));
-
             $userinfo['name']=trim($res->username);
             $userinfo['avatar']=trim($res->avatar);
+
+            //判断远程文件存不存在，如果存在就储存头像
+            //http://www.wodeluapp.com/attachment/
+            $res=checkFileExists('http://www.wodeluapp.com/attachment/'.$userinfo['avatar']);
+
+            if ($res)
+            {
+                $img=file_get_contents('http://www.wodeluapp.com/attachment/'.$userinfo['avatar']);
+
+                $userinfo['avatar']=storeFile($img,$uid,'','avatar');
+
+            }else
+            {
+                $userinfo['avatar']='';
+            }
+
+            Redis::connection('UserInfo')->hset($uid,'name',$userinfo['name']);
+            Redis::connection('UserInfo')->hset($uid,'avatar',$userinfo['avatar']);
         }
 
         if ($uid==0)
