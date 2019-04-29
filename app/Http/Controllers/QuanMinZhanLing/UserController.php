@@ -22,7 +22,13 @@ class UserController extends BaseController
 
         if ($page)
         {
-            if ($request->limit=='' || !is_numeric($request->limit)) $limit=10;
+            if ($request->limit=='' || !is_numeric($request->limit))
+            {
+                $limit=10;
+            }else
+            {
+                $limit=$request->limit;
+            }
 
             $offset=($page-1)*$limit;
 

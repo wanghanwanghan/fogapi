@@ -20,13 +20,13 @@ class RankListController extends BaseController
         {
             case '1':
 
-                $this->getUserAssets($uid);
+                return response()->json($this->getUserAssets($uid));
 
                 break;
 
             case '2':
 
-                $this->getGridAssets($uid);
+                return response()->json($this->getGridAssets($uid));
 
                 break;
 
@@ -79,7 +79,9 @@ class RankListController extends BaseController
             unset($usr['gridPrice']);
         }
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'all'=>$all,'usr'=>$usr]);
+        $all=arraySort1($all,['asc','now']);
+
+        return ['resCode'=>Config::get('resCode.200'),'all'=>$all,'usr'=>$usr];
     }
 
     //格子资产
@@ -87,7 +89,7 @@ class RankListController extends BaseController
     {
         $res=Redis::connection('WriteLog')->get('GridRankList');
 
-        if ($res==null) return response()->json(['resCode'=>Config::get('resCode.604')]);
+        if ($res==null) return ['resCode'=>Config::get('resCode.604')];
 
         $res=json_decode($res,true);
 
@@ -109,6 +111,9 @@ class RankListController extends BaseController
         }
         unset($oneUser);
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
+        $res=arraySort1($res,['asc','row']);
+        $res=changeArrKey($res,['row'=>'now']);
+
+        return ['resCode'=>Config::get('resCode.200'),'data'=>$res];
     }
 }

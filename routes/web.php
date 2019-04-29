@@ -8,6 +8,9 @@ Route::group(['prefix'=>'admin'],function ()
     Route::get('/',function (){
 
 
+        $userInfo=new \App\Http\Controllers\QuanMinZhanLing\UserController();
+
+        $ava=$userInfo->getUserNameAndAvatar(97105);
 
 
 

@@ -632,7 +632,14 @@ function storeFile($content,$uid,$grid,$type)
 
     try
     {
-        file_put_contents($path.$filename,$content);
+        //file_put_contents($path.$filename,$content);
+
+        $image=\Intervention\Image\Facades\Image::make($content)->resize(100,100,function($constraint)
+        {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+
+        })->save($path.$filename);
 
     }catch (Exception $e)
     {
@@ -700,5 +707,24 @@ function obj2arr(&$object)
 
     return $object;
 }
+
+//判断远程或本地文件存在
+function checkFileExists($file)
+{
+    if (strtolower(substr($file,0,4))=='http')
+    {
+        $header=get_headers($file,true);
+
+        return isset($header[0]) && (strpos($header[0],'200') || strpos($header[0],'304'));
+
+    }else
+    {
+        return file_exists($file);
+    }
+}
+
+
+
+
 
 
