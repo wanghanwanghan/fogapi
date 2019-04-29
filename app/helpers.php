@@ -655,12 +655,28 @@ function storeFile($content,$uid,$grid,$type)
 
         })->save($path.$filename);
 
+        return $pathStoreInDB.$filename;
+
     }catch (Exception $e)
     {
-        return false;
-    }
+        sleep(1);
 
-    return $pathStoreInDB.$filename;
+        try
+        {
+            $image=\Intervention\Image\Facades\Image::make($content)->resize(100,100,function($constraint)
+            {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+
+            })->save($path.$filename);
+
+            return $pathStoreInDB.$filename;
+
+        }catch (Exception $w)
+        {
+            return '';
+        }
+    }
 }
 
 //多少小时前，多少分钟前

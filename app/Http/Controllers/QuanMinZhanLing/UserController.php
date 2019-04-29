@@ -200,9 +200,9 @@ class UserController extends BaseController
         $userinfo['avatar']=Redis::connection('UserInfo')->hget($uid,'avatar');
 
         //自动更新
-        if (rand(1,100) > 90) $update=true;
+        if (rand(1,100) > 80) $update=true;
 
-        if (($userinfo['name']===null && $uid!=0) || ($update==true && $uid!=0))
+        if (($userinfo['name']===null && $uid!=0) || ($update===true && $uid!=0))
         {
             $res=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first();
 
