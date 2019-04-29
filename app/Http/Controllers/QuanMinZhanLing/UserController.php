@@ -200,7 +200,7 @@ class UserController extends BaseController
         $userinfo['avatar']=Redis::connection('UserInfo')->hget($uid,'avatar');
 
         //自动更新
-        if (rand(1,100) > 80) $update=true;
+        //if (rand(1,100) > 80) $update=true;
 
         if (($userinfo['name']===null && $uid!=0) || ($update===true && $uid!=0))
         {
@@ -210,7 +210,7 @@ class UserController extends BaseController
             $userinfo['avatar']=trim($res->avatar);
 
             //判断远程文件存不存在，如果存在就储存头像
-            //http://www.wodeluapp.com/attachment/
+            //http://www.wodeluapp.com/attachment/avatar/000/13/77/19_avatar_135.jpg
             $res=checkFileExists('http://www.wodeluapp.com/attachment/'.$userinfo['avatar']);
 
             if ($res)
@@ -235,6 +235,16 @@ class UserController extends BaseController
         }
 
         return $userinfo;
+    }
+
+    //更新用户头像redis集合
+    public function changeAvatarAlready(Request $request)
+    {
+        $uid=$request->uid;
+
+        Redis::connection('WriteLog')->sadd('ChangeAvatarAlready',$uid);
+
+        return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
 
     //can i buy this grid ?

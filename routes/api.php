@@ -99,5 +99,8 @@ Route::group(['middleware'=>[]],function ()
 
     //成就领取单机领取按钮，数据入库
     Route::match(['post'],'SetAchievementForUser','QuanMinZhanLing\\AchievementController@setAchievementForUser');
+
+    //去tssj数据库更新用户头像
+    Route::match(['get'],'ChangeAvatarAlready','QuanMinZhanLing\\UserController@changeAvatarAlready');
 });
 

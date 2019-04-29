@@ -32,8 +32,11 @@ class Kernel extends ConsoleKernel
         //延时统计用户成就
         $schedule->command('Grid:Achievement')->everyFiveMinutes()->withoutOverlapping();
 
+        //延时更新用户头像
+        $schedule->command('Grid:ChangeAvatar')->everyMinute()->withoutOverlapping();
+
         //排行榜统计
-        $schedule->command('Grid:RankList')->everyMinute()->withoutOverlapping();
+        $schedule->command('Grid:RankList')->everyFiveMinutes()->withoutOverlapping();
 
 
     }
