@@ -20,26 +20,12 @@
                     <table class="table table-bordered text-center" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
-                            <th>格子主键</th>
-                            <th>用户主键</th>
-                            <th>格子编号</th>
-                            <th>用户名称</th>
-                            <th>格子名称</th>
-                            <th>审核操作</th>
+
                         </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            <td style="vertical-align: middle">1</td>
-                            <td style="vertical-align: middle">1</td>
-                            <td style="vertical-align: middle">w1n1</td>
-                            <td style="vertical-align: middle">可爱多</td>
-                            <td style="color: red;vertical-align: middle">黄小超的格子格子</td>
-                            <td style="vertical-align: middle">
-                                <a href="#" onclick="namePass();" class="btn btn-success btn-circle btn-sm">
-                                    <i class="fas fa-check"></i>
-                                </a>
-                            </td>
+                            不用审了
                         </tr>
                         </tbody>
                     </table>
@@ -50,49 +36,6 @@
     </div>
 
     <script>
-
-        //通过审核
-        function namePass()
-        {
-            swal({
-                title: "确定通过吗",
-                text: "一旦同意，不可退回",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-            })
-                .then((willDelete) => {
-                    if (willDelete) {
-
-                        //发送请求
-
-                        swal("成功", {
-                            icon: "success",
-                        });
-                    } else {
-                        //swal("取消");
-                    }
-                });
-        }
-
-        $(function () {
-
-            //获取未审核格子数据
-            var url ='/admin/grid/ajax';
-
-            var data=
-                {
-                    _token:$("input[name=_token]").val(),
-                    type  :'get_grid_name'
-                };
-
-            $.post(url,data,function (response)
-            {
-                return;
-
-            },'json');
-
-        })
 
     </script>
 

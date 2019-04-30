@@ -31,9 +31,7 @@ class ChangeAvatarNotice extends Command
 
             $res=DB::connection('tssj_old')->table('tssj_member')->where('userid',$oneUid)->first();
 
-            if ($res==null) continue;
-
-            if ($res->avatar=='') continue;
+            if ($res==null || $res->avatar=='') continue;
 
             //判断图片是否存在
             $check=checkFileExists('http://www.wodeluapp.com/attachment/'.$res->avatar);
@@ -48,6 +46,9 @@ class ChangeAvatarNotice extends Command
 
                 //等于空说明出错了
                 if ($res=='') Redis::connection('WriteLog')->sadd('ChangeAvatarAlready',$oneUid);
+
+                //头像存入redis
+                Redis::connection('UserInfo')->hset($oneUid,'avatar',$res);
 
             }catch (\Exception $e)
             {

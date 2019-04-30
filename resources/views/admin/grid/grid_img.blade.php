@@ -38,7 +38,6 @@
 
     </div>
 
-
     <script>
 
         //展示大图
@@ -50,7 +49,7 @@
                 closeBtn: 0,
                 scrollbar: false,
                 resize:false,
-                area: ['200px','200px'],
+                // area: ['200px','200px'],
                 skin: 'layui-layer-nobg', //没有背景色
                 shadeClose: true,
                 content: 'http://newfogapi.wodeluapp.com'+url

@@ -76,10 +76,16 @@ class AdminSysController extends AdminBaseController
         }
     }
 
-    //创建一个公告
-    public function sysCreate(Request $request)
+    //公告首页
+    public function sysCreate()
     {
         return view('admin.sys.sys_create');
+    }
+
+    //创建一个公告
+    public function sysCreateMsg(Request $request)
+    {
+        return view('admin.sys.sys_create_msg');
     }
 
 
