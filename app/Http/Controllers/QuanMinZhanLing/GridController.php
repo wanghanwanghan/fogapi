@@ -219,7 +219,13 @@ class GridController extends BaseController
         //只需取得头像的格子名称Array
         $near=$request->near;
 
-        $near=json_decode($near,true);
+        if (is_array($near))
+        {
+
+        }else
+        {
+            $near=json_decode($near,true);
+        }
 
         if (!is_array($near)) return response()->json(['resCode' => Config::get('resCode.604')]);
 
@@ -264,23 +270,36 @@ class GridController extends BaseController
 
         foreach ($nearUid as $row)
         {
-            //一个一个查吧
-            $one=GridInfoModel::where([
-                'gid'=>$row->id,
-                'uid'=>$row->belong,
-                'showPic1'=>1
-            ])->get(['pic1'])->first();
-
-            if ($one==null)
+            if ($row->belong==0)
             {
                 $one=$uObj->getUserNameAndAvatar($row->belong);
+
+                $tmp[$row->name]=$one['avatar'];
+
+                continue;
+
             }else
             {
-                $step=$one->pic1;
-                $one['avatar']=$step;
-            }
+                //一个一个查吧
+                $one=GridInfoModel::where([
 
-            $tmp[$row->name]=$one['avatar'];
+                    'gid'=>$row->id,
+                    'uid'=>$row->belong,
+                    'showPic1'=>1
+
+                ])->get(['pic1'])->first();
+
+                if ($one==null)
+                {
+                    $one=$uObj->getUserNameAndAvatar($row->belong);
+
+                }else
+                {
+                    $one['avatar']=$one->pic1;
+                }
+
+                $tmp[$row->name]=$one['avatar'];
+            }
         }
 
         $near=$tmp;

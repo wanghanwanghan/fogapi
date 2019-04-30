@@ -20,19 +20,19 @@
                     <div id="rootwizard">
                         <ul class="nav nav-pills nav-justified form-wizard-header mb-3">
                             <li class="nav-item" data-target-form="#accountForm">
-                                <a href="#first" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2 active">
+                                <a id="firstTitle" href="#first" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2 active">
                                     <i class="mdi mdi-account-circle mr-1"></i>
                                     <span class="d-none d-sm-inline">第一步</span>
                                 </a>
                             </li>
                             <li class="nav-item" data-target-form="#profileForm">
-                                <a href="#second" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2">
+                                <a id="secondTitle" href="#second" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2">
                                     <i class="mdi mdi-face-profile mr-1"></i>
                                     <span class="d-none d-sm-inline">第二步</span>
                                 </a>
                             </li>
                             <li class="nav-item" data-target-form="#otherForm">
-                                <a href="#third" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2">
+                                <a id="thirdTitle" href="#third" data-toggle="tab" class="nav-link rounded-0 pt-2 pb-2">
                                     <i class="mdi mdi-checkbox-marked-circle-outline mr-1"></i>
                                     <span class="d-none d-sm-inline">第三步</span>
                                 </a>
@@ -52,6 +52,19 @@
                                         </div>
                                     </div>
                                 </form>
+                                <ul class="list-inline wizard mb-0" style="margin-top: 20px;">
+                                    <li class="previous list-inline-item disabled">
+                                        {{--<a href="#" class="btn btn-info">Previous</a>--}}
+                                    </li>
+                                    <li class="next list-inline-item float-right">
+                                        <a href="#" onclick="nextStep(1)" class="btn btn-success btn-icon-split">
+                                            <span class="text">下一步</span>
+                                            <span class="icon text-white-50">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
 
                             <div class="tab-pane fade" id="second">
@@ -185,45 +198,57 @@
                                     </div>
 
                                 </form>
+                                <ul class="list-inline wizard mb-0" style="margin-top: 20px;">
+                                    <li class="previous list-inline-item disabled">
+                                        {{--<a href="#" class="btn btn-info">Previous</a>--}}
+                                    </li>
+                                    <li class="next list-inline-item float-right">
+                                        <a href="#" onclick="nextStep(2)" class="btn btn-success btn-icon-split">
+                                            <span class="text">下一步</span>
+                                            <span class="icon text-white-50">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
 
                             <div class="tab-pane fade" id="third">
-                                <form id="otherForm" method="post" action="#" class="form-horizontal"></form>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="text-center">
-                                            <h2 class="mt-0">
-                                                <i class="mdi mdi-check-all"></i>
-                                            </h2>
-                                            <h3 class="mt-0">再检查检查！</h3>
-                                            <p class="w-75 mb-2 mx-auto">头两步检查没问题了？把下面的小方块点成对勾，就可以提交了</p>
-                                            <div class="mb-3">
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="myAgree">
-                                                    <label class="custom-control-label" for="myAgree">纪申已完全知晓并同意发布此通知（甩锅单选框）</label>
+                                <form id="otherForm" method="post" action="#" class="form-horizontal">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="text-center">
+                                                <h2 class="mt-0">
+                                                    <i class="mdi mdi-check-all"></i>
+                                                </h2>
+                                                <h3 class="mt-0">再检查检查！</h3>
+                                                <p class="w-75 mb-2 mx-auto">头两步检查没问题了？把下面的小方块点成对勾，就可以提交了</p>
+                                                <div class="mb-3">
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" id="myAgree">
+                                                        <label class="custom-control-label" for="myAgree">纪申已完全知晓并同意发布此通知（甩锅单选框）</label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
-                                </div>
+                                </form>
+                                <ul class="list-inline wizard mb-0" style="margin-top: 20px;">
+                                    <li class="previous list-inline-item disabled">
+                                        {{--<a href="#" class="btn btn-info">Previous</a>--}}
+                                    </li>
+                                    <li class="next list-inline-item float-right">
+                                        <a href="#" onclick="nextStep(3)" class="btn btn-success btn-icon-split">
+                                            <span class="text">提交</span>
+                                            <span class="icon text-white-50">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        </a>
+                                    </li>
+                                </ul>
 
 
                             </div>
-
-                            <ul class="list-inline wizard mb-0" style="margin-top: 20px;">
-                                <li class="previous list-inline-item disabled">
-                                    {{--<a href="#" class="btn btn-info">Previous</a>--}}
-                                </li>
-                                <li class="next list-inline-item float-right">
-                                    <a href="#" class="btn btn-success btn-icon-split">
-                                        <span class="icon text-white-50">
-                                            <i class="fas fa-check"></i>
-                                        </span>
-                                        <span class="text">检查无误，发布通知</span>
-                                    </a>
-                                </li>
-                            </ul>
                         </div>
                     </div>
 
@@ -263,8 +288,48 @@
 
             $("#oneGrid").append("<div class=\"form-group row mb-3\"><label class=\"col-md-3 col-form-label text-center\">格子坐标</label><div class=\"col-md-9\"><div class=\"input-group\"><input type=\"text\" class=\"form-control\" name=\"myGridName[]\" placeholder=\"n1w1\"><div class=\"input-group-append\"><a class=\"btn btn-info\" style=\"width: 100px\" href=\"#\" onclick=\"createOneGrid()\">新增</a></div></div></div></div>");
 
+        }
 
+        //下一步
+        function nextStep(num) {
 
+            if (num===1)
+            {
+                $("#firstTitle").removeClass('active');
+                $('#secondTitle').addClass('active');
+                $("#thirdTitle").removeClass('active');
+
+                $('#first').removeClass('active');
+                $('#first').addClass('fade');
+
+                $('#second').removeClass('fade');
+                $('#second').addClass('active');
+
+                $("#third").removeClass('active');
+                $("#third").addClass('fade');
+            }
+
+            if (num===2)
+            {
+                $("#firstTitle").removeClass('active');
+                $('#secondTitle').removeClass('active');
+                $("#thirdTitle").addClass('active');
+
+                $('#first').removeClass('active');
+                $('#first').addClass('fade');
+
+                $('#second').removeClass('active');
+                $('#second').addClass('fade');
+
+                $("#third").removeClass('fade');
+                $("#third").addClass('active');
+            }
+
+            if (num===3)
+            {
+                //提交
+                swal("叮咚！~", "天降大锅！纪申背好！", "success");
+            }
         }
 
     </script>
