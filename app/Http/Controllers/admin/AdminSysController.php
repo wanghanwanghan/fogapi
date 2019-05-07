@@ -558,7 +558,64 @@ class AdminSysController extends AdminBaseController
     //公告首页
     public function sysCreate()
     {
-        return view('admin.sys.sys_create');
+        //取出所有信息
+        $res=SystemMessageModel::orderBy('id','desc')->get();
+
+        foreach ($res as &$one)
+        {
+            mb_strlen($one->myContent) > 20 ? $one->myContent=mb_substr($one->myContent,0,20).'...' : null;
+
+            $one->myRange==1 ? $one->myRange='全部' : null;
+            $one->myRange==2 ? $one->myRange='部分' : null;
+            $one->myRange==3 ? $one->myRange='个别' : null;
+
+            $one->myType==1 ? $one->myType='上升' : null;
+            $one->myType==2 ? $one->myType='下降' : null;
+            $one->myType==3 ? $one->myType='限制' : null;
+            $one->myType==4 ? $one->myType='解除限制' : null;
+            $one->myType==5 ? $one->myType='其他' : null;
+
+            $one->exec==1 ? $one->exec='执行完毕' : $one->exec='未执行';
+
+            $one->execTime=date('Y-m-d H:i:s',$one->execTime);
+        }
+        unset($one);
+
+        return view('admin.sys.sys_create')->with(['res'=>$res]);
+    }
+
+    //详细信息
+    public function sysMsgDetail($id)
+    {
+        $one=SystemMessageModel::find($id);
+
+        $one->myType==1 ? $one->myType='上升' : null;
+        $one->myType==2 ? $one->myType='下降' : null;
+        $one->myType==3 ? $one->myType='限制' : null;
+        $one->myType==4 ? $one->myType='解除限制' : null;
+        $one->myType==5 ? $one->myType='其他' : null;
+
+        $one->myRange==1 ? $one->myRange='全部' : null;
+        $one->myRange==2 ? $one->myRange='部分' : null;
+        $one->myRange==3 ? $one->myRange='个别' : null;
+
+        if ($one->range!='')
+        {
+            $res=json_decode($one->range,true);
+
+            $one->range='';
+            foreach ($res as $row)
+            {
+                $one->range.=$row.',';
+            }
+        }
+        $one->range=rtrim($one->range,',');
+
+        $one->exec==1 ? $one->exec='执行完毕' : $one->exec='未执行';
+
+        $one->execTime=date('Y-m-d H:i:s',$one->execTime);
+
+        return view('admin.sys.sys_msg_detail')->with(['res'=>$one]);
     }
 
     //创建一个公告

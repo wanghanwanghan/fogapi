@@ -116,7 +116,7 @@ class SystemMessage extends Command
 
             foreach ($in as $oneGridName)
             {
-                $star.=$oneGridName;
+                $star.="'".$oneGridName."'";
                 $star.=',';
             }
 
@@ -165,7 +165,7 @@ class SystemMessage extends Command
 
             foreach ($in as $oneGridName)
             {
-                $star.=$oneGridName;
+                $star.="'".$oneGridName."'";
                 $star.=',';
             }
 
@@ -214,7 +214,7 @@ class SystemMessage extends Command
 
             foreach ($in as $oneGridName)
             {
-                $star.=$oneGridName;
+                $star.="'".$oneGridName."'";
                 $star.=',';
             }
 
@@ -263,7 +263,7 @@ class SystemMessage extends Command
 
             foreach ($in as $oneGridName)
             {
-                $star.=$oneGridName;
+                $star.="'".$oneGridName."'";
                 $star.=',';
             }
 

@@ -266,7 +266,7 @@
                                                 <div class="mb-3">
                                                     <div class="custom-control custom-checkbox" onclick="$('#myAgree').val(1)">
                                                         <input type="checkbox" class="custom-control-input" id="myAgree1">
-                                                        <label class="custom-control-label" for="myAgree1">纪申已完全知晓并同意发布此通知（甩锅单选框）</label>
+                                                        <label class="custom-control-label" for="myAgree1">纪申已完全知晓并同意发布此通知<span style="color: red">（甩锅单选框）</span></label>
                                                     </div>
                                                 </div>
                                             </div>

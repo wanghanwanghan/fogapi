@@ -4,8 +4,6 @@
 
     {{--<script src="{{asset('vendor/layer/layer.js')}}"></script>--}}
 
-    {{csrf_field()}}
-
     <div class="container-fluid">
 
         <!-- Page Heading -->
@@ -33,23 +31,31 @@
                             <th>影响</th>
                             <th>类型</th>
                             <th>数值</th>
+                            <th>是否执行</th>
                             <th>执行时间</th>
                             <th>操作</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>近期市场出现寒冬</td>
-                            <td>全部</td>
-                            <td>上升</td>
-                            <td>5%</td>
-                            <td>2019-04-30</td>
-                            <td>
-                                <a href="#" class="btn btn-info btn-circle btn-sm">
-                                    <i class="fas fa-info-circle"></i>
-                                </a>
-                            </td>
-                        </tr>
+
+                        @foreach($res as $one)
+
+                            <tr>
+                                <td>{!! $one->myContent !!}</td>
+                                <td>{!! $one->myRange !!}</td>
+                                <td>{!! $one->myType !!}</td>
+                                <td>{!! $one->myNum !!}%</td>
+                                <td>{!! $one->exec !!}</td>
+                                <td>{!! $one->execTime !!}</td>
+                                <td>
+                                    <a href="{{route('sysMsgDetail',$one->id)}}" class="btn btn-info btn-circle btn-sm">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                </td>
+                            </tr>
+
+                        @endforeach
+
                         </tbody>
                     </table>
                 </div>

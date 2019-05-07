@@ -18,6 +18,7 @@ Route::group(['prefix'=>'admin'],function ()
     //系统公告
     Route::match(['get','post'],'/sys/create','admin\\AdminSysController@sysCreate')->name('sysCreate');
     Route::match(['get','post'],'/sys/create/msg','admin\\AdminSysController@sysCreateMsg')->name('sysCreateMsg');
+    Route::match(['get','post'],'/sys/create/msg/detail/{id}','admin\\AdminSysController@sysMsgDetail')->name('sysMsgDetail');
     Route::match(['post'],'/sys/ajax','admin\\AdminSysController@sysAjax');
 
 
