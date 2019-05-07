@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Model\Admin\SystemMessageModel;
 use App\Model\GridModel;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -587,7 +588,7 @@ class AdminSysController extends AdminBaseController
     //详细信息
     public function sysMsgDetail($id)
     {
-        $one=SystemMessageModel::find($id);
+        if (($one=SystemMessageModel::find($id))==null) return 'no page';
 
         $one->myType==1 ? $one->myType='上升' : null;
         $one->myType==2 ? $one->myType='下降' : null;

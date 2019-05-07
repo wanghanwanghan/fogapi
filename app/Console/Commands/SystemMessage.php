@@ -33,7 +33,7 @@ class SystemMessage extends Command
             if ($res==null) break;
 
             //如果第一个就离执行时间很远
-            //if (is_numeric($res->execTime) && $res->execTime - time() >= 90) break;
+            if (is_numeric($res->execTime) && $res->execTime - time() >= 90) break;
 
             switch ($res->myType)
             {

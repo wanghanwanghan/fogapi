@@ -32,13 +32,6 @@ Route::group(['middleware'=>['init']],function ()
 
 
 
-
-
-
-
-
-
-
 });
 
 Route::group(['middleware'=>[]],function ()
@@ -102,5 +95,8 @@ Route::group(['middleware'=>[]],function ()
 
     //去tssj数据库更新用户头像
     Route::match(['get'],'ChangeAvatarAlready','QuanMinZhanLing\\UserController@changeAvatarAlready');
+
+    //获取系统通知
+    Route::match(['get'],'GetSystemMessage','QuanMinZhanLing\\SystemController@getSystemMessage');
 });
 

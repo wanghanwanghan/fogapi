@@ -2,6 +2,17 @@
 用户换头像成功后请求的接口
 
 get
+http://newfogapi.wodeluapp.com/api/GetSystemMessage
+
+参数
+没参数
+
+备注
+没备注
+=================================================================
+用户换头像成功后请求的接口
+
+get
 http://newfogapi.wodeluapp.com/api/ChangeAvatarAlready
 
 参数
