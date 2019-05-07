@@ -302,8 +302,8 @@ class center extends Command
         }
 
 
-        $lat='39.9104';
-        $lng='116.397392';
+        $lat='39.9104';//-50.0896
+        $lng='116.397392';//-63.602608
 
         $hash=$geo->encode($lat,$lng,12);
 

@@ -39,6 +39,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('Grid:RankList')->everyFiveMinutes()->withoutOverlapping();
 
 
+        //后台发的系统通知
+        $schedule->command('Admin:SystemMessage')->everyMinute()->withoutOverlapping();
     }
 
     /**

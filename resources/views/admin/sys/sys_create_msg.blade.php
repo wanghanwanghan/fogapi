@@ -68,92 +68,131 @@
                             </div>
 
                             <div class="tab-pane fade" id="second">
-                                <form id="profileForm" method="post" action="#" class="form-horizontal">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group row mb-3">
-                                                <label class="col-md-3 col-form-label text-center">通知类型</label>
-                                                <div class="col-md-9">
-                                                    <div class="col-12">
-                                                        <div class="row">
-                                                            <div class="form-group col-2 mt-2">
-                                                                <div class="custom-control custom-radio">
-                                                                    <input type="radio" id="myType1" name="myType" class="custom-control-input">
-                                                                    <label class="custom-control-label" for="myType1">上升</label>
-                                                                </div>
-                                                            </div>
 
-                                                            <div class="form-group col-2 mt-2">
-                                                                <div class="custom-control custom-radio">
-                                                                    <input type="radio" id="myType2" name="myType" class="custom-control-input">
-                                                                    <label class="custom-control-label" for="myType2">下降</label>
-                                                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group row mb-3">
+                                            <label class="col-md-3 col-form-label text-center">通知类型</label>
+                                            <div class="col-md-9">
+                                                <div class="col-12">
+                                                    <div class="row">
+                                                        <div class="form-group col-2 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyType(1);">
+                                                                <input type="radio" id="myType1" name="myType" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myType1">上升</label>
                                                             </div>
+                                                        </div>
 
-                                                            <div class="form-group col-2 mt-2">
-                                                                <div class="custom-control custom-radio">
-                                                                    <input type="radio" id="myType3" name="myType" class="custom-control-input">
-                                                                    <label class="custom-control-label" for="myType3">限制</label>
-                                                                </div>
+                                                        <div class="form-group col-2 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyType(2);">
+                                                                <input type="radio" id="myType2" name="myType" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myType2">下降</label>
                                                             </div>
+                                                        </div>
 
-                                                            <div class="form-group col-3 mt-2">
-                                                                <div class="custom-control custom-radio">
-                                                                    <input type="radio" id="myType4" name="myType" class="custom-control-input">
-                                                                    <label class="custom-control-label" for="myType4">解除限制</label>
-                                                                </div>
+                                                        <div class="form-group col-2 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyType(3);">
+                                                                <input type="radio" id="myType3" name="myType" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myType3">限制</label>
                                                             </div>
+                                                        </div>
 
-                                                            <div class="form-group col-2 mt-2">
-                                                                <div class="custom-control custom-radio">
-                                                                    <input type="radio" id="myType5" name="myType" class="custom-control-input">
-                                                                    <label class="custom-control-label" for="myType5">其他</label>
-                                                                </div>
+                                                        <div class="form-group col-3 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyType(4);">
+                                                                <input type="radio" id="myType4" name="myType" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myType4">解除限制</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group col-2 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyType(5);">
+                                                                <input type="radio" id="myType5" name="myType" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myType5">其他</label>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group row mb-3">
-                                                <label class="col-md-3 col-form-label text-center" for="myNum">数值</label>
-                                                <div class="col-md-9">
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control" name="myNum" id="myNum" placeholder="输入数字，处理的时候被认作百分数">
-                                                        <div class="input-group-append">
-                                                            <a class="btn btn-info" href="#">%</a>
+                                        </div>
+                                        <div class="form-group row mb-3">
+                                            <label class="col-md-3 col-form-label text-center" for="myNum">数值</label>
+                                            <div class="col-md-9">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" name="myNum" id="myNum" placeholder="输入数字，处理的时候被认作百分数">
+                                                    <div class="input-group-append">
+                                                        <a class="btn btn-info" href="#">%</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row mb-3">
+                                            <label class="col-md-3 col-form-label text-center">影响范围</label>
+                                            <div class="col-md-9">
+                                                <div class="col-12">
+                                                    <div class="row">
+                                                        <div class="form-group col-2 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyRange(1);">
+                                                                <input onclick="showPlane(1)" type="radio" id="myRange1" name="myRange" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myRange1">全部</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group col-2 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyRange(2);">
+                                                                <input onclick="showPlane(2)" type="radio" id="myRange2" name="myRange" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myRange2">部分</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group col-2 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyRange(3);">
+                                                                <input onclick="showPlane(3)" type="radio" id="myRange3" name="myRange" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myRange3">个别</label>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group row mb-3">
-                                                <label class="col-md-3 col-form-label text-center">影响范围</label>
-                                                <div class="col-md-9">
-                                                    <div class="col-12">
-                                                        <div class="row">
-                                                            <div class="form-group col-2 mt-2">
-                                                                <div class="custom-control custom-radio">
-                                                                    <input onclick="showPlane(1)" type="radio" id="myRange1" name="myRange" class="custom-control-input">
-                                                                    <label class="custom-control-label" for="myRange1">全部</label>
-                                                                </div>
-                                                            </div>
+                                        </div>
 
-                                                            <div class="form-group col-2 mt-2">
-                                                                <div class="custom-control custom-radio">
-                                                                    <input onclick="showPlane(2)" type="radio" id="myRange2" name="myRange" class="custom-control-input">
-                                                                    <label class="custom-control-label" for="myRange2">部分</label>
-                                                                </div>
+                                        <div class="form-group row mb-3">
+                                            <label class="col-md-3 col-form-label text-center">执行时间</label>
+                                            <div class="col-md-9">
+                                                <div class="col-12">
+                                                    <div class="row">
+                                                        <div class="form-group col-3 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyExecTime(1);">
+                                                                <input type="radio" id="myExecTime1" name="myExecTime" checked class="custom-control-input">
+                                                                <label class="custom-control-label" for="myExecTime1">立即执行</label>
                                                             </div>
+                                                        </div>
 
-                                                            <div class="form-group col-2 mt-2">
-                                                                <div class="custom-control custom-radio">
-                                                                    <input onclick="showPlane(3)" type="radio" id="myRange3" name="myRange" class="custom-control-input">
-                                                                    <label class="custom-control-label" for="myRange3">个别</label>
-                                                                </div>
+                                                        <div class="form-group col-3 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyExecTime(2);">
+                                                                <input type="radio" id="myExecTime2" name="myExecTime" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myExecTime2">3小时后</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group col-3 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyExecTime(3);">
+                                                                <input type="radio" id="myExecTime3" name="myExecTime" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myExecTime3">6小时后</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group col-3 mt-2">
+                                                            <div class="custom-control custom-radio" onclick="choseMyExecTime(4);">
+                                                                <input type="radio" id="myExecTime4" name="myExecTime" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myExecTime4">9小时后</label>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
+
+                                        <form id="changeMyObj">
 
                                             <div id="rangeGrid" style="display: none">
                                                 <div class="form-group row mb-3">
@@ -185,7 +224,7 @@
                                                     <label class="col-md-3 col-form-label text-center">格子坐标</label>
                                                     <div class="col-md-9">
                                                         <div class="input-group">
-                                                            <input type="text" class="form-control" name="myGridName[]" placeholder="n1w1">
+                                                            <input type="text" class="form-control" name="myGridName" placeholder="n1w1">
                                                             <div class="input-group-append">
                                                                 <a class="btn btn-info" style="width: 100px" href="#" onclick="createOneGrid()">新增</a>
                                                             </div>
@@ -194,10 +233,11 @@
                                                 </div>
                                             </div>
 
-                                        </div>
-                                    </div>
+                                        </form>
 
-                                </form>
+                                    </div>
+                                </div>
+
                                 <ul class="list-inline wizard mb-0" style="margin-top: 20px;">
                                     <li class="previous list-inline-item disabled">
                                         {{--<a href="#" class="btn btn-info">Previous</a>--}}
@@ -224,9 +264,9 @@
                                                 <h3 class="mt-0">再检查检查！</h3>
                                                 <p class="w-75 mb-2 mx-auto">头两步检查没问题了？把下面的小方块点成对勾，就可以提交了</p>
                                                 <div class="mb-3">
-                                                    <div class="custom-control custom-checkbox">
-                                                        <input type="checkbox" class="custom-control-input" id="myAgree">
-                                                        <label class="custom-control-label" for="myAgree">纪申已完全知晓并同意发布此通知（甩锅单选框）</label>
+                                                    <div class="custom-control custom-checkbox" onclick="$('#myAgree').val(1)">
+                                                        <input type="checkbox" class="custom-control-input" id="myAgree1">
+                                                        <label class="custom-control-label" for="myAgree1">纪申已完全知晓并同意发布此通知（甩锅单选框）</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -258,6 +298,11 @@
 
     </div>
 
+    {{--传值区--}}
+    <input type="hidden" id="myType" value=""/>
+    <input type="hidden" id="myRange" value=""/>
+    <input type="hidden" id="myAgree" value=""/>
+    <input type="hidden" id="myExecTime" value="1"/>
 
     <script>
 
@@ -286,7 +331,7 @@
         //新建一个个别格子
         function createOneGrid() {
 
-            $("#oneGrid").append("<div class=\"form-group row mb-3\"><label class=\"col-md-3 col-form-label text-center\">格子坐标</label><div class=\"col-md-9\"><div class=\"input-group\"><input type=\"text\" class=\"form-control\" name=\"myGridName[]\" placeholder=\"n1w1\"><div class=\"input-group-append\"><a class=\"btn btn-info\" style=\"width: 100px\" href=\"#\" onclick=\"createOneGrid()\">新增</a></div></div></div></div>");
+            $("#oneGrid").append("<div class=\"form-group row mb-3\"><label class=\"col-md-3 col-form-label text-center\">格子坐标</label><div class=\"col-md-9\"><div class=\"input-group\"><input type=\"text\" class=\"form-control\" name=\"myGridName\" placeholder=\"n1w1\"><div class=\"input-group-append\"><a class=\"btn btn-info\" style=\"width: 100px\" href=\"#\" onclick=\"createOneGrid()\">新增</a></div></div></div></div>");
 
         }
 
@@ -327,9 +372,65 @@
 
             if (num===3)
             {
-                //提交
-                swal("叮咚！~", "天降大锅！纪申背好！", "success");
+                //甩锅
+                if ($("#myAgree").val()=='')
+                {
+                    swal("请把甩锅单选框打勾")
+                        .then((value) => {
+                        });
+
+                    return;
+                }
+
+                var url ='/admin/sys/ajax';
+
+                var data=
+                    {
+                        _token:$("input[name=_token]").val(),
+                        type  :'create_sys_msg',
+                        myContent:$("#myContent").val(),//通知内容
+                        myType:$("#myType").val(),//上升，下降，限制，解除限制，其他
+                        myNum:$("#myNum").val(),//变化的数值
+                        myRange:$("#myRange").val(),//全部，部分，个别
+                        myAgree:$("#myAgree").val(),//纪申check
+                        myExecTime:$("#myExecTime").val(),
+                        changeMyObj:$("#changeMyObj").serializeArray()//要改变的对象
+                    };
+
+                $.post(url,data,function (response)
+                {
+                    if (response.error==0)
+                    {
+                        //提交
+                        swal("天降大锅！纪申背好！")
+                            .then((value) => {
+                                location.href='/admin/sys/create?'+value;
+                            });
+                    }else
+                    {
+                        alert('出错了');
+                    }
+
+                },'json');
             }
+        }
+
+        function choseMyType(num) {
+
+            $("#myType").val(num);
+
+        }
+
+        function choseMyRange(num) {
+
+            $("#myRange").val(num);
+
+        }
+
+        function choseMyExecTime(num) {
+
+            $("#myExecTime").val(num);
+
         }
 
     </script>

@@ -39,7 +39,7 @@ class UserController extends BaseController
             $gridInfo=GridModel::where('belong',$uid)->get(['id','name','price','totle','updated_at'])->toArray();
         }
 
-        if (empty($gridInfo)) return response()->json(['resCode'=>Config::get('resCode.605')]);
+        if (empty($gridInfo)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>null]);
 
         //取出id
         $id=array_pluck($gridInfo,'id');
@@ -60,6 +60,9 @@ class UserController extends BaseController
 
             return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$gridInfo]);
         }
+
+        //获取用户头像
+        $avatar=(new UserController())->getUserNameAndAvatar($uid);
 
         //不为空
         foreach ($gridInfoExt as $ext)
@@ -83,7 +86,7 @@ class UserController extends BaseController
                         $info['pic1']=$ext['pic1'];
                     }else
                     {
-                        $info['pic1']=null;
+                        $info['pic1']=$avatar['avatar'];
                     }
 
                     $info['timestamp']=Carbon::parse($info['updated_at'])->timestamp;
@@ -327,7 +330,16 @@ class UserController extends BaseController
 
         foreach ($res as &$val)
         {
-            isset($val['paytime']) ? $val['paytime']=formatDate($val['paytime']) : null;
+            if (isset($val['paytime']))
+            {
+                $val['datetime']=date('Y-m-d H:i:s',$val['paytime']);
+                $val['paytime']=formatDate($val['paytime']);
+
+            }else
+            {
+                $val['paytime']=null;
+                $val['datetime']=null;
+            }
         }
         unset($val);
 
