@@ -113,7 +113,7 @@ class SignInController extends BaseController
                 //第8天的时候
                 $res['continuation']=0;
 
-            }elseif (isset($res['nextSignIn']) && $star - (int)$res['nextSignIn'] > 1)
+            }elseif (isset($res['nextSignIn']) && $star - (int)$res['nextSignIn'] >= 1)
             {
                 //签到间隔大于1天
                 $res['continuation']=0;

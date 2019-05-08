@@ -14,7 +14,7 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">
-                    <a href="{{route('sysCreateMsg')}}" class="btn btn-success btn-icon-split">
+                    <a href="{{route('sysCreateMsgForGrid')}}" class="btn btn-success btn-icon-split">
                         <span class="text">新建公告</span>
                         <span class="icon text-white-50">
                             <i class="fas fa-smile-beam"></i>
@@ -27,7 +27,7 @@
                     <table class="table table-bordered text-center" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
-                            <th>内容</th>
+                            <th>标题</th>
                             <th>影响</th>
                             <th>类型</th>
                             <th>数值</th>
@@ -41,7 +41,7 @@
                         @foreach($res as $one)
 
                             <tr>
-                                <td>{!! $one->myContent !!}</td>
+                                <td>{!! $one->mySubject !!}</td>
                                 <td>{!! $one->myRange !!}</td>
                                 <td>{!! $one->myType !!}</td>
                                 <td>{!! $one->myNum !!}%</td>

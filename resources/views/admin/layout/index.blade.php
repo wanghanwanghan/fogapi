@@ -59,9 +59,17 @@
       </div>
 
       <li class="nav-item">
-        <a class="nav-link" href="{{route('sysCreate')}}">
+        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
           <i class="fas fa-fw fa-table"></i>
-          <span>发布公告</span></a>
+          <span>发布公告</span>
+        </a>
+        <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar" style="">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header" style="color: red">要发布哪种公告？</h6>
+            <a class="collapse-item" href="{{route('sysCreateForUser')}}">公告-对人</a>
+            <a class="collapse-item" href="{{route('sysCreateForGrid')}}">公告-对格</a>
+          </div>
+        </div>
       </li>
 
       <!-- Divider -->

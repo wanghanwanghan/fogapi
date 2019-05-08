@@ -44,6 +44,12 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group row mb-3">
+                                                <label class="col-md-3 col-form-label text-center" for="mySubject">标题</label>
+                                                <div class="col-md-9">
+                                                    <textarea class="form-control" id="mySubject" name="mySubject" rows="2" style="margin-top: 0px; margin-bottom: 0px; height: 60px;" placeholder="输入简单的标题"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row mb-3">
                                                 <label class="col-md-3 col-form-label text-center" for="myContent">通知内容</label>
                                                 <div class="col-md-9">
                                                     <textarea class="form-control" id="myContent" name="myContent" rows="5" style="margin-top: 0px; margin-bottom: 0px; height: 150px;" placeholder="输入简单的描述，别输入乱七八糟的字符或符号"></textarea>
@@ -71,60 +77,108 @@
 
                                 <div class="row">
                                     <div class="col-12">
+
                                         <div class="form-group row mb-3">
                                             <label class="col-md-3 col-form-label text-center">通知类型</label>
                                             <div class="col-md-9">
                                                 <div class="col-12">
                                                     <div class="row">
                                                         <div class="form-group col-2 mt-2">
-                                                            <div class="custom-control custom-radio" onclick="choseMyType(1);">
-                                                                <input type="radio" id="myType1" name="myType" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myType1">上升</label>
+                                                            <div class="custom-control custom-radio">
+                                                                <input onclick="choseMyType(1);" type="radio" id="myType1" name="myType" checked class="custom-control-input">
+                                                                <label class="custom-control-label" for="myType1">加钱</label>
                                                             </div>
                                                         </div>
 
                                                         <div class="form-group col-2 mt-2">
-                                                            <div class="custom-control custom-radio" onclick="choseMyType(2);">
-                                                                <input type="radio" id="myType2" name="myType" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myType2">下降</label>
+                                                            <div class="custom-control custom-radio">
+                                                                <input onclick="choseMyType(2);" type="radio" id="myType2" name="myType" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myType2">送道具</label>
                                                             </div>
                                                         </div>
 
-                                                        <div class="form-group col-2 mt-2">
-                                                            <div class="custom-control custom-radio" onclick="choseMyType(3);">
-                                                                <input type="radio" id="myType3" name="myType" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myType3">限制</label>
-                                                            </div>
-                                                        </div>
 
-                                                        <div class="form-group col-3 mt-2">
-                                                            <div class="custom-control custom-radio" onclick="choseMyType(4);">
-                                                                <input type="radio" id="myType4" name="myType" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myType4">解除限制</label>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="form-group col-2 mt-2">
-                                                            <div class="custom-control custom-radio" onclick="choseMyType(5);">
-                                                                <input type="radio" id="myType5" name="myType" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myType5">其他</label>
-                                                            </div>
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-group row mb-3">
+
+                                        <div id="myNumPlane" class="form-group row mb-3">
                                             <label class="col-md-3 col-form-label text-center" for="myNum">数值</label>
                                             <div class="col-md-9">
                                                 <div class="input-group">
-                                                    <input type="text" class="form-control" name="myNum" id="myNum" placeholder="输入数字，处理的时候被认作百分数">
                                                     <div class="input-group-append">
-                                                        <a class="btn btn-info" href="#">%</a>
+                                                        <a class="btn btn-info" href="#">￥</a>
+                                                    </div>
+                                                    <input type="text" class="form-control" name="myNum" id="myNum" placeholder="输入正整数，别整乱起八糟的">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="myGoodsPlane" class="form-group row mb-3 d-none">
+                                            <label class="col-md-3 col-form-label text-center" for="myGoods">道具</label>
+                                            <div class="col-md-9">
+                                                <div class="input-group">
+                                                    <div class="input-group-append">
+                                                        <a class="btn btn-info" href="#"><i class="fas fa-fw fa-wrench"></i></a>
+                                                    </div>
+                                                    <select class="form-control" id="myGoods" name="myGoods">
+                                                        <option value="1">小超的帽子</option>
+                                                        <option value="2">小超的裤衩</option>
+                                                        <option value="3">小超的袜子</option>
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <a class="btn btn-info" style="width: 100px" href="#" onclick="createOneGoods()">确定送出</a>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div id="sendGoodsPlane" class="form-group row mb-3 d-none">
+                                            <label class="col-md-3 col-form-label text-center" for="myGoods">准备送出</label>
+                                            <div class="col-md-9">
+                                                <div class="input-group">
+
+                                                    <div class="card bg-secondary text-white shadow">
+                                                        <div class="card-body">
+                                                            小超的帽子
+                                                            <div class="text-white-50 small">智商上涨10%</div>
+                                                        </div>
+                                                    </div>
+                                                    <sup>
+                                                        <a href="#" class="btn btn-danger btn-circle btn-sm">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </sup>
+                                                    <div style="width: 5%;height: 10px;"></div>
+                                                    <div class="card bg-secondary text-white shadow">
+                                                        <div class="card-body">
+                                                            小超的裤衩
+                                                            <div class="text-white-50 small">闷骚上涨10%</div>
+                                                        </div>
+                                                    </div>
+                                                    <sup>
+                                                        <a href="#" class="btn btn-danger btn-circle btn-sm">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </sup>
+                                                    <div style="width: 5%;height: 10px;"></div>
+                                                    <div class="card bg-secondary text-white shadow">
+                                                        <div class="card-body">
+                                                            小超的袜子
+                                                            <div class="text-white-50 small">封号一名玩家</div>
+                                                        </div>
+                                                    </div>
+                                                    <sup>
+                                                        <a href="#" class="btn btn-danger btn-circle btn-sm">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </sup>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div class="form-group row mb-3">
                                             <label class="col-md-3 col-form-label text-center">影响范围</label>
                                             <div class="col-md-9">
@@ -132,59 +186,48 @@
                                                     <div class="row">
                                                         <div class="form-group col-2 mt-2">
                                                             <div class="custom-control custom-radio" onclick="choseMyRange(1);">
-                                                                <input onclick="showPlane(1)" type="radio" id="myRange1" name="myRange" class="custom-control-input">
+                                                                <input onclick="showPlane(1)" type="radio" id="myRange1" name="myRange" checked class="custom-control-input">
                                                                 <label class="custom-control-label" for="myRange1">全部</label>
                                                             </div>
                                                         </div>
 
-                                                        <div class="form-group col-2 mt-2">
-                                                            <div class="custom-control custom-radio" onclick="choseMyRange(2);">
-                                                                <input onclick="showPlane(2)" type="radio" id="myRange2" name="myRange" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myRange2">部分</label>
-                                                            </div>
-                                                        </div>
 
-                                                        <div class="form-group col-2 mt-2">
-                                                            <div class="custom-control custom-radio" onclick="choseMyRange(3);">
-                                                                <input onclick="showPlane(3)" type="radio" id="myRange3" name="myRange" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myRange3">个别</label>
-                                                            </div>
-                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="form-group row mb-3">
-                                            <label class="col-md-3 col-form-label text-center">执行时间</label>
+                                            <label class="col-md-3 col-form-label text-center">领取截至日</label>
                                             <div class="col-md-9">
                                                 <div class="col-12">
                                                     <div class="row">
                                                         <div class="form-group col-3 mt-2">
                                                             <div class="custom-control custom-radio" onclick="choseMyExecTime(1);">
-                                                                <input type="radio" id="myExecTime1" name="myExecTime" checked class="custom-control-input">
-                                                                <label class="custom-control-label" for="myExecTime1">立即执行</label>
+                                                                <input type="radio" id="myExecTime1" name="myExecTime" class="custom-control-input">
+                                                                <label class="custom-control-label" for="myExecTime1">今天</label>
                                                             </div>
                                                         </div>
 
                                                         <div class="form-group col-3 mt-2">
                                                             <div class="custom-control custom-radio" onclick="choseMyExecTime(2);">
-                                                                <input type="radio" id="myExecTime2" name="myExecTime" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myExecTime2">3小时后</label>
+                                                                <input type="radio" id="myExecTime2" name="myExecTime" checked class="custom-control-input">
+                                                                <label class="custom-control-label" for="myExecTime2">3天后</label>
                                                             </div>
                                                         </div>
 
                                                         <div class="form-group col-3 mt-2">
                                                             <div class="custom-control custom-radio" onclick="choseMyExecTime(3);">
                                                                 <input type="radio" id="myExecTime3" name="myExecTime" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myExecTime3">6小时后</label>
+                                                                <label class="custom-control-label" for="myExecTime3">9天后</label>
                                                             </div>
                                                         </div>
 
                                                         <div class="form-group col-3 mt-2">
                                                             <div class="custom-control custom-radio" onclick="choseMyExecTime(4);">
                                                                 <input type="radio" id="myExecTime4" name="myExecTime" class="custom-control-input">
-                                                                <label class="custom-control-label" for="myExecTime4">9小时后</label>
+                                                                <label class="custom-control-label" for="myExecTime4">27天后</label>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -299,10 +342,10 @@
     </div>
 
     {{--传值区--}}
-    <input type="hidden" id="myType" value=""/>
-    <input type="hidden" id="myRange" value=""/>
+    <input type="hidden" id="myType" value="1"/>
+    <input type="hidden" id="myRange" value="1"/>
     <input type="hidden" id="myAgree" value=""/>
-    <input type="hidden" id="myExecTime" value="1"/>
+    <input type="hidden" id="myExecTime" value="2"/>
 
     <script>
 
@@ -328,10 +371,8 @@
             }
         }
 
-        //新建一个个别格子
-        function createOneGrid() {
-
-            $("#oneGrid").append("<div class=\"form-group row mb-3\"><label class=\"col-md-3 col-form-label text-center\">格子坐标</label><div class=\"col-md-9\"><div class=\"input-group\"><input type=\"text\" class=\"form-control\" name=\"myGridName\" placeholder=\"n1w1\"><div class=\"input-group-append\"><a class=\"btn btn-info\" style=\"width: 100px\" href=\"#\" onclick=\"createOneGrid()\">新增</a></div></div></div></div>");
+        //确定送出该道具
+        function createOneGoods() {
 
         }
 
@@ -387,7 +428,8 @@
                 var data=
                     {
                         _token:$("input[name=_token]").val(),
-                        type  :'create_sys_msg',
+                        type  :'create_sys_msg_for_user',
+                        mySubject:$("#mySubject").val(),//通知标题
                         myContent:$("#myContent").val(),//通知内容
                         myType:$("#myType").val(),//上升，下降，限制，解除限制，其他
                         myNum:$("#myNum").val(),//变化的数值
@@ -404,7 +446,7 @@
                         //提交
                         swal("天降大锅！纪申背好！")
                             .then((value) => {
-                                location.href='/admin/sys/create?'+value;
+                                location.href='/admin/sys/create/user';
                             });
                     }else
                     {
@@ -419,6 +461,22 @@
 
             $("#myType").val(num);
 
+            if (num===1)
+            {
+                $("#myNumPlane").removeClass('d-none');
+
+                $("#myGoodsPlane").addClass('d-none');
+                $("#sendGoodsPlane").addClass('d-none');
+
+            }
+
+            if (num===2)
+            {
+                $("#myGoodsPlane").removeClass('d-none');
+                $("#sendGoodsPlane").removeClass('d-none');
+
+                $("#myNumPlane").addClass('d-none');
+            }
         }
 
         function choseMyRange(num) {

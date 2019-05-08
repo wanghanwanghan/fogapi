@@ -23,7 +23,9 @@ class SystemController extends BaseController
 
             $res=Cache::remember('SystemMessage_type_1',2,function () use ($limit,$offset){
 
-                return SystemMessageModel::where('exec',1)->orderBy('id','desc')->limit($limit)->offset($offset)->get(['id','myContent','execTime'])->toArray();
+                return SystemMessageModel::where('exec',1)
+                    ->orderBy('id','desc')
+                    ->limit($limit)->offset($offset)->get(['id','myContent','execTime'])->toArray();
 
             });
 
@@ -31,7 +33,8 @@ class SystemController extends BaseController
         {
             $res=Cache::remember('SystemMessage_type_2',10,function (){
 
-                return SystemMessageModel::where('exec',1)->orderBy('id','desc')->get(['id','myContent','execTime'])->toArray();
+                return SystemMessageModel::where('exec',1)
+                    ->orderBy('id','desc')->get(['id','myContent','execTime'])->toArray();
 
             });
         }
@@ -43,5 +46,11 @@ class SystemController extends BaseController
         unset($one);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
+    }
+
+    //公告栏是否显示小红点
+    public function showRedDot()
+    {
+
     }
 }

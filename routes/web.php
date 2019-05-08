@@ -10,15 +10,19 @@ Route::group(['prefix'=>'admin'],function ()
 
 
 
-
         return view('admin.index');
 
     })->name('main');
 
     //系统公告
-    Route::match(['get','post'],'/sys/create','admin\\AdminSysController@sysCreate')->name('sysCreate');
-    Route::match(['get','post'],'/sys/create/msg','admin\\AdminSysController@sysCreateMsg')->name('sysCreateMsg');
+    Route::match(['get','post'],'/sys/create/grid','admin\\AdminSysController@sysCreateForGrid')->name('sysCreateForGrid');
+    Route::match(['get','post'],'/sys/create/msg/grid','admin\\AdminSysController@sysCreateMsgForGrid')->name('sysCreateMsgForGrid');
+
+    Route::match(['get','post'],'/sys/create/user','admin\\AdminSysController@sysCreateForUser')->name('sysCreateForUser');
+    Route::match(['get','post'],'/sys/create/msg/user','admin\\AdminSysController@sysCreateMsgForUser')->name('sysCreateMsgForUser');
+
     Route::match(['get','post'],'/sys/create/msg/detail/{id}','admin\\AdminSysController@sysMsgDetail')->name('sysMsgDetail');
+
     Route::match(['post'],'/sys/ajax','admin\\AdminSysController@sysAjax');
 
 

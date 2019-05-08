@@ -19,6 +19,15 @@
                     <table class="table table-bordered text-center" id="dataTable" width="100%" cellspacing="0">
                         <tr>
                             <th>
+                                标题
+                            </th>
+                            <td>
+                                {!! $res->mySubject !!}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
                                 内容
                             </th>
                             <td>
@@ -40,7 +49,7 @@
                                 数值
                             </th>
                             <td>
-                                {!! $res->myNum !!}
+                                ￥{!! $res->myNum !!}
                             </td>
                         </tr>
 
@@ -64,7 +73,7 @@
 
                         <tr>
                             <th>
-                                是否执行
+                                是否到期
                             </th>
                             <td>
                                 {!! $res->exec !!}
@@ -73,7 +82,7 @@
 
                         <tr>
                             <th>
-                                执行时间
+                                领取截至
                             </th>
                             <td>
                                 {!! $res->execTime !!}

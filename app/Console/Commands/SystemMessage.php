@@ -35,51 +35,78 @@ class SystemMessage extends Command
             //如果第一个就离执行时间很远
             if (is_numeric($res->execTime) && $res->execTime - time() >= 90) break;
 
-            switch ($res->myType)
+            //针对格子的
+            if ($res->myObj==1)
             {
-                case '1':
+                switch ($res->myType)
+                {
+                    case '1':
 
-                    //处理 上升
-                    $this->type1($res);
+                        //处理 上升
+                        $this->type1($res);
 
-                    break;
+                        break;
 
-                case '2':
+                    case '2':
 
-                    //处理 下降
-                    $this->type2($res);
+                        //处理 下降
+                        $this->type2($res);
 
-                    break;
+                        break;
 
-                case '3':
+                    case '3':
 
-                    //处理 限制
-                    $this->type3($res);
+                        //处理 限制
+                        $this->type3($res);
 
-                    break;
+                        break;
 
-                case '4':
+                    case '4':
 
-                    //处理 解除限制
-                    $this->type4($res);
+                        //处理 解除限制
+                        $this->type4($res);
 
-                    break;
+                        break;
 
-                case '5':
+                    case '5':
 
-                    //处理 其他
-                    $this->type5($res);
+                        //处理 其他
+                        $this->type5($res);
 
-                    break;
+                        break;
 
-                default:
+                    default:
 
-                    break;
+                        break;
+                }
+            }
+
+            //针对人的
+            if ($res->myObj==2)
+            {
+                switch ($res->myType)
+                {
+                    case '1':
+
+                        //查看是否已经不能领取
+                        $this->typeForUser1($res);
+
+                        break;
+
+                    default:
+
+                        break;
+                }
             }
 
             //设置成已经执行完毕
             $this->mySave($res);
         }
+    }
+
+    public function typeForUser1($model)
+    {
+
     }
 
     public function type1($model)
@@ -285,7 +312,22 @@ class SystemMessage extends Command
 
     public function mySave($model)
     {
-        $model->exec=1;
-        $model->save();
+        if ($model->myObj==1)
+        {
+            $model->exec=1;
+            $model->save();
+        }
+
+        if ($model->myObj==2)
+        {
+            //查看是否到领取期限
+            if (time() - $model->execTime <= 0)
+            {
+                $model->exec=1;
+                $model->save();
+            }
+        }
+
+        return true;
     }
 }

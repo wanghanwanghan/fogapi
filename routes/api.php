@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
 //防暴力请求中间件，请求中必须带uid
-Route::group(['middleware'=>['init']],function ()
+Route::group(['middleware'=>[]],function ()
 {
     //买格子
     Route::match(['post'],'BuyGrid','QuanMinZhanLing\\GridController@buyGrid');
@@ -30,12 +30,6 @@ Route::group(['middleware'=>['init']],function ()
 
     });
 
-
-
-});
-
-Route::group(['middleware'=>[]],function ()
-{
     //每日签到
     Route::match(['post'],'SignIn','QuanMinZhanLing\\SignInController@signIn');
 
