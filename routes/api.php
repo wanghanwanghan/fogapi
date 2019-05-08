@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
 //防暴力请求中间件，请求中必须带uid
-Route::group(['middleware'=>[]],function ()
+Route::group(['middleware'=>['PVandUV']],function ()
 {
     //买格子
     Route::match(['post'],'BuyGrid','QuanMinZhanLing\\GridController@buyGrid');
