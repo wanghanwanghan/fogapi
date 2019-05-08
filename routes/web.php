@@ -7,10 +7,11 @@ Route::group(['prefix'=>'admin'],function ()
     //管理后台路由
     Route::get('/',function (){
 
+        $info=\Illuminate\Support\Facades\Redis::connection('default')->get('ServerInfo');
 
+        $info=json_decode($info,true);
 
-
-        return view('admin.index');
+        return view('admin.index')->with(['info'=>$info]);
 
     })->name('main');
 
