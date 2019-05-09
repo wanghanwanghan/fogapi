@@ -7,6 +7,7 @@ Route::group(['prefix'=>'admin'],function ()
     //管理后台路由
     Route::get('/',function (){
 
+
         $info=\Illuminate\Support\Facades\Redis::connection('default')->get('ServerInfo');
 
         $info=json_decode($info,true);
@@ -34,9 +35,8 @@ Route::group(['prefix'=>'admin'],function ()
     Route::match(['post'],'/grid/ajax','admin\\AdminGridController@gridAjax');
 
 
-
-
-
+    //系统安全相关
+    Route::match(['post'],'/security/ajax','QuanMinZhanLing\\SecurityController@ajax');
 });
 
 

@@ -205,7 +205,7 @@ function addressForIP($ip)
         return ['area'=>'查询失败','location'=>'loading...'];
     }else
     {
-        return $res_arry['result'];
+        return $res_arry;
     }
 }
 

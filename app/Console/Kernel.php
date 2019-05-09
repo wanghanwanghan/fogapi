@@ -41,6 +41,9 @@ class Kernel extends ConsoleKernel
         //后台admin的控制面板，计算cpu，内存，硬盘占用
         $schedule->command('Admin:ServerInfo')->everyMinute()->withoutOverlapping();
 
+        //后台admin的控制面板，统计用户分布情况
+        $schedule->command('Admin:UserDistribution')->daily()->withoutOverlapping();
+
         //后台发的系统通知
         $schedule->command('Admin:SystemMessage')->everyMinute()->withoutOverlapping();
     }
