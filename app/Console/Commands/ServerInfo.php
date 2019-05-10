@@ -42,7 +42,14 @@ class ServerInfo extends Command
 
                 if (!empty(current($thisRes)))
                 {
-                    $info['cpu']['us']=$tmp[2];
+                    foreach ($tmp as $cpu)
+                    {
+                        if (is_numeric($cpu))
+                        {
+                            $info['cpu']['us']=$cpu;
+                            break;
+                        }
+                    }
                 }
 
                 preg_match_all('/Mem/',$tmp[1],$thisRes);
@@ -72,13 +79,9 @@ class ServerInfo extends Command
 
             $res=explode(' ',$res);
 
-            if (is_numeric(rtrim($res[13],',')))
-            {
-                $num=rtrim($res[13],',');
-            }else
-            {
-                $num=rtrim($res[14],',');
-            }
+            $arrCount=count($res);
+
+            $num=rtrim($res[$arrCount-3],',');
 
             $info['cpu']['loadAverage']=rtrim($num,',');
 
