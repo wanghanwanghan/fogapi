@@ -42,7 +42,7 @@ class ServerInfo extends Command
 
                 if (!empty(current($thisRes)))
                 {
-                    $info['cpu']=$tmp[2];
+                    $info['cpu']['us']=$tmp[2];
                 }
 
                 preg_match_all('/Mem/',$tmp[1],$thisRes);
@@ -59,6 +59,20 @@ class ServerInfo extends Command
                     $info['swap']=['totle'=>$tmp[2],'free'=>$tmp[4],'used'=>$tmp[13]];
                 }
             }
+
+            //查看负载
+            //load average
+            $fp=popen("top -b -n 2 | egrep 'load average' | head -1","r");
+
+            $rs=fread($fp,1024);
+
+            pclose($fp);
+
+            $res=current(array_filter(explode(PHP_EOL,$rs)));
+
+            $res=explode(' ',$res);
+
+            $info['cpu']['loadAverage']=rtrim($res[13],',');
 
             //查看磁盘
             $fp=popen('df -lh | egrep "/dev/sda3"',"r");
