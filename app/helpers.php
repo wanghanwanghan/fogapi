@@ -638,6 +638,22 @@ function storeFile($content,$uid,$grid,$type)
 {
     $suffix=$uid%5;
 
+    //pic2是格子排行榜第一名的图片
+    if ($type=='pic2')
+    {
+        $path=public_path(DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR);
+
+        $pathStoreInDB=DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR;
+
+        if (!is_dir($path))
+        {
+            mkdir($path,0777,true);
+        }
+
+        $filename=$uid.'_'.$grid->id."_$type".".jpg";
+    }
+
+    //pic1是格子图片
     if ($type=='pic1')
     {
         $path=public_path(DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR);

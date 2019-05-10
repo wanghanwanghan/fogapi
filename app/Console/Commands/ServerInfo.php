@@ -72,7 +72,15 @@ class ServerInfo extends Command
 
             $res=explode(' ',$res);
 
-            $info['cpu']['loadAverage']=rtrim($res[13],',');
+            if (is_numeric(rtrim($res[13],',')))
+            {
+                $num=rtrim($res[13],',');
+            }else
+            {
+                $num=rtrim($res[14],',');
+            }
+
+            $info['cpu']['loadAverage']=rtrim($num,',');
 
             //查看磁盘
             $fp=popen('df -lh | egrep "/dev/sda3"',"r");
