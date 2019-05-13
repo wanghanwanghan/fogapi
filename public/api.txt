@@ -27,7 +27,9 @@ get
 http://newfogapi.wodeluapp.com/api/GetSystemMessage
 
 参数
+int      uid=17480           用户主键
 int      type=1              查全部还是分批查，1是查前几个，2是查全部
+int      page=1              查第几页
 int      limit=5             查几条，默认是5
 
 备注

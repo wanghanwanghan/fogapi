@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\QuanMinZhanLing;
 
 use App\Model\Admin\SystemMessageModel;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Model\GetGoodsBySysMsgModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -13,6 +13,7 @@ class SystemController extends BaseController
     //获取系统通知
     public function getSystemMessage(Request $request)
     {
+        $uid=$request->uid;
         $request->type==''  ? $type=1   : $type=$request->type;
         $request->page==''  ? $page=1   : $page=$request->page;
         $request->limit=='' ? $limit=5  : $limit=$request->limit;
@@ -37,8 +38,17 @@ class SystemController extends BaseController
             });
         }
 
+        $suffix=$uid%3;
+        GetGoodsBySysMsgModel::suffix($suffix);
+
         foreach ($res as &$one)
         {
+            if ($one['myObj']==2)
+            {
+                //大于0说明数据库里有数据，是已经领取的状态
+                GetGoodsBySysMsgModel::where(['uid'=>$uid,'sid'=>$one['id']])->count()>0 ? $one['canIOpen']=0 : $one['canIOpen']=1;
+            }
+
             $one['time']=formatDate($one['execTime']);
 
             if (strpos($one['time'],'-')!==false) $one['time']=formatDate(strtotime($one['created_at']));
@@ -105,13 +115,22 @@ class SystemController extends BaseController
 
         if ($type!==1 && $type!==2) return response()->json(['resCode' => Config::get('resCode.604')]);
 
+        //通过uid分三张表中
+        $suffix=$uid%3;
 
+        GetGoodsBySysMsgModel::suffix($suffix);
 
+        if (GetGoodsBySysMsgModel::where(['uid'=>$uid,'sid'=>$id])->count()!=0)
+        {
+            //说明已经领取过了
+            return response()->json(['resCode' => Config::get('resCode.631')]);
 
+        }else
+        {
+            GetGoodsBySysMsgModel::create(['uid'=>$uid,'sid'=>$id]);
+        }
 
-
-
-        return true;
+        return response()->json(['resCode' => Config::get('resCode.200')]);
     }
 
 
