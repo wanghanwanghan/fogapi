@@ -40,6 +40,8 @@ class SystemController extends BaseController
         foreach ($res as &$one)
         {
             $one['time']=formatDate($one['execTime']);
+
+            if (strpos($one['time'],'-')!==false) $one['time']=formatDate(strtotime($one['created_at']));
         }
         unset($one);
 
@@ -88,8 +90,29 @@ class SystemController extends BaseController
         return md5($tradeInfo_md5.$systemInfo_md5);
     }
 
+    //领取物品
+    public function getGoodsOrMoney(Request $request)
+    {
+        //公告信息中可能给用户发钱或者发道具
+        $id=$request->id;//公告主键
+        $uid=$request->uid;//用户主键
+        $type=(int)$request->type;//1是领钱，2是领物品
+        $gid=json_decode($request->gid,true);//物品主键
+
+        if (!is_numeric($id) && $id==0) return response()->json(['resCode' => Config::get('resCode.604')]);
+
+        if (!is_numeric($uid) && $uid==0) return response()->json(['resCode' => Config::get('resCode.604')]);
+
+        if ($type!==1 && $type!==2) return response()->json(['resCode' => Config::get('resCode.604')]);
 
 
+
+
+
+
+
+        return true;
+    }
 
 
 
