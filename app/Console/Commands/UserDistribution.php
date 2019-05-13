@@ -36,6 +36,9 @@ class UserDistribution extends Command
             //如果不是ip，继续下一个
             if (!preg_match('#^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$#',$arrKey)) continue;
 
+            //ip在集合里
+            if (Redis::connection('SignIn')->sismember($obj->userDistribution.'_tmp',$arrKey)=='1') continue;
+
             try
             {
                 $res=addressForIP($arrKey);
@@ -57,7 +60,9 @@ class UserDistribution extends Command
             if (!isset($res['result']['area'])) continue;
 
             //存在area
-            Redis::connection('SignIn')->zincrby($obj->userDistribution,$val,$res['result']['area']);
+            Redis::connection('SignIn')->zincrby($obj->userDistribution,1,$res['result']['area']);
+
+            Redis::connection('SignIn')->sadd($obj->userDistribution.'_tmp',$arrKey);
         }
     }
 }
