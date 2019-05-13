@@ -54,6 +54,10 @@ class SystemController extends BaseController
         //做法是请求两个接口，一个是交易信息，要给是系统信息
         //返回结果md5发给前端
 
+        $uid=$request->uid;
+
+        if ($uid=='') return response()->json(['resCode' => Config::get('resCode.601')]);
+
         //交易信息
         $userObj=new UserController();
 

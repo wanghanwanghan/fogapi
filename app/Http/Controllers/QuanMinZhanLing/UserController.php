@@ -20,6 +20,8 @@ class UserController extends BaseController
         $uid=$request->uid;
         $page=$request->page;
 
+        if ($uid=='') return response()->json(['resCode' => Config::get('resCode.601')]);
+
         if ($page)
         {
             if ($request->limit=='' || !is_numeric($request->limit))
