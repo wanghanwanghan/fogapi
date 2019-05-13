@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\QuanMinZhanLing;
 
 use App\Model\Admin\SystemMessageModel;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -46,6 +47,23 @@ class SystemController extends BaseController
         unset($one);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
+    }
+
+    //获取系统通知详情
+    public function getSystemMessageDetail($id)
+    {
+        if ($id!='' && $id!=null && $id!=0 && is_numeric($id))
+        {
+            $res=SystemMessageModel::find($id);
+
+            if ($res==null) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>null]);
+
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res->toArray()]);
+
+        }else
+        {
+            return response()->json(['resCode' => Config::get('resCode.604')]);
+        }
     }
 
     //公告栏是否显示小红点
