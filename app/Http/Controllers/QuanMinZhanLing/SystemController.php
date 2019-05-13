@@ -104,12 +104,12 @@ class SystemController extends BaseController
     public function getGoodsOrMoney(Request $request)
     {
         //公告信息中可能给用户发钱或者发道具
-        $id=$request->id;//公告主键
+        $sid=$request->sid;//公告主键
         $uid=$request->uid;//用户主键
         $type=(int)$request->type;//1是领钱，2是领物品
         $gid=json_decode($request->gid,true);//物品主键
 
-        if (!is_numeric($id) && $id==0) return response()->json(['resCode' => Config::get('resCode.604')]);
+        if (!is_numeric($sid) && $sid==0) return response()->json(['resCode' => Config::get('resCode.604')]);
 
         if (!is_numeric($uid) && $uid==0) return response()->json(['resCode' => Config::get('resCode.604')]);
 
@@ -120,14 +120,14 @@ class SystemController extends BaseController
 
         GetGoodsBySysMsgModel::suffix($suffix);
 
-        if (GetGoodsBySysMsgModel::where(['uid'=>$uid,'sid'=>$id])->count()!=0)
+        if (GetGoodsBySysMsgModel::where(['uid'=>$uid,'sid'=>$sid])->count()!=0)
         {
             //说明已经领取过了
             return response()->json(['resCode' => Config::get('resCode.631')]);
 
         }else
         {
-            GetGoodsBySysMsgModel::create(['uid'=>$uid,'sid'=>$id]);
+            GetGoodsBySysMsgModel::create(['uid'=>$uid,'sid'=>$sid]);
         }
 
         return response()->json(['resCode' => Config::get('resCode.200')]);
