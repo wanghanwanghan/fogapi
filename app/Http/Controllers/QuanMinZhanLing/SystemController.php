@@ -22,20 +22,17 @@ class SystemController extends BaseController
             //分批查
             $offset=($page-1)*$limit;
 
-            $res=Cache::remember('SystemMessage_type_1',2,function () use ($limit,$offset){
+            $res=Cache::remember('SystemMessage_type_1',1,function () use ($limit,$offset){
 
-                return SystemMessageModel::where('exec',1)
-                    ->orderBy('id','desc')
-                    ->limit($limit)->offset($offset)->get(['id','mySubject','execTime'])->toArray();
+                return SystemMessageModel::orderBy('id','desc')->limit($limit)->offset($offset)->get()->toArray();
 
             });
 
         }else
         {
-            $res=Cache::remember('SystemMessage_type_2',10,function (){
+            $res=Cache::remember('SystemMessage_type_2',1,function (){
 
-                return SystemMessageModel::where('exec',1)
-                    ->orderBy('id','desc')->get(['id','mySubject','execTime'])->toArray();
+                return SystemMessageModel::orderBy('id','desc')->get()->toArray();
 
             });
         }
@@ -90,4 +87,18 @@ class SystemController extends BaseController
 
         return md5($tradeInfo_md5.$systemInfo_md5);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

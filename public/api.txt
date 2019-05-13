@@ -13,10 +13,10 @@ int      uid=174800          用户主键
 获取系统通知详情
 
 get
-http://newfogapi.wodeluapp.com/api/GetSystemMessage
+http://newfogapi.wodeluapp.com/api/GetSystemMessage/变量id
 
 参数
-int      type=1              系统通知id
+int      id=1              系统通知id
 
 备注
 没备注
