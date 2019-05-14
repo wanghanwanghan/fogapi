@@ -208,7 +208,7 @@ class UserController extends BaseController
         //自动更新
         //if (rand(1,100) > 80) $update=true;
 
-        if (($userinfo['name']===null && $uid!=0) || ($update===true && $uid!=0))
+        if (($userinfo['name']=='' && $uid!=0) || ($userinfo['avatar']=='' && $uid!=0) || ($update===true && $uid!=0))
         {
             $res=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first();
 
