@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
+use Intervention\Image\Facades\Image;
 
 class UserController extends BaseController
 {
@@ -381,5 +382,35 @@ class UserController extends BaseController
         Redis::connection('UserInfo')->hset($uid,'TradeGridTotle',(int)$tradeTotle+$num);
 
         return true;
+    }
+
+    //分享
+    public function shareOnePicture()
+    {
+        // create Image from file
+        $img = Image::make('public/test.svg');
+
+        dd($img);
+
+        // write text
+        $img->text('The quick brown fox jumps over the lazy dog.');
+
+        // write text at position
+        $img->text('The quick brown fox jumps over the lazy dog.', 120, 100);
+
+        // use callback to define details
+        $img->text('foo', 0, 0, function($font) {
+            $font->file('foo/bar.ttf');
+            $font->size(24);
+            $font->color('#fdf6e3');
+            $font->align('center');
+            $font->valign('top');
+            $font->angle(45);
+        });
+
+        // draw transparent text
+        $img->text('foo', 0, 0, function($font) {
+            $font->color(array(255, 255, 255, 0.5));
+        });
     }
 }

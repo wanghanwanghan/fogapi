@@ -321,7 +321,7 @@ class SystemMessage extends Command
         if ($model->myObj==2)
         {
             //查看是否到领取期限
-            if (time() - $model->execTime <= 0)
+            if (time() - $model->execTime >= 0)
             {
                 $model->exec=1;
                 $model->save();

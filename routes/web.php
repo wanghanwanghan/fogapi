@@ -9,6 +9,16 @@ Route::group(['prefix'=>'admin'],function ()
 
 
 
+        $user=new \App\Http\Controllers\QuanMinZhanLing\UserController();
+
+
+        dd($user->shareOnePicture());
+
+
+
+
+
+
 
         $info=\Illuminate\Support\Facades\Redis::connection('default')->get('ServerInfo');
 
