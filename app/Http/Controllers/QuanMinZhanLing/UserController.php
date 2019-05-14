@@ -205,10 +205,6 @@ class UserController extends BaseController
         $userinfo['name']=Redis::connection('UserInfo')->hget($uid,'name');
         $userinfo['avatar']=Redis::connection('UserInfo')->hget($uid,'avatar');
 
-
-        if ($uid=='137545') dd($userinfo);
-
-
         //自动更新
         //if (rand(1,100) > 80) $update=true;
 
