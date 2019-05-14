@@ -387,28 +387,15 @@ class UserController extends BaseController
     //分享
     public function shareOnePicture()
     {
-        // create Image from file
-        $img = Image::make(public_path('test.jpg'));
+        $img=Image::make(public_path('test.jpg'));
 
-        // write text
-//        $img->text('The quick brown fox jumps over the lazy dog.');
-
-        // write text at position
-//        $img->text('The quick brown fox jumps over the lazy dog.', 120, 100);
-
-        // use callback to define details
-        $img->text('foo', 0, 0, function($font) {
-            $font->file(public_path('test.ttf'));
+        $img->text('草泥马沙比m1ma', 300, 100, function($font) {
+            $font->file(public_path('ttf/AliFont.ttf'));
             $font->size(24);
             $font->color('#fdf6e3');
             $font->align('center');
             $font->valign('top');
-            $font->angle(45);
-        });
+        })->save(public_path('test1.jpg'));
 
-        // draw transparent text
-//        $img->text('foo', 0, 0, function($font) {
-//            $font->color(array(255, 255, 255, 0.5));
-//        });
     }
 }
