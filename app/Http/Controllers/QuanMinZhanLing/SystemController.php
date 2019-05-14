@@ -107,7 +107,7 @@ class SystemController extends BaseController
         $sid=$request->sid;//公告主键
         $uid=$request->uid;//用户主键
         $type=(int)$request->type;//1是领钱，2是领物品
-        $gid=json_decode($request->gid,true);//物品主键
+        //$gid=json_decode($request->gid,true);//物品主键
 
         if (!is_numeric($sid) && $sid==0) return response()->json(['resCode' => Config::get('resCode.604')]);
 
