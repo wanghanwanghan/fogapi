@@ -389,6 +389,14 @@ class UserController extends BaseController
     {
         $img=Image::make(public_path('test.jpg'));
 
+        $img->text('1234567890', 300, 200, function($font) {
+            $font->file(public_path('ttf/AliFont.ttf'));
+            $font->size(24);
+            $font->color('#fdf6e3');
+            $font->align('center');
+            $font->valign('top');
+        });
+
         $img->text('草泥马沙比m1ma', 300, 100, function($font) {
             $font->file(public_path('ttf/AliFont.ttf'));
             $font->size(24);
@@ -397,5 +405,6 @@ class UserController extends BaseController
             $font->valign('top');
         })->save(public_path('test1.jpg'));
 
+        return url('test1.jpg');
     }
 }
