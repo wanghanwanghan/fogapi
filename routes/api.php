@@ -94,7 +94,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
     Route::match(['get'],'GetSystemMessage','QuanMinZhanLing\\SystemController@getSystemMessage');
 
     //获取系统通知详情
-    Route::match(['get'],'GetSystemMessage/{id}','QuanMinZhanLing\\SystemController@getSystemMessageDetail');
+    Route::match(['get'],'GetSystemMessage/{id}','QuanMinZhanLing\\SystemController@getSystemMessageDetail')->where('id','[0-9]+');
 
     //领取系统通知中的钱或道具
     Route::match(['post'],'GetGoodsOrMoney','QuanMinZhanLing\\SystemController@getGoodsOrMoney');
