@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\GridModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -143,6 +144,27 @@ class SecurityController extends BaseController
                 }
 
                 return $res;
+
+                break;
+
+            case 'get_grid_frequency':
+
+                $suffix=Carbon::now()->format('Ym');
+
+                $data=DB::connection('masterDB')->select("select gid,count(1) as count from buy_sale_info_{$suffix} group by gid order by count desc limit 0,5");
+
+                foreach ($data as $one)
+                {
+                    $gridName=GridModel::where('id',$one->gid)->first();
+
+                    $res[$gridName->name]=$one->count;
+                }
+
+                return $res;
+
+                break;
+
+            case '':
 
                 break;
 
