@@ -684,7 +684,7 @@ function storeFile($content,$uid,$grid,$type)
 
     try
     {
-        //file_put_contents($path.$filename,$content);
+        //640*360
 
         $image=\Intervention\Image\Facades\Image::make($content)->resize(100,100,function($constraint)
         {
