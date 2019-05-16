@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\QuanMinZhanLing\UserController;
+use App\Model\GridInfoModel;
 use App\Model\GridModel;
 use App\Model\RankListModel;
 use Illuminate\Database\Schema\Blueprint;
@@ -163,11 +164,14 @@ class RankList extends Command
         {
             $userInfo=$userController->getUserNameAndAvatar($oneGrid['belong']);
 
+            $pic1=GridInfoModel::where(['uid'=>$oneGrid['belong'],'gid'=>$oneGrid['id'],'showPic1'=>1])->first();
+
             $data[]=[
 
                 'row'=>$i,
                 'uid'=>$oneGrid['belong'],
                 'avatar'=>$userInfo['avatar'],
+                'pic1'=>$pic1==null ? null : $pic1->pic1,
                 'userName'=>$userInfo['name'],
                 'gridName'=>$oneGrid['name'],
                 'price'=>$oneGrid['price']+$oneGrid['totle']

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\QuanMinZhanLing;
 
 use App\Model\GridInfoModel;
+use App\Model\GridModel;
 use App\Model\RankListModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -98,7 +99,9 @@ class RankListController extends BaseController
         {
             if ($oneUser['row']!=1) continue;
 
-            $pic2=GridInfoModel::where(['uid'=>$oneUser['uid'],'showPic2'=>1])->first();
+            $gid=GridModel::where(['name'=>$oneUser['gridName'],'belong'=>$oneUser['uid']])->first();
+
+            $pic2=GridInfoModel::where(['uid'=>$oneUser['uid'],'gid'=>$gid->id,'showPic2'=>1])->first();
 
             if ($pic2==null)
             {

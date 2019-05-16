@@ -27,13 +27,13 @@ class SystemMessage extends Command
         for ($i=1;$i<=10;$i++)
         {
             //取出没执行的对象
-            $res=SystemMessageModel::where('exec',0)->where('execTime','>=',time())->orderBy('execTime','asc')->first();
+            $res=SystemMessageModel::where('exec',0)->orderBy('execTime','asc')->first();
 
             //没有符合的
             if ($res==null) break;
 
-            //如果第一个就离执行时间很远
-            if (is_numeric($res->execTime) && $res->execTime - time() >= 90) break;
+            //没到时间呢，不在这一分钟里
+            if (is_numeric($res->execTime) && $res->execTime - time() > 60) break;
 
             //针对格子的
             if ($res->myObj==1)
