@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
-use App\Model\GridInfoModel;
-use App\Model\GridModel;
 use App\Model\RankListModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -93,26 +91,6 @@ class RankListController extends BaseController
         if ($res==null) return ['resCode'=>Config::get('resCode.604')];
 
         $res=json_decode($res,true);
-
-        //取得格子第一名的图片
-        foreach ($res as &$oneUser)
-        {
-            if ($oneUser['row']!=1) continue;
-
-            $gid=GridModel::where(['name'=>$oneUser['gridName'],'belong'=>$oneUser['uid']])->first();
-
-            $pic2=GridInfoModel::where(['uid'=>$oneUser['uid'],'gid'=>$gid->id,'showPic2'=>1])->first();
-
-            if ($pic2==null)
-            {
-                $oneUser['pic2']=null;
-
-            }else
-            {
-                $oneUser['pic2']=$pic2->pic2;
-            }
-        }
-        unset($oneUser);
 
         $res=arraySort1($res,['asc','row']);
         $res=changeArrKey($res,['row'=>'now']);

@@ -164,7 +164,11 @@ class RankList extends Command
         {
             $userInfo=$userController->getUserNameAndAvatar($oneGrid['belong']);
 
+            //格子图片
             $pic1=GridInfoModel::where(['uid'=>$oneGrid['belong'],'gid'=>$oneGrid['id'],'showPic1'=>1])->first();
+
+            //格子第一显示图片
+            $pic2=GridInfoModel::where(['uid'=>$oneGrid['belong'],'gid'=>$oneGrid['id'],'showPic2'=>1])->first();
 
             $data[]=[
 
@@ -172,6 +176,7 @@ class RankList extends Command
                 'uid'=>$oneGrid['belong'],
                 'avatar'=>$userInfo['avatar'],
                 'pic1'=>$pic1==null ? null : $pic1->pic1,
+                'pic2'=>$pic2==null ? null : $pic2->pic2,
                 'userName'=>$userInfo['name'],
                 'gridName'=>$oneGrid['name'],
                 'price'=>$oneGrid['price']+$oneGrid['totle']
