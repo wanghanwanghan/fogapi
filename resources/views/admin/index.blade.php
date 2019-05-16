@@ -4,13 +4,11 @@
 
     <div class="container-fluid">
 
-        <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">服务器信息</h1>
+            {{--<h1 class="h3 mb-0 text-gray-800">热点信息</h1>--}}
             {{--<a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>--}}
         </div>
 
-        <!-- Content Row -->
         <div class="row">
 
             <!-- Earnings (Monthly) Card Example -->
@@ -163,6 +161,47 @@
                 </div>
             </div>
         </div>
+
+        <div class="row">
+
+            <!-- Area Chart -->
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">当月格子交易量展示</h6>
+                        <div class="input-group" style="width: 250px">
+                            <input type="text" class="form-control bg-light border-0 small" placeholder="输入格子编号或主键">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" onclick="alert('没做呢')" type="button">
+                                    <i class="fas fa-search fa-sm">搜索</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="chart-area" id="gridTradeInfoFather">
+                            <div class="chartjs-size-monitor">
+                                <div class="chartjs-size-monitor-expand">
+                                    <div class="">
+
+                                    </div>
+                                </div>
+                                <div class="chartjs-size-monitor-shrink">
+                                    <div class="">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <canvas id="gridTradeInfo" style="display: block; height: 320px; width: 584px;" width="1168" height="640" class="chartjs-render-monitor"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
     </div>
 
     {{csrf_field()}}

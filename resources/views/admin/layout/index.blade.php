@@ -47,7 +47,7 @@
       <li class="nav-item active">
         <a class="nav-link" href="{{route('main')}}">
           <i class="fas fa-fw fa-tachometer-alt"></i>
-          <span>控制面板</span></a>
+          <span>热点信息</span></a>
       </li>
 
       <!-- Divider -->

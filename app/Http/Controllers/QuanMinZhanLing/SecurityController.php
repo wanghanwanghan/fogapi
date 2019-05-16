@@ -4,6 +4,7 @@ namespace App\Http\Controllers\QuanMinZhanLing;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 class SecurityController extends BaseController
@@ -105,6 +106,43 @@ class SecurityController extends BaseController
                 //这里只要取得redis值就行，不计算
 
                 return Redis::connection('SignIn')->zrevrange($this->userDistribution,0,4,'withscores');
+
+                break;
+
+            case 'get_all_grid_trade_info':
+
+                $suffix=Carbon::now()->format('Ym');
+
+                $date=DB::connection('masterDB')->select("select FROM_UNIXTIME(paytime,'%Y%m%d') as myDay,count(1) as myTotal from buy_sale_info_{$suffix} group by myDay");
+
+                foreach ($date as $one)
+                {
+                    $all[$one->myDay]=$one->myTotal;
+                }
+
+                $mStart=Carbon::now()->startOfMonth()->format('Ymd');
+
+                $mNow=Carbon::now()->format('Ymd');
+
+                for ($i=1;$i<=33;$i++)
+                {
+                    if ($mNow - $mStart < 0) break;
+
+                    $arrKey=(int)substr($mNow,-2);
+
+                    if (array_key_exists($mNow,$all))
+                    {
+                        $res[$arrKey]=$all[$mNow];
+
+                    }else
+                    {
+                        $res[$arrKey]=0;
+                    }
+
+                    $mNow--;
+                }
+
+                return $res;
 
                 break;
 
