@@ -102,5 +102,9 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
     //是否显示小红点
     Route::match(['get'],'ShowRedDot','QuanMinZhanLing\\SystemController@showRedDot');
+
+    //分享图片
+    Route::match(['get'],'SharePicture','QuanMinZhanLing\\UserController@sharePicture');
+
 });
 

@@ -389,19 +389,37 @@ class UserController extends BaseController
     {
         $uid=$request->uid;
 
+        if (!is_numeric($uid)) return response()->json(['resCode' => Config::get('resCode.601')]);
+
         $img=Image::make(public_path('imgModel/sharePicModel.jpg'));
 
-        $gridTotle=random_int(0,999);
+        //用户的格子总数
+        $gridTotle=GridModel::where('belong',$uid)->count();
+
+        //格子的占地面积
         $gridArea=round(2.8 * 2.8 * $gridTotle,2).' km²';
-        $moneyTotle=random_int(1000000,9999999);
+
+        //总资产
+        $moneyTotle=(new RankListController())->getUserAssets($uid);
+
+        if (isset($moneyTotle['usr']['totleAssets']))
+        {
+            $moneyTotle=$moneyTotle['usr']['totleAssets'];
+        }else
+        {
+            $moneyTotle=0;
+        }
+
+        //设计思路是把所有点击过分享的用户放到一个有序集合中，只统计在集合中的用户//WriteLog
         $percent=random_int(1,100).'%';
 
         $fontFree=public_path('ttf/Arial.ttf');
+
         $w=0;
         $h=5;
 
-        $fileName='test'.random_int(0,100).'.jpg';
-        $savePath=public_path('img/CanDelete/'.$fileName);
+        $fileName='sharePicture_'.$uid.'.jpg';
+        $savePath=public_path('imgCanDelete/'.$fileName);
 
         //已经占领了多少个格子
         $img->text($gridTotle, 656+$w, 504+$h, function($font) use ($fontFree){
@@ -430,17 +448,25 @@ class UserController extends BaseController
             $font->valign('top');
         });
 
-        //超过多少用户
-        $img->text($percent, 590+$w, 885+$h, function($font) use ($fontFree){
-            $font->file($fontFree);
-            $font->size(70);
-            $font->color('#e74a3b');
-            $font->align('center');
-            $font->valign('top');
-        })->save($savePath);
+        try
+        {
+            //超过多少用户
+            $img->text($percent, 590+$w, 885+$h, function($font) use ($fontFree){
+                $font->file($fontFree);
+                $font->size(70);
+                $font->color('#e74a3b');
+                $font->align('center');
+                $font->valign('top');
+            })->save($savePath);
 
-        delFileByCtime(public_path('img/CanDelete'),1);
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode' => Config::get('resCode.623')]);
+        }
 
-        return response()->json(['resCode' => Config::get('resCode.200'),'data'=>url($fileName)]);
+        //删除5分钟以前的图片
+        delFileByCtime(public_path('imgCanDelete'),5);
+
+        return response()->json(['resCode' => Config::get('resCode.200'),'data'=>url('imgCanDelete/'.$fileName)]);
     }
 }

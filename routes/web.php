@@ -9,12 +9,6 @@ Route::group(['prefix'=>'admin'],function ()
 
 
 
-        $obj=new \App\Http\Controllers\QuanMinZhanLing\UserController();
-
-        $obj->sharePicture();
-
-
-
 
 
 
