@@ -1,4 +1,14 @@
 =================================================================
+上传格子排名第一的背景图
+
+post
+http://newfogapi.wodeluapp.com/api/UploadPic/pic2
+
+参数
+int      uid=17469                     用户主键
+string   gName=n1w1                    格子名称
+string   pic2=KJHUYIdfhdkfHDJH78787JY  base64_encode后的图片内容
+=================================================================
 是否显示小红点
 
 get

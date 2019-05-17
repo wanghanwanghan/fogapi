@@ -11,7 +11,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
     //修改格子的名称和上传图片
     Route::match(['post'],'RenameGrid','QuanMinZhanLing\\GridController@renameGrid');
-    Route::match(['post'],'UploadPic/pic1','QuanMinZhanLing\\GridController@uploadPic');
+    Route::match(['post'],'UploadPic/pic1','QuanMinZhanLing\\GridController@uploadPic');//格子背景图
+    Route::match(['post'],'UploadPic/pic2','QuanMinZhanLing\\GridController@uploadPic');//格子第一背景图
 
     //格子详情
     Route::match(['post'],'GridDetails','QuanMinZhanLing\\GridController@gridDetails');

@@ -334,27 +334,53 @@ class GridController extends BaseController
         $uid=$request->uid;
         $gName=$request->gName;
         $base64Pic=$request->pic;
+        $base64Pic2=$request->pic2;
 
         $grid=GridModel::where('name',$gName)->first();
 
         if ($grid->belong!=$uid) return response()->json(['resCode' => Config::get('resCode.618')]);
 
-        //得到orm实力
+        //得到orm实例
         $gridInfo=GridInfoModel::firstOrNew(['uid'=>$uid,'gid'=>$grid->id]);
 
         //保存用户上传的图片base64格式
-        $img=uploadMyImg($base64Pic);
+        $img =uploadMyImg($base64Pic);
+        $img2=uploadMyImg($base64Pic2);
 
-        if (!$img) return response()->json(['resCode' => Config::get('resCode.619')]);
+        if (!$img && !$img2) return response()->json(['resCode' => Config::get('resCode.619')]);
 
         //保存图片到服务器
-        $path=storeFile($img,$uid,$grid,'pic1');
+        if ($img!=false)
+        {
+            $path=storeFile($img,$uid,$grid,'pic1');
+
+        }elseif ($img2!=false)
+        {
+            $path=storeFile($img2,$uid,$grid,'pic2');
+
+        }else
+        {
+
+        }
 
         if (!$path) return response()->json(['resCode' => Config::get('resCode.620')]);
 
         //path入库，等待后台审核
-        $gridInfo->pic1=$path;
-        $gridInfo->showPic1=0;
+        if ($img!=false)
+        {
+            $gridInfo->pic1=$path;
+            $gridInfo->showPic1=0;
+
+        }elseif ($img2!=false)
+        {
+            $gridInfo->pic2=$path;
+            $gridInfo->showPic2=0;
+
+        }else
+        {
+
+        }
+
         $gridInfo->save();
 
         return response()->json(['resCode' => Config::get('resCode.200')]);
