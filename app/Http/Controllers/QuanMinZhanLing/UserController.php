@@ -400,7 +400,7 @@ class UserController extends BaseController
         $w=0;
         $h=5;
 
-        $fileName='test1.jpg';
+        $fileName='test'.random_int(0,100).'.jpg';
         $savePath=public_path('img/CanDelete/'.$fileName);
 
         //已经占领了多少个格子
@@ -439,7 +439,7 @@ class UserController extends BaseController
             $font->valign('top');
         })->save($savePath);
 
-        delFileByCtime(public_path('img/CanDelete'),1440);
+        delFileByCtime(public_path('img/CanDelete'),1);
 
         return response()->json(['resCode' => Config::get('resCode.200'),'data'=>url($fileName)]);
     }
