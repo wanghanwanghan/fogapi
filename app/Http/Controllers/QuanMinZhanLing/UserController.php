@@ -385,8 +385,10 @@ class UserController extends BaseController
     }
 
     //分享
-    public function sharePicture()
+    public function sharePicture(Request $request)
     {
+        $uid=$request->uid;
+
         $img=Image::make(public_path('imgModel/sharePicModel.jpg'));
 
         $gridTotle=random_int(0,999);
@@ -395,9 +397,14 @@ class UserController extends BaseController
         $percent=random_int(1,100).'%';
 
         $fontFree=public_path('ttf/Arial.ttf');
+        $w=0;
+        $h=5;
+
+        $fileName='test1.jpg';
+        $savePath=public_path('img/CanDelete/'.$fileName);
 
         //已经占领了多少个格子
-        $img->text($gridTotle, 656, 504, function($font) use ($fontFree){
+        $img->text($gridTotle, 656+$w, 504+$h, function($font) use ($fontFree){
             $font->file($fontFree);
             $font->size(50);
             $font->color('#e74a3b');
@@ -406,7 +413,7 @@ class UserController extends BaseController
         });
 
         //占地面积
-        $img->text($gridArea, 750, 609, function($font) use ($fontFree){
+        $img->text($gridArea, 750+$w, 609+$h, function($font) use ($fontFree){
             $font->file($fontFree);
             $font->size(50);
             $font->color('#e74a3b');
@@ -415,7 +422,7 @@ class UserController extends BaseController
         });
 
         //总资产
-        $img->text(number_format($moneyTotle), 720, 714, function($font) use ($fontFree){
+        $img->text(number_format($moneyTotle), 720+$w, 714+$h, function($font) use ($fontFree){
             $font->file($fontFree);
             $font->size(50);
             $font->color('#e74a3b');
@@ -424,14 +431,16 @@ class UserController extends BaseController
         });
 
         //超过多少用户
-        $img->text($percent, 590, 885, function($font) use ($fontFree){
+        $img->text($percent, 590+$w, 885+$h, function($font) use ($fontFree){
             $font->file($fontFree);
             $font->size(70);
             $font->color('#e74a3b');
             $font->align('center');
             $font->valign('top');
-        })->save(public_path('test1.jpg'));
+        })->save($savePath);
 
-        return url('test1.jpg');
+        delFileByCtime(public_path('img/CanDelete'),1440);
+
+        return response()->json(['resCode' => Config::get('resCode.200'),'data'=>url($fileName)]);
     }
 }
