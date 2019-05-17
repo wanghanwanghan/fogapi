@@ -374,7 +374,7 @@ class GridController extends BaseController
         }elseif ($img2!=false)
         {
             $gridInfo->pic2=$path;
-            $gridInfo->showPic2=0;
+            $gridInfo->showPic2=1;
 
         }else
         {
