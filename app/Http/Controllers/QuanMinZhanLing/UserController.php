@@ -387,7 +387,7 @@ class UserController extends BaseController
     //分享
     public function sharePicture()
     {
-        $img=Image::make(public_path('img/sharePicModel_1.jpg'));
+        $img=Image::make(public_path('img/sharePicModel.jpg'));
 
         $img->text('1234567890', 300, 200, function($font) {
             $font->file(public_path('ttf/AliFont.ttf'));
