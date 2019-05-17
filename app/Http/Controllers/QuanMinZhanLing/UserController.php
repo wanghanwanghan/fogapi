@@ -4,6 +4,7 @@ namespace App\Http\Controllers\QuanMinZhanLing;
 
 use App\Model\GridInfoModel;
 use App\Model\GridModel;
+use App\Model\RankListModel;
 use App\Model\UserTradeInfoModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -410,19 +411,29 @@ class UserController extends BaseController
             $moneyTotle=0;
         }
 
-        //设计思路是把所有点击过分享的用户放到一个有序集合中，只统计在集合中的用户//WriteLog
-        $percent=random_int(1,100).'%';
+        //从user_rank_list表中取数据
+        $percent=RankListModel::where('uid',$uid)->first();
+
+        if ($percent==null)
+        {
+            $percent='0%';
+
+        }else
+        {
+            $num=RankListModel::count();
+            $percent=intval((1-($percent->now/$num))*100).'%';
+        }
 
         $fontFree=public_path('ttf/Arial.ttf');
 
         $w=0;
-        $h=5;
+        $h=0;
 
         $fileName='sharePicture_'.$uid.'.jpg';
         $savePath=public_path('imgCanDelete/'.$fileName);
 
         //已经占领了多少个格子
-        $img->text($gridTotle, 656+$w, 504+$h, function($font) use ($fontFree){
+        $img->text($gridTotle, 656+$w, 509+$h, function($font) use ($fontFree){
             $font->file($fontFree);
             $font->size(50);
             $font->color('#e74a3b');
@@ -431,29 +442,29 @@ class UserController extends BaseController
         });
 
         //占地面积
-        $img->text($gridArea, 750+$w, 609+$h, function($font) use ($fontFree){
+        $img->text($gridArea, 600+$w, 615+$h, function($font) use ($fontFree){
             $font->file($fontFree);
             $font->size(50);
             $font->color('#e74a3b');
-            $font->align('center');
+            $font->align('left');
             $font->valign('top');
         });
 
         //总资产
-        $img->text(number_format($moneyTotle), 720+$w, 714+$h, function($font) use ($fontFree){
+        $img->text(number_format($moneyTotle), 600+$w, 720+$h, function($font) use ($fontFree){
             $font->file($fontFree);
             $font->size(50);
             $font->color('#e74a3b');
-            $font->align('center');
+            $font->align('left');
             $font->valign('top');
         });
 
         try
         {
             //超过多少用户
-            $img->text($percent, 590+$w, 885+$h, function($font) use ($fontFree){
+            $img->text($percent, 590+$w, 890+$h, function($font) use ($fontFree){
                 $font->file($fontFree);
-                $font->size(70);
+                $font->size(80);
                 $font->color('#e74a3b');
                 $font->align('center');
                 $font->valign('top');
