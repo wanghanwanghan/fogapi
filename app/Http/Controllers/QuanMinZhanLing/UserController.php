@@ -421,7 +421,16 @@ class UserController extends BaseController
         }else
         {
             $num=RankListModel::count();
-            $percent=intval((1-($percent->now/$num))*100).'%';
+
+            if ($num==$percent->now)
+            {
+                $percent='0%';
+
+            }else
+            {
+                //小超说这算法真机霸难
+                $percent=intval((1-(($percent->now-1)/$num))*100).'%';
+            }
         }
 
         $fontFree=public_path('ttf/Arial.ttf');
@@ -433,27 +442,27 @@ class UserController extends BaseController
         $savePath=public_path('imgCanDelete/'.$fileName);
 
         //已经占领了多少个格子
-        $img->text($gridTotle, 656+$w, 509+$h, function($font) use ($fontFree){
+        $img->text($gridTotle, 686+$w, 500+$h, function($font) use ($fontFree){
             $font->file($fontFree);
-            $font->size(50);
+            $font->size(75);
             $font->color('#e74a3b');
             $font->align('center');
             $font->valign('top');
         });
 
         //占地面积
-        $img->text($gridArea, 600+$w, 615+$h, function($font) use ($fontFree){
+        $img->text($gridArea, 600+$w, 605+$h, function($font) use ($fontFree){
             $font->file($fontFree);
-            $font->size(50);
+            $font->size(75);
             $font->color('#e74a3b');
             $font->align('left');
             $font->valign('top');
         });
 
         //总资产
-        $img->text(number_format($moneyTotle), 600+$w, 720+$h, function($font) use ($fontFree){
+        $img->text(number_format($moneyTotle), 600+$w, 710+$h, function($font) use ($fontFree){
             $font->file($fontFree);
-            $font->size(50);
+            $font->size(75);
             $font->color('#e74a3b');
             $font->align('left');
             $font->valign('top');
@@ -462,7 +471,7 @@ class UserController extends BaseController
         try
         {
             //超过多少用户
-            $img->text($percent, 590+$w, 890+$h, function($font) use ($fontFree){
+            $img->text($percent, 582+$w, 890+$h, function($font) use ($fontFree){
                 $font->file($fontFree);
                 $font->size(80);
                 $font->color('#e74a3b');
