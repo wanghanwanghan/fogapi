@@ -389,18 +389,45 @@ class UserController extends BaseController
     {
         $img=Image::make(public_path('imgModel/sharePicModel.jpg'));
 
-        $img->text('1234567890', 300, 200, function($font) {
-            $font->file(public_path('ttf/AliFont.ttf'));
-            $font->size(24);
-            $font->color('#fdf6e3');
+        $gridTotle=random_int(0,999);
+        $gridArea=round(2.8 * 2.8 * $gridTotle,2).' km²';
+        $moneyTotle=random_int(1000000,9999999);
+        $percent=random_int(1,100).'%';
+
+        $fontFree=public_path('ttf/Arial.ttf');
+
+        //已经占领了多少个格子
+        $img->text($gridTotle, 656, 504, function($font) use ($fontFree){
+            $font->file($fontFree);
+            $font->size(50);
+            $font->color('#e74a3b');
             $font->align('center');
             $font->valign('top');
         });
 
-        $img->text('草泥马沙比m1ma', 300, 100, function($font) {
-            $font->file(public_path('ttf/AliFont.ttf'));
-            $font->size(24);
-            $font->color('#fdf6e3');
+        //占地面积
+        $img->text($gridArea, 750, 609, function($font) use ($fontFree){
+            $font->file($fontFree);
+            $font->size(50);
+            $font->color('#e74a3b');
+            $font->align('center');
+            $font->valign('top');
+        });
+
+        //总资产
+        $img->text(number_format($moneyTotle), 720, 714, function($font) use ($fontFree){
+            $font->file($fontFree);
+            $font->size(50);
+            $font->color('#e74a3b');
+            $font->align('center');
+            $font->valign('top');
+        });
+
+        //超过多少用户
+        $img->text($percent, 590, 885, function($font) use ($fontFree){
+            $font->file($fontFree);
+            $font->size(70);
+            $font->color('#e74a3b');
             $font->align('center');
             $font->valign('top');
         })->save(public_path('test1.jpg'));
