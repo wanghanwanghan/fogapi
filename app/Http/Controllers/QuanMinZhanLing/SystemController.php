@@ -88,16 +88,23 @@ class SystemController extends BaseController
         //交易信息
         $userObj=new UserController();
 
-        $tradeInfo=$userObj->getRecentlyTradeInfo($request);
+        $tradeInfo=$userObj->getRecentlyTradeInfo($request)->getData();
 
-        $tradeInfo_md5=md5(json_encode($tradeInfo->getData()));
+        foreach ($tradeInfo->data as &$one)
+        {
+            //paytime必须要弄成0，因为paytime经过format后，会有“多少分钟之前”这样的变量
+            $one->paytime=0;
+        }
+        unset($one);
+
+        $tradeInfo_md5=md5(json_encode($tradeInfo));
 
         //系统信息
-        $systemInfo=$this->getSystemMessage($request);
+        $systemInfo=$this->getSystemMessage($request)->getData();
 
-        $systemInfo_md5=md5(json_encode($systemInfo->getData()));
+        $systemInfo_md5=md5(json_encode($systemInfo));
 
-        return md5($tradeInfo_md5.$systemInfo_md5);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>md5($tradeInfo_md5.$systemInfo_md5)]);
     }
 
     //领取物品

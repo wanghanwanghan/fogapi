@@ -364,7 +364,7 @@ class UserController extends BaseController
         //最多拥有格子数量
         $maximumGridTotle=Redis::connection('UserInfo')->hget($uid,'BuyGridTotle');
 
-        //累计交易次数，这个需求分布到了买卖格子接口，一条一条记录吧
+        //累计交易次数
         $tradeTotle=Redis::connection('UserInfo')->hget($uid,'TradeGridTotle');
 
         $res['currentGridTotle']=(string)$currentGridTotle;

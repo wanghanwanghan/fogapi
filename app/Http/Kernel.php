@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\AdminLogin;
 use App\Http\Middleware\init;
 use App\Http\Middleware\PVandUV;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
@@ -60,6 +61,7 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'init'=>init::class,
+        'AdminLogin'=>AdminLogin::class,
         'PVandUV'=>PVandUV::class,
     ];
 }

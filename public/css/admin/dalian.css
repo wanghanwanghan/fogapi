@@ -1,0 +1,14 @@
+#bubble {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+#bubble circle {
+    -webkit-filter: url(#goo);
+    filter: url(#goo);
+}
+#bubble_1, #bubble_2, #bubble_3, #bubble_4 {
+    fill: #e9f0f1;
+}
