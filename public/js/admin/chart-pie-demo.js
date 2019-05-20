@@ -17,9 +17,15 @@ $.post(url,data,function (response) {
     var labels=[];
     var data=[];
 
+    var i=1;
+
     $.each(response,function(key,value)
     {
         labels.push(key);
+
+        $("#userAddrPie"+i).html(key);
+        i++;
+
         data.push(value);
     });
 
@@ -68,9 +74,15 @@ $.post(url,data,function (response) {
     var labels=[];
     var data=[];
 
+    var i=1;
+
     $.each(response,function(key,value)
     {
         labels.push(key);
+
+        $("#gridPie"+i).html(key);
+        i++;
+
         data.push(value);
     });
 

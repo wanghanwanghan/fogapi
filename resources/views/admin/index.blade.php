@@ -151,11 +151,11 @@
                             <canvas id="myPieChart" width="518" height="490" class="chartjs-render-monitor" style="display: block; height: 245px; width: 259px;"></canvas>
                         </div>
                         <div class="mt-4 text-center small">
-                            <span class="mr-2"><i class="fas fa-circle text-danger"></i> 一</span>
-                            <span class="mr-2"><i class="fas fa-circle text-warning"></i> 二</span>
-                            <span class="mr-2"><i class="fas fa-circle text-success"></i> 三</span>
-                            <span class="mr-2"><i class="fas fa-circle text-info"></i> 四</span>
-                            <span class="mr-2"><i class="fas fa-circle text-primary"></i> 五</span>
+                            <span class="mr-2"><i class="fas fa-circle text-danger"></i> <span id="userAddrPie1"></span></span>
+                            <span class="mr-2"><i class="fas fa-circle text-warning"></i> <span id="userAddrPie2"></span></span>
+                            <span class="mr-2"><i class="fas fa-circle text-success"></i> <span id="userAddrPie3"></span></span>
+                            <span class="mr-2"><i class="fas fa-circle text-info"></i> <span id="userAddrPie4"></span></span>
+                            <span class="mr-2"><i class="fas fa-circle text-primary"></i> <span id="userAddrPie5"></span></span>
                         </div>
                     </div>
                 </div>
@@ -220,11 +220,11 @@
                             <canvas id="gridFrequency" width="518" height="490" class="chartjs-render-monitor" style="display: block; height: 245px; width: 259px;"></canvas>
                         </div>
                         <div class="mt-4 text-center small">
-                            <span class="mr-2"><i class="fas fa-circle text-danger"></i> 一</span>
-                            <span class="mr-2"><i class="fas fa-circle text-warning"></i> 二</span>
-                            <span class="mr-2"><i class="fas fa-circle text-success"></i> 三</span>
-                            <span class="mr-2"><i class="fas fa-circle text-info"></i> 四</span>
-                            <span class="mr-2"><i class="fas fa-circle text-primary"></i> 五</span>
+                            <span class="mr-2"><i class="fas fa-circle text-danger"></i> <span id="gridPie1"></span></span>
+                            <span class="mr-2"><i class="fas fa-circle text-warning"></i> <span id="gridPie2"></span></span>
+                            <span class="mr-2"><i class="fas fa-circle text-success"></i> <span id="gridPie3"></span></span>
+                            <span class="mr-2"><i class="fas fa-circle text-info"></i> <span id="gridPie4"></span></span>
+                            <span class="mr-2"><i class="fas fa-circle text-primary"></i> <span id="gridPie5"></span></span>
                         </div>
                     </div>
                 </div>
