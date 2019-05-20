@@ -369,11 +369,15 @@ class GridController extends BaseController
         if ($img!=false)
         {
             $gridInfo->pic1=$path;
+
+            //pic1需要审核
             $gridInfo->showPic1=0;
 
         }elseif ($img2!=false)
         {
             $gridInfo->pic2=$path;
+
+            //pic2不审核了
             $gridInfo->showPic2=1;
 
         }else

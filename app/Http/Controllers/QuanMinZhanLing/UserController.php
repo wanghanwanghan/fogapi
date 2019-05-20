@@ -484,9 +484,9 @@ class UserController extends BaseController
             return response()->json(['resCode' => Config::get('resCode.623')]);
         }
 
-        //删除5分钟以前的图片
-        delFileByCtime(public_path('imgCanDelete'),5);
+        //删除30分钟以前的图片
+        delFileByCtime(public_path('imgCanDelete'),30);
 
-        return response()->json(['resCode' => Config::get('resCode.200'),'data'=>url('imgCanDelete/'.$fileName)]);
+        return response()->json(['resCode' => Config::get('resCode.200'),'data'=>url('imgCanDelete/'.$fileName."?".time())]);
     }
 }
