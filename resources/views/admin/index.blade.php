@@ -6,7 +6,7 @@
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h6 mb-0 text-gray-800">更新时间：<span class="h6 mb-0 text-gray-800">{{ date('Y-m-d H:i:s',$info['lastUpdate']) }}</span></h1>
-            {{--<a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> 下载数据</a>--}}
+            <a onclick="downCurrentPage();" href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> 下载当前页</a>
         </div>
 
         <div class="row">
@@ -275,6 +275,9 @@
     <script src="{{asset('js/admin/chart-pie-demo.js')}}?<?php echo time()?>"></script>
     <script src="{{asset('js/admin/chart-bar-demo.js')}}?<?php echo time()?>"></script>
 
+    {{--网页转图片--}}
+    <script src="https://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+
     <script>
 
         function showUV() {
@@ -298,6 +301,43 @@
             $("#myAreaChartFather").append("<canvas id=\"myAreaChart\" style=\"display: block; height: 320px; width: 584px;\" width=\"1168\" height=\"640\" class=\"chartjs-render-monitor\"></canvas>");
 
             get_pv();
+
+        }
+
+        function downCurrentPage() {
+
+            var img={};
+
+            html2canvas($("#page-top"), {
+                allowTaint: true,
+                taintTest: false,
+                onrendered: function(canvas) {
+                    canvas.id = "mycanvas";
+
+                    //生成base64图片数据
+                    var dataUrl = canvas.toDataURL();
+                    img.img=dataUrl;
+                    sendimg(img);
+                }
+            });
+
+        }
+
+        function sendimg(img) {
+
+            var data=
+                {
+                    _token:$("input[name=_token]").val(),
+                    type  :'download_img',
+                    img   :img
+                };
+
+            $.post(url,data,function () {
+
+
+
+
+            },'json');
 
         }
 

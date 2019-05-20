@@ -219,7 +219,20 @@ Eof;
 
                 break;
 
-            case '':
+            case 'download_img':
+
+                $imgContent=current($request->img);
+
+                $imgContent=str_replace('data:image/png;base64,','',$imgContent);
+
+                $imgContent=base64_decode($imgContent);
+
+                $filename=str_random(8).'.jpg';
+                $path=public_path('imgCanDelete/');
+
+                file_put_contents($path.$filename,$imgContent);
+
+                return response()->download($path.$filename);
 
                 break;
 
