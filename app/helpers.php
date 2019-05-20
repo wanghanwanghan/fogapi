@@ -241,7 +241,7 @@ function changeArrKey($arr,$example)
     return $res;
 }
 
-//只含有26个字母或者数字的并且都是半角的字符串，转换成数字
+//只含有26个字母或者数字的并且都是半角的字符串，转换成数字，用于hash分表
 function string2Number($str)
 {
     $j=0;

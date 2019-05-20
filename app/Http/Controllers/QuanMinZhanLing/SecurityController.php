@@ -164,6 +164,65 @@ class SecurityController extends BaseController
 
                 break;
 
+            case 'get_grid_installation_base':
+
+                $sql=<<<Eof
+select elt(interval(tmp.gridTotle,0,10,20,30,40,50,60,70,80,90,100,110,120,130,140),'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15') as rangeType,count(1) as num 
+from (select belong,count(1) as gridTotle from grid group by belong having belong <> 0) as tmp 
+group by rangeType;
+Eof;
+                //统计15个区间
+                $rangeType=[
+                    '1'=>'<10',
+                    '2'=>'<20',
+                    '3'=>'<30',
+                    '4'=>'<40',
+                    '5'=>'<50',
+                    '6'=>'<60',
+                    '7'=>'<70',
+                    '8'=>'<80',
+                    '9'=>'<90',
+                    '10'=>'<100',
+                    '11'=>'<110',
+                    '12'=>'<120',
+                    '13'=>'<130',
+                    '14'=>'<140',
+                    '15'=>'>140',
+                ];
+
+                $rangeArry=[
+                    '1'=>0,
+                    '2'=>0,
+                    '3'=>0,
+                    '4'=>0,
+                    '5'=>0,
+                    '6'=>0,
+                    '7'=>0,
+                    '8'=>0,
+                    '9'=>0,
+                    '10'=>0,
+                    '11'=>0,
+                    '12'=>0,
+                    '13'=>0,
+                    '14'=>0,
+                    '15'=>0,
+                ];
+
+                $data=DB::connection('masterDB')->select($sql);
+
+                foreach ($data as $one)
+                {
+                    $rangeArry[$one->rangeType]+=$one->num;
+                }
+
+                return array_combine(array_values($rangeType),array_values($rangeArry));
+
+                break;
+
+            case '':
+
+                break;
+
             case '':
 
                 break;

@@ -5,8 +5,8 @@
     <div class="container-fluid">
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            {{--<h1 class="h3 mb-0 text-gray-800">热点信息</h1>--}}
-            {{--<a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>--}}
+            <h1 class="h6 mb-0 text-gray-800">更新时间：<span class="h6 mb-0 text-gray-800">{{ date('Y-m-d H:i:s',$info['lastUpdate']) }}</span></h1>
+            {{--<a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> 下载数据</a>--}}
         </div>
 
         <div class="row">
@@ -93,13 +93,13 @@
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">当月访问量PV和独立用户UV展示，<span id="currentAreaShow" style="color: red">当前展示UV</span></h6>
                         <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(17px, 19px, 0px);">
                                 <div class="dropdown-header">操作列表:</div>
-                                <a class="dropdown-item" href="#" onclick="showUV();">查看当月UV</a>
-                                <a class="dropdown-item" href="#" onclick="showPV();">查看当月PV</a>
+                                <a class="dropdown-item" onclick="showUV();">查看当月UV</a>
+                                <a class="dropdown-item" onclick="showPV();">查看当月PV</a>
                                 {{--<div class="dropdown-divider"></div>--}}
                                 {{--<a class="dropdown-item" href="#">Something else here</a>--}}
                             </div>
@@ -232,13 +232,48 @@
 
         </div>
 
+        <div class="row">
+
+            {{--bar--}}
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">格子保有量</h6>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(17px, 19px, 0px);">
+                                <div class="dropdown-header">操作列表:</div>
+                                <a class="dropdown-item" onclick="">不知道</a>
+                                <a class="dropdown-item" onclick="">不清楚</a>
+                                <a class="dropdown-item" onclick="">别问我</a>
+                                {{--<div class="dropdown-divider"></div>--}}
+                                {{--<a class="dropdown-item" href="#">Something else here</a>--}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-bar"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                            <canvas id="myBarChart" width="1168" height="640" class="chartjs-render-monitor" style="display: block; height: 320px; width: 584px;"></canvas>
+                        </div>
+                        {{--<hr>--}}
+                        {{--123321--}}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
     </div>
 
     {{csrf_field()}}
 
-    <script src="{{asset('vendor/chart.js/Chart.min.js')}}"></script>
+    {{--<script src="{{asset('vendor/chart.js/Chart.min.js')}}"></script>--}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
     <script src="{{asset('js/admin/chart-area-demo.js')}}?<?php echo time()?>"></script>
     <script src="{{asset('js/admin/chart-pie-demo.js')}}?<?php echo time()?>"></script>
+    <script src="{{asset('js/admin/chart-bar-demo.js')}}?<?php echo time()?>"></script>
 
     <script>
 
