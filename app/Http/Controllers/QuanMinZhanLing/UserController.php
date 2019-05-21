@@ -358,6 +358,20 @@ class UserController extends BaseController
         //当前拥有格子数量
         $currentGridTotle=GridModel::where('belong',$uid)->count();
 
+        if ($currentGridTotle==0)
+        {
+            //一个格子没有
+            $res['currentGridTotle']=0;
+            $res['maximumGridPirce']=0;
+            $res['maximumGridTotle']=(string)Redis::connection('UserInfo')->hget($uid,'BuyGridTotle');
+
+            $tradeTotle=Redis::connection('UserInfo')->hget($uid,'TradeGridTotle');
+
+            $res['tradeTotle']=$tradeTotle==null ? "0" : $tradeTotle;
+
+            return response()->json(['resCode' => Config::get('resCode.200'),'data'=>$res]);
+        }
+
         //最高交易价格
         $maximumGridPirce=GridModel::where('belong',$uid)->orderBy('hightPrice','desc')->first()->hightPrice;
 
