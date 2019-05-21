@@ -232,7 +232,7 @@ Eof;
 
                 file_put_contents($path.$filename,$imgContent);
 
-                return [$path.$filename];
+                return [url('imgCanDelete/'.$filename)];
 
                 break;
 

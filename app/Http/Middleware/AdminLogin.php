@@ -17,7 +17,7 @@ class AdminLogin
     {
         if (!preg_match('#^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$#',$request->getClientIp()))
         {
-            return response()->json('无权查看')->setEncodingOptions(256);
+            abort(400);
         }
 
         $ipArray=explode('.',$request->getClientIp());
@@ -35,7 +35,7 @@ class AdminLogin
 
         if (!in_array($ip,$whiteList))
         {
-            return response()->json('无权查看')->setEncodingOptions(256);
+            abort(400);
         }
 
         return $next($request);

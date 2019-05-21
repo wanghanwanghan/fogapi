@@ -322,7 +322,6 @@
 
                 }
             });
-
         }
 
         function sendimg(img) {
