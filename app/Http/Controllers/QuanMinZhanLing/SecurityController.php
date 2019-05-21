@@ -232,7 +232,7 @@ Eof;
 
                 file_put_contents($path.$filename,$imgContent);
 
-                return response()->download($path.$filename);
+                return [$path.$filename];
 
                 break;
 

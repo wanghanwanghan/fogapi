@@ -312,12 +312,14 @@
                 allowTaint: true,
                 taintTest: false,
                 onrendered: function(canvas) {
+
                     canvas.id = "mycanvas";
 
                     //生成base64图片数据
-                    var dataUrl = canvas.toDataURL();
-                    img.img=dataUrl;
+                    img.img=canvas.toDataURL();
+
                     sendimg(img);
+
                 }
             });
 
@@ -332,10 +334,9 @@
                     img   :img
                 };
 
-            $.post(url,data,function () {
+            $.post(url,data,function (response) {
 
-
-
+                window.open(response[0]);
 
             },'json');
 
