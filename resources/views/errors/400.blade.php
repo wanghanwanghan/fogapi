@@ -70,6 +70,9 @@
                 <div class="title m-b-md">
                     您无权查看
                 </div>
+                <div class="title m-b-md">
+                    <img style="width: 300px;height: 400px" src="{{url('PayToMe.jpg')}}">
+                </div>
             </div>
         </div>
     </body>
