@@ -31,6 +31,13 @@ class AdminLogin
         $whiteList=[
             '127.0.0',
             '221.216.228',
+            '123.112.197',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
         ];
 
         if (!in_array($ip,$whiteList))

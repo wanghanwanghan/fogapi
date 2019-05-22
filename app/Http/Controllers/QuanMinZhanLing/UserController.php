@@ -43,7 +43,7 @@ class UserController extends BaseController
             $gridInfo=GridModel::where('belong',$uid)->get(['id','name','price','totle','updated_at'])->toArray();
         }
 
-        if (empty($gridInfo)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>null]);
+        if (empty($gridInfo)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>[]]);
 
         //取出id
         $id=array_pluck($gridInfo,'id');

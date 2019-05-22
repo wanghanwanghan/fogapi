@@ -32,7 +32,7 @@ class GridReducePrice extends Command
         $this->m=$this->m/100;
 
         //降价sql，被修改过价格的格子，update_at改成当天时间
-        $sql="update grid set price=case when round(price - price * {$this->m}) < 10 then 10 else round(price - price * {$this->m}) end,updated_at={$daysNow} where updated_at <= {$daysAgo}";
+        $sql="update grid set price=case when round(price - price * {$this->m}) < 10 then 10 else round(price - price * {$this->m}) end,updated_at = {$daysNow} where updated_at <= {$daysAgo}";
 
         //执行sql
         try

@@ -29,5 +29,4 @@ class WriteLogController extends BaseController
 
 
 
-
 }
