@@ -44,7 +44,7 @@
       <hr class="sidebar-divider my-0">
 
       <!-- Nav Item - Dashboard -->
-      <li class="nav-item active">
+      <li class="nav-item">
         <a class="nav-link" href="{{route('main')}}">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>热点信息</span></a>
@@ -90,6 +90,20 @@
         <a class="nav-link" href="{{route('gridImg')}}">
           <i class="fas fa-fw fa-images"></i>
           <span>格子图片</span></a>
+      </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
+      <!-- Heading -->
+      <div class="sidebar-heading">
+        微信支付相关
+      </div>
+
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('wechatIndex')}}">
+          <i class="fas fa-fw fa-pen"></i>
+          <span>测试微信支付</span></a>
       </li>
 
       <!-- Divider -->

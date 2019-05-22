@@ -40,6 +40,12 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['post'],'/grid/ajax','admin\\AdminGridController@gridAjax');
 
 
+
+        //微信支付
+        Route::match(['get'],'/wechat/index','admin\\WechatController@index')->name('wechatIndex');
+        Route::match(['get'],'/wechat/makeQr','admin\\WechatController@makeQr');//请求二维码
+        Route::match(['get'],'/wechat/listening','admin\\WechatController@listening');//监听是否支付成功
+
         //系统安全相关
         Route::match(['post'],'/security/ajax','QuanMinZhanLing\\SecurityController@ajax');
 
