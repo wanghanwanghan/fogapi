@@ -38,6 +38,9 @@ class Kernel extends ConsoleKernel
         //排行榜统计
         $schedule->command('Grid:RankList')->everyFiveMinutes()->withoutOverlapping();
 
+        //n天不交易的格子自动降价m%
+        $schedule->command('Grid:ReducePrice')->cron('30 1 * * *')->withoutOverlapping();
+
         //后台admin的控制面板，计算cpu，内存，硬盘占用
         $schedule->command('Admin:ServerInfo')->everyMinute()->withoutOverlapping();
 
