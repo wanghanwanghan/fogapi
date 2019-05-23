@@ -177,6 +177,13 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        //发送email
+        \Naux\Mail\SendCloudServiceProvider::class,
+
+
+
+
+
     ],
 
     /*

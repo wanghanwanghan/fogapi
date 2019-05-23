@@ -21,7 +21,7 @@
                         <thead>
                         <tr>
 
-                            <button type="button" id="order" class="btn btn-secondary btn-block" style="width: 100px">
+                            <button type="button" id="order" class="btn btn-secondary btn-success" style="width: 100px">
                                 扫码支付
                             </button>
 
@@ -30,7 +30,7 @@
                         <tbody>
                         <tr>
 
-                            <!-- 二维码, 随便放在当前页面的那里都可以, 因为是通过 axios 控制, 请求成功后才会弹出的 -->
+                            <!--二维码,随便放在当前页面的那里都可以,因为是通过ajax控制,请求成功后才会弹出的-->
                             <div class="modal fade" id="qrcode" tabindex="-1" role="dialog" aria-hidden="true">
                                 <div class="modal-dialog modal-sm" role="document">
                                     <div class="modal-content bg-transparent" style="border:none">

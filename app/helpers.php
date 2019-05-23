@@ -831,3 +831,19 @@ function delFileByCtime($dir,$n)
     }
 }
 
+//获取本次请求的执行时间，该方法放到后置中间件
+function getElapsedTime(int $decimals=2)
+{
+    //REQUEST_TIME_FLOAT是请求开始时候的时间戳
+    return number_format(microtime(true) - request()->server('REQUEST_TIME_FLOAT'),$decimals).'s';
+}
+
+//获取本次请求的内存使用情况，该方法放到后置中间件
+function getMemoryUsage(int $precision=2)
+{
+    $size=memory_get_usage(true);
+
+    $unit=['b','kb','mb','gb','tb','pb'];
+
+    return round($size / pow(1024, ($i = floor(log($size, 1024)))), $precision) . '' . $unit[$i];
+}

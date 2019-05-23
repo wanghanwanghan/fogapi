@@ -36,7 +36,9 @@ class WechatController extends AdminBaseController
     //请求二维码
     public function makeQr(Request $request)
     {
-        $qr=QrCode::size(300)->generate('http://www.baidu.com');
+        //$qr=QrCode::format('png')->size(200)->margin(1)->generate('http://www.baidu.com');
+        //<img class="thumbnail img-responsive" src="data:image/png;base64, {!! base64_encode($qrcode) !!}">
+        $qr=QrCode::size(200)->margin(1)->generate('http://www.baidu.com');
 
         return ['code'=>200,'data'=>$qr];
     }

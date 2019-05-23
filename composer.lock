@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1d29a668d443f4d0fa90b638896e1201",
+    "content-hash": "4681506aff2b686acf1f83fba5991d45",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1267,6 +1267,56 @@
                 "schedule"
             ],
             "time": "2017-01-23T04:29:33+00:00"
+        },
+        {
+            "name": "naux/sendcloud",
+            "version": "1.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/NauxLiu/Laravel-SendCloud.git",
+                "reference": "574974fc0b2299d8b0d45778bfd091d45804c30b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/NauxLiu/Laravel-SendCloud/zipball/574974fc0b2299d8b0d45778bfd091d45804c30b",
+                "reference": "574974fc0b2299d8b0d45778bfd091d45804c30b",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.2",
+                "illuminate/support": "^5.5",
+                "php": ">=5.6"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Naux\\Mail\\SendCloudServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Naux\\Mail\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "NauxLiu",
+                    "email": "nauxliu@gmail.com"
+                }
+            ],
+            "time": "2019-02-27T16:19:16+00:00"
         },
         {
             "name": "nesbot/carbon",
