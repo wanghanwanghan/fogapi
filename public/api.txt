@@ -269,7 +269,7 @@ http://newfogapi.wodeluapp.com/api/BuyGrid
 int    uid=17469    用户主键
 string name=w1n1    格子名称
 =================================================================
-获取一个格子详细信息和周围24格子头像
+获取一个格子详细信息和周围25格子头像
 
 post
 http://newfogapi.wodeluapp.com/api/GetGridInfo

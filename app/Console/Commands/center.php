@@ -14,6 +14,8 @@ class center extends Command
 
     protected $description = '从m0开始画中心点';
 
+    protected $myTableName = 'grid_test';
+
     public function __construct()
     {
         parent::__construct();
@@ -24,9 +26,9 @@ class center extends Command
         //m0 ['lat'=>'39.9104','lng'=>'116.397392']
         //     纬度0.025        经度0.035
 
-        if (!Schema::connection('masterDB')->hasTable('grid'))
+        if (!Schema::connection('masterDB')->hasTable($this->myTableName))
         {
-            Schema::connection('masterDB')->create('grid', function (Blueprint $table) {
+            Schema::connection('masterDB')->create($this->myTableName, function (Blueprint $table) {
 
                 $table->increments('id')->unsigned()->comment('自增主键');
                 $table->string('lat','15')->comment('纬度');
@@ -70,11 +72,11 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('masterDB')->table('grid')->insert([
+                DB::connection('masterDB')->table($this->myTableName)->insert([
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
-                    'name'=>"n{$j}w{$i}",
+                    'name'=>"n{$i}w{$j}",
                     'price'=>10,
                     'hightPrice'=>10,
                     'belong'=>0,
@@ -108,11 +110,11 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('masterDB')->table('grid')->insert([
+                DB::connection('masterDB')->table($this->myTableName)->insert([
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
-                    'name'=>"s{$j}w{$i}",
+                    'name'=>"s{$i}w{$j}",
                     'price'=>10,
                     'hightPrice'=>10,
                     'belong'=>0,
@@ -146,11 +148,11 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('masterDB')->table('grid')->insert([
+                DB::connection('masterDB')->table($this->myTableName)->insert([
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
-                    'name'=>"n{$j}e{$i}",
+                    'name'=>"n{$i}e{$j}",
                     'price'=>10,
                     'hightPrice'=>10,
                     'belong'=>0,
@@ -184,11 +186,11 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('masterDB')->table('grid')->insert([
+                DB::connection('masterDB')->table($this->myTableName)->insert([
                     'lat'=>number_format($lat,6),
                     'lng'=>number_format($lng,6),
                     'geohash'=>$hash,
-                    'name'=>"s{$j}e{$i}",
+                    'name'=>"s{$i}e{$j}",
                     'price'=>10,
                     'hightPrice'=>10,
                     'belong'=>0,
@@ -219,7 +221,7 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('masterDB')->table('grid')->insert([
+            DB::connection('masterDB')->table($this->myTableName)->insert([
                 'lat'=>number_format($lat,6),
                 'lng'=>number_format($lng,6),
                 'geohash'=>$hash,
@@ -242,7 +244,7 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('masterDB')->table('grid')->insert([
+            DB::connection('masterDB')->table($this->myTableName)->insert([
                 'lat'=>number_format($lat,6),
                 'lng'=>number_format($lng,6),
                 'geohash'=>$hash,
@@ -265,7 +267,7 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('masterDB')->table('grid')->insert([
+            DB::connection('masterDB')->table($this->myTableName)->insert([
                 'lat'=>number_format($lat,6),
                 'lng'=>number_format($lng,6),
                 'geohash'=>$hash,
@@ -288,7 +290,7 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('masterDB')->table('grid')->insert([
+            DB::connection('masterDB')->table($this->myTableName)->insert([
                 'lat'=>number_format($lat,6),
                 'lng'=>number_format($lng,6),
                 'geohash'=>$hash,
@@ -308,7 +310,7 @@ class center extends Command
         $hash=$geo->encode($lat,$lng,12);
 
         //m0
-        DB::connection('masterDB')->table('grid')->insert([
+        DB::connection('masterDB')->table($this->myTableName)->insert([
             'lat'=>number_format($lat,6),
             'lng'=>number_format($lng,6),
             'geohash'=>$hash,
