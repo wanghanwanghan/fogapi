@@ -277,28 +277,27 @@ class GridController extends BaseController
 
                 continue;
 
+            }
+
+            //一个一个查吧
+            $one=GridInfoModel::where([
+
+                'gid'=>$row->id,
+                'uid'=>$row->belong,
+                'showPic1'=>1
+
+            ])->get(['pic1'])->first();
+
+            if ($one==null)
+            {
+                $one=$uObj->getUserNameAndAvatar($row->belong);
+
             }else
             {
-                //一个一个查吧
-                $one=GridInfoModel::where([
-
-                    'gid'=>$row->id,
-                    'uid'=>$row->belong,
-                    'showPic1'=>1
-
-                ])->get(['pic1'])->first();
-
-                if ($one==null)
-                {
-                    $one=$uObj->getUserNameAndAvatar($row->belong);
-
-                }else
-                {
-                    $one['avatar']=$one->pic1;
-                }
-
-                $tmp[$row->name]=$one['avatar'];
+                $one['avatar']=$one->pic1;
             }
+
+            $tmp[$row->name]=$one['avatar'];
         }
 
         $near=$tmp;

@@ -80,11 +80,17 @@
 
                     $.get(url,data,function (response) {
 
-                        if (response.code == 200)
+                        if (response.code == 200 || response.code == 640)
                         {
+                            //支付成功或超时都刷新页面
                             window.clearInterval(myTimer);
                             window.location.reload();
                         }
+
+
+
+
+
 
                     });
 

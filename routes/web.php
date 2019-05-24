@@ -12,6 +12,9 @@ Route::group(['prefix'=>'admin'],function ()
 
 
 
+
+
+
             $info=\Illuminate\Support\Facades\Redis::connection('default')->get('ServerInfo');
 
             $info=json_decode($info,true);

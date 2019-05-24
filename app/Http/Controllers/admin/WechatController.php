@@ -46,8 +46,29 @@ class WechatController extends AdminBaseController
     //监听是否支付成功
     public function listening(Request $request)
     {
-        return ['code'=>201,'data'=>'listening order'];
+        $arr=[
+            200,
+            640,
+            300,
+            300,
+            300,
+            300,
+            300,
+            300,
+            300,
+            300,
+        ];
+
+        return ['code'=>array_random($arr),'data'=>'listening order'];
     }
+
+
+
+
+
+
+
+
 
 
 

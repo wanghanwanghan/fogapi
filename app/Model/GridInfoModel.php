@@ -2,11 +2,14 @@
 
 namespace App\Model;
 
+use App\Http\Traits\CompositePrimaryKey;
 use Illuminate\Database\Eloquent\Model;
 
 class GridInfoModel extends Model
 {
-    protected $primaryKey='id';
+    use CompositePrimaryKey;
+
+    protected $primaryKey=['id','uid'];
 
     protected $connection='masterDB';
 
