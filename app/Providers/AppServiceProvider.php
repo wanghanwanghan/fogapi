@@ -43,9 +43,9 @@ class AppServiceProvider extends ServiceProvider
 
                 $md5Sql=md5($sql);
 
-                $res=DB::connection('masterDB')->table('slow_sql')->where('uuid',$md5Sql)->count();
+                $res=DB::connection('masterDB')->table('slow_sql')->where('uuid',$md5Sql)->first();
 
-                if ($res==0)
+                if ($res==null)
                 {
                     $query->bindings==[] ? $bind='' : $bind=json_encode($query->bindings);
 
@@ -59,6 +59,11 @@ class AppServiceProvider extends ServiceProvider
                     {
 
                     }
+                }else
+                {
+                    //更新sql执行时间
+                    $res->execTime=$time;
+                    $res->save();
                 }
             }
         });
