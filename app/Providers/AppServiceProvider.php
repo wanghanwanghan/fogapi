@@ -25,23 +25,31 @@ class AppServiceProvider extends ServiceProvider
                 $table->text('sql')->nullable()->comment('执行语句');
                 $table->text('bind')->nullable()->comment('绑定数值');
                 $table->string('execTime',10)->nullable()->comment('执行时间');
-                $table->timestamps();
 
             });
         }
 
         DB::connection('masterDB')->listen(function ($query)
         {
-            $sql=$query->sql;
-            $bind=json_encode($query->bindings);
             $time=round($query->time/1000,2);
 
             //超过2秒的sql存入数据库
             if ($time > 2)
             {
-                $sql="insert into slow_sql values('','{$sql}','{$bind}','{$time}')";
+                $sql=addslashes($query->sql);
 
-                DB::connection('masterDB')->insert($sql);
+                $query->bindings==[] ? $bind='' : $bind=json_encode($query->bindings);
+
+                $sql="insert into slow_sql values(null,'{$sql}','{$bind}','{$time}')";
+
+                try
+                {
+                    DB::connection('masterDB')->insert($sql);
+
+                }catch (\Exception $e)
+                {
+
+                }
             }
         });
     }
