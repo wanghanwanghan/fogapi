@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
             Schema::connection('masterDB')->create('slow_sql', function (Blueprint $table) {
 
                 $table->increments('id')->unsigned()->comment('自增主键');
+                $table->string('uuid',35)->nullable()->index()->comment('sql uuid');
                 $table->text('sql')->nullable()->comment('执行语句');
                 $table->text('bind')->nullable()->comment('绑定数值');
                 $table->string('execTime',10)->nullable()->comment('执行时间');
@@ -38,17 +39,24 @@ class AppServiceProvider extends ServiceProvider
             {
                 $sql=addslashes($query->sql);
 
-                $query->bindings==[] ? $bind='' : $bind=json_encode($query->bindings);
+                $md5Sql=md5($sql);
 
-                $sql="insert into slow_sql values(null,'{$sql}','{$bind}','{$time}')";
+                $res=DB::connection('masterDB')->table('slow_sql')->where('uuid',$md5Sql)->count();
 
-                try
+                if ($res==0)
                 {
-                    DB::connection('masterDB')->insert($sql);
+                    $query->bindings==[] ? $bind='' : $bind=json_encode($query->bindings);
 
-                }catch (\Exception $e)
-                {
+                    $sql="insert into slow_sql values(null,'{$md5Sql}','{$sql}','{$bind}','{$time}')";
 
+                    try
+                    {
+                        DB::connection('masterDB')->insert($sql);
+
+                    }catch (\Exception $e)
+                    {
+
+                    }
                 }
             }
         });
