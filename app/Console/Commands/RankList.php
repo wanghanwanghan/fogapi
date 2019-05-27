@@ -106,6 +106,7 @@ class RankList extends Command
             });
         }
 
+        //算出每个用户格子总数和格子总价
         $sql='select belong as uid,count(1) as grid,sum(price+totle) as gridPrice from grid where belong in (select belong from grid group by belong having belong <> 0) group by belong';
 
         $dataInGridTable=DB::connection('masterDB')->select($sql);
@@ -133,16 +134,23 @@ class RankList extends Command
             RankListModel::updateOrCreate(['uid'=>$uid],$oneUpdate);
         }
 
-        //last=now
-        DB::connection('masterDB')->update('update user_rank_list set last=now');
-
         //更新排名
         $sql='select uid,rownum from (select a.*,(@rownum:=@rownum+1) as rownum from user_rank_list as a,(select @rownum:=0) as c order by a.totleAssets desc) as b';
+
         $data=DB::connection('masterDB')->select($sql);
 
         foreach ($data as $oneUpdate)
         {
-            RankListModel::updateOrCreate(['uid'=>$oneUpdate->uid],['now'=>(int)$oneUpdate->rownum]);
+            //如果本次名次和上一次不一样，更新排名
+            $model=RankListModel::where('uid',$oneUpdate->uid)->where('now','<>',(int)$oneUpdate->rownum)->first();
+
+            //没查到结果，说明一样
+            if ($model==null) continue;
+
+            //查到结果，说明排名变化，更新排名
+            $model->last=$model->now;
+            $model->now=(int)$oneUpdate->rownum;
+            $model->save();
         }
     }
 

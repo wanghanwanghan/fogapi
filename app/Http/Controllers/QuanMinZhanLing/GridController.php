@@ -276,7 +276,6 @@ class GridController extends BaseController
                 $tmp[$row->name]=$one['avatar'];
 
                 continue;
-
             }
 
             //一个一个查吧
