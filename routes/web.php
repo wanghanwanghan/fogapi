@@ -48,6 +48,9 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['get'],'/wechat/makeQr','admin\\WechatController@makeQr');//请求二维码
         Route::match(['get'],'/wechat/listening','admin\\WechatController@listening');//监听是否支付成功
 
+        //mysql
+        Route::match(['get'],'/mysql/slowSelect','admin\\MysqlController@slowSelect')->name('slowSelect');
+
         //系统安全相关
         Route::match(['post'],'/security/ajax','QuanMinZhanLing\\SecurityController@ajax');
 

@@ -142,7 +142,15 @@ class RankList extends Command
         foreach ($data as $oneUpdate)
         {
             //如果本次名次和上一次不一样，更新排名
-            $model=RankListModel::where('uid',$oneUpdate->uid)->where('now','<>',(int)$oneUpdate->rownum)->first();
+            $model=RankListModel::where('uid',$oneUpdate->uid)->where(function ($query) use ($oneUpdate){
+
+                $query->where('now','<>',(int)$oneUpdate->rownum)->orWhere(function ($queryy){
+
+                    $queryy->whereNull('now');
+
+                });
+
+            })->first();
 
             //没查到结果，说明一样
             if ($model==null) continue;

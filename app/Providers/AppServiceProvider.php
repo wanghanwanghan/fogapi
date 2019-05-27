@@ -39,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
             {
                 $sql=addslashes($query->sql);
 
+                $sql=str_replace(["\n","\r\n"],'',$sql);
+
                 $md5Sql=md5($sql);
 
                 $res=DB::connection('masterDB')->table('slow_sql')->where('uuid',$md5Sql)->count();

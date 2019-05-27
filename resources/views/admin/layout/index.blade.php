@@ -102,8 +102,22 @@
 
       <li class="nav-item">
         <a class="nav-link" href="{{route('wechatIndex')}}">
-          <i class="fas fa-fw fa-pen"></i>
+          <i class="fas fa-fw fa-handshake"></i>
           <span>测试微信支付</span></a>
+      </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
+      <!-- Heading -->
+      <div class="sidebar-heading">
+        Mysql
+      </div>
+
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('slowSelect')}}">
+          <i class="fas fa-fw fa-snowflake"></i>
+          <span>慢查询</span></a>
       </li>
 
       <!-- Divider -->
