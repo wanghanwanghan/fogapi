@@ -156,7 +156,7 @@ class RankList extends Command
             if ($model==null) continue;
 
             //查到结果，说明排名变化，更新排名
-            $model->last=$model->now;
+            $model->now=='' ? $model->last=(int)$oneUpdate->rownum : $model->last=$model->now;
             $model->now=(int)$oneUpdate->rownum;
             $model->save();
         }

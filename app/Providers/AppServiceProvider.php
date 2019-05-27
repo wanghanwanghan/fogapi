@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
                 $table->string('uuid',35)->nullable()->index()->comment('sql uuid');
                 $table->text('sql')->nullable()->comment('执行语句');
                 $table->text('bind')->nullable()->comment('绑定数值');
-                $table->string('execTime',10)->nullable()->comment('执行时间');
+                $table->string('execTime',10)->nullable()->index()->comment('执行时间');
 
             });
         }
