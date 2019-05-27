@@ -847,3 +847,63 @@ function getMemoryUsage(int $precision=2)
 
     return round($size / pow(1024, ($i = floor(log($size, 1024)))), $precision) . '' . $unit[$i];
 }
+
+//获取执行时间大于几秒的sql，并记录到数据库
+function getSlowlySql($s)
+{
+    //记录慢查询，此表可以随意删
+    if (!Schema::connection('masterDB')->hasTable('slow_sql'))
+    {
+        Schema::connection('masterDB')->create('slow_sql', function (Blueprint $table) {
+
+            $table->increments('id')->unsigned()->comment('自增主键');
+            $table->string('uuid',35)->nullable()->index()->comment('sql uuid');
+            $table->text('sql')->nullable()->comment('执行语句');
+            $table->text('bind')->nullable()->comment('绑定数值');
+            $table->float('execTime',4,2)->nullable()->unsigned()->index()->comment('执行时间');
+
+        });
+    }
+
+    DB::connection('masterDB')->listen(function ($query) use ($s)
+    {
+        $time=round($query->time/1000,2);
+
+        //超过几秒的sql存入数据库
+        if ($time > $s)
+        {
+            $sql=addslashes($query->sql);
+
+            $sql=str_replace(["\n","\r\n"],'',$sql);
+
+            $md5Sql=md5($sql);
+
+            $res=DB::connection('masterDB')->table('slow_sql')->where('uuid',$md5Sql)->first();
+
+            if ($res==null)
+            {
+                $query->bindings==[] ? $bind='' : $bind=json_encode($query->bindings);
+
+                $sql="insert into slow_sql values(null,'{$md5Sql}','{$sql}','{$bind}',{$time})";
+
+                try
+                {
+                    DB::connection('masterDB')->insert($sql);
+
+                }catch (\Exception $e)
+                {
+                    return true;
+                }
+            }else
+            {
+                //更新sql执行时间
+                $res->execTime=$time;
+                $res->save();
+
+                return true;
+            }
+        }
+    });
+
+    return true;
+}
