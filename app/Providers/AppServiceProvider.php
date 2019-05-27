@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
                 $table->string('uuid',35)->nullable()->index()->comment('sql uuid');
                 $table->text('sql')->nullable()->comment('执行语句');
                 $table->text('bind')->nullable()->comment('绑定数值');
-                $table->string('execTime',10)->nullable()->index()->comment('执行时间');
+                $table->float('execTime',4,2)->nullable()->unsigned()->index()->comment('执行时间');
 
             });
         }
@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
                 {
                     $query->bindings==[] ? $bind='' : $bind=json_encode($query->bindings);
 
-                    $sql="insert into slow_sql values(null,'{$md5Sql}','{$sql}','{$bind}','{$time}')";
+                    $sql="insert into slow_sql values(null,'{$md5Sql}','{$sql}','{$bind}',{$time})";
 
                     try
                     {
