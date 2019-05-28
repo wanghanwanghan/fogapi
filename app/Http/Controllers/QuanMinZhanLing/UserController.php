@@ -356,14 +356,14 @@ class UserController extends BaseController
         $uid=$request->uid;
 
         //当前拥有格子数量
-        $currentGridTotle=GridModel::where('belong',$uid)->count();
+        $currentGridTotle=(int)GridModel::where('belong',$uid)->count();
 
         if ($currentGridTotle==0)
         {
             //一个格子没有
             $res['currentGridTotle']=0;
-            $res['maximumGridPirce']=0;
-            $res['maximumGridTotle']=(string)Redis::connection('UserInfo')->hget($uid,'BuyGridTotle');
+            $res['maximumGridPirce']=(int)Redis::connection('UserInfo')->hget($uid,'HighestPirceOfGird');
+            $res['maximumGridTotle']=(int)Redis::connection('UserInfo')->hget($uid,'BuyGridTotle');
 
             $tradeTotle=Redis::connection('UserInfo')->hget($uid,'TradeGridTotle');
 
@@ -373,18 +373,18 @@ class UserController extends BaseController
         }
 
         //最高交易价格
-        $maximumGridPirce=GridModel::where('belong',$uid)->orderBy('hightPrice','desc')->first()->hightPrice;
+        $maximumGridPirce=(int)Redis::connection('UserInfo')->hget($uid,'HighestPirceOfGird');
 
         //最多拥有格子数量
-        $maximumGridTotle=Redis::connection('UserInfo')->hget($uid,'BuyGridTotle');
+        $maximumGridTotle=(int)Redis::connection('UserInfo')->hget($uid,'BuyGridTotle');
 
         //累计交易次数
-        $tradeTotle=Redis::connection('UserInfo')->hget($uid,'TradeGridTotle');
+        $tradeTotle=(int)Redis::connection('UserInfo')->hget($uid,'TradeGridTotle');
 
-        $res['currentGridTotle']=(string)$currentGridTotle;
-        $res['maximumGridPirce']=(string)$maximumGridPirce;
-        $res['maximumGridTotle']=(string)$maximumGridTotle;
-        $res['tradeTotle']=$tradeTotle==null ? "0" : $tradeTotle;
+        $res['currentGridTotle']=$currentGridTotle;
+        $res['maximumGridPirce']=$maximumGridPirce;
+        $res['maximumGridTotle']=$maximumGridTotle;
+        $res['tradeTotle']=$tradeTotle;
 
         return response()->json(['resCode' => Config::get('resCode.200'),'data'=>$res]);
     }

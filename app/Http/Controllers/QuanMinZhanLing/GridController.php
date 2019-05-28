@@ -90,6 +90,14 @@ class GridController extends BaseController
             //扣款
             (new UserController())->exprUserMoney($uid,$gridInfo->belong,$payMoney);
 
+            //是不是买过的最高价格的格子
+            $highest=(int)Redis::connection('UserInfo')->hget($uid,'HighestPirceOfGird');
+
+            if ($payMoney > $highest)
+            {
+                Redis::connection('UserInfo')->hset($uid,'HighestPirceOfGird',(int)$payMoney);
+            }
+
             //格子当天交易次数加1
             $this->setBuyLimit($name);
 
