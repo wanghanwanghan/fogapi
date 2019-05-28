@@ -8,7 +8,7 @@ class MysqlController extends AdminBaseController
 {
     public function slowSelect()
     {
-        $res=DB::connection('masterDB')->table('slow_sql')->orderBy('execTime','desc')->paginate(3);
+        $res=DB::connection('masterDB')->table('slow_sql')->orderBy('execTime','desc')->paginate(5);
 
         return view('admin.mysql.mysql_slow_select')->with(['res'=>$res]);
     }

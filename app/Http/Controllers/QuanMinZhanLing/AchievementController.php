@@ -56,6 +56,15 @@ class AchievementController extends BaseController
 
         $achievementInfo=array_sort($tmp);
 
+        //成就3xxx系列先不返回了，等需要返回的时候，删除以下代码
+        foreach ($achievementInfo as $key=>$val)
+        {
+            if (substr($key,0,1)==3)
+            {
+                unset($achievementInfo[$key]);
+            }
+        }
+
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$achievementInfo]);
     }
 
@@ -133,6 +142,15 @@ class AchievementController extends BaseController
         {
             return DB::connection($this->connection)->table('achievement')->get()->toArray();
         });
+
+        //成就3xxx系列先不返回了，等需要返回的时候，删除以下代码
+        foreach ($achievement as $key=>$val)
+        {
+            if (substr($val->id,0,1)==3)
+            {
+                unset($achievement[$key]);
+            }
+        }
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$achievement]);
     }
