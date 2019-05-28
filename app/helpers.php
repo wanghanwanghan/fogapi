@@ -894,11 +894,21 @@ function getSlowlySql($s)
                 {
                     return true;
                 }
+
+                return true;
             }else
             {
                 //更新sql执行时间
-                $res->execTime=$time;
-                $res->save();
+                $sql="update slow_sql set execTime={$time} where uuid='{$res->uuid}'";
+
+                try
+                {
+                    DB::connection('masterDB')->update($sql);
+
+                }catch (\Exception $e)
+                {
+                    return true;
+                }
 
                 return true;
             }
