@@ -65,6 +65,8 @@ class AchievementController extends BaseController
             }
         }
 
+        $achievementInfo=array_values($achievementInfo);
+
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$achievementInfo]);
     }
 
@@ -151,6 +153,8 @@ class AchievementController extends BaseController
                 unset($achievement[$key]);
             }
         }
+
+        $achievement=array_values($achievement);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$achievement]);
     }
