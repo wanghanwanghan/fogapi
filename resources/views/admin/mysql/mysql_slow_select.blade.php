@@ -89,7 +89,8 @@
 
                     <p style="font-size: 12px"><span class="text-xs font-weight-bold text-primary">语句：</span>{{$one->sql}}</p>
                     <p style="font-size: 12px"><span class="text-xs font-weight-bold text-primary">参数：</span>{{$one->bind}}</p>
-                    <p style="font-size: 12px"><span class="text-xs font-weight-bold text-primary">时间：</span>{{$one->execTime}} s</p>
+                    <p style="font-size: 12px"><span class="text-xs font-weight-bold text-primary">耗时：</span>{{$one->execTime}} s</p>
+                    <p style="font-size: 12px"><span class="text-xs font-weight-bold text-primary">时间：</span>{{date('Y-m-d H:i:s',$one->time)}}</p>
 
                     <hr>
 

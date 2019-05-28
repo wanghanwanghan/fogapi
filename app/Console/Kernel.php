@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('Grid:RankList')->everyMinute()->withoutOverlapping();
 
         //n天不交易的格子自动降价m%
-        $schedule->command('Grid:ReducePrice')->cron('30 1 * * *')->withoutOverlapping();
+        $schedule->command('Grid:ReducePrice')->cron('30 3 * * *')->withoutOverlapping();
 
         //后台发的系统通知
         $schedule->command('Admin:SystemMessage')->everyMinute()->withoutOverlapping();

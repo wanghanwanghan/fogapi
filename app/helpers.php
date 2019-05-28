@@ -860,7 +860,8 @@ function getSlowlySql($s)
             $table->string('uuid',35)->nullable()->index()->comment('sql uuid');
             $table->text('sql')->nullable()->comment('执行语句');
             $table->text('bind')->nullable()->comment('绑定数值');
-            $table->float('execTime',4,2)->nullable()->unsigned()->index()->comment('执行时间');
+            $table->float('execTime',4,2)->nullable()->unsigned()->index()->comment('执行耗时');
+            $table->string('time',25)->nullable()->comment('执行时间');
 
         });
     }
@@ -884,7 +885,7 @@ function getSlowlySql($s)
             {
                 $query->bindings==[] ? $bind='' : $bind=json_encode($query->bindings);
 
-                $sql="insert into slow_sql values(null,'{$md5Sql}','{$sql}','{$bind}',{$time})";
+                $sql="insert into slow_sql values(null,'{$md5Sql}','{$sql}','{$bind}',{$time},unix_timestamp())";
 
                 try
                 {
@@ -899,7 +900,7 @@ function getSlowlySql($s)
             }else
             {
                 //更新sql执行时间
-                $sql="update slow_sql set execTime={$time} where uuid='{$res->uuid}'";
+                $sql="update slow_sql set execTime={$time},time=unix_timestamp() where uuid='{$res->uuid}'";
 
                 try
                 {
