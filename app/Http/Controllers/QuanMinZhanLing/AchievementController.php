@@ -65,8 +65,6 @@ class AchievementController extends BaseController
             }
         }
 
-        $achievementInfo=array_values($achievementInfo);
-
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$achievementInfo]);
     }
 

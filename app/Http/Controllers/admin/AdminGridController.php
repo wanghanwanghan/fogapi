@@ -22,12 +22,11 @@ class AdminGridController extends AdminBaseController
             case 'get_grid_img':
 
                 //拿10个
-                $res=DB::connection('masterDB')->table('grid_info')
+                $res=DB::connection('masterDB')->table('pic_check')
                     ->leftJoin('grid','grid.id','=','grid_info.gid')
-                    ->where('pic1','<>',null)
-                    ->where('showPic1','<>',null)
-                    ->where('showPic1','0')
-                    ->orderby('grid_info.updated_at','asc')->limit(10)->get()->toArray();
+                    ->where('pic','pic1')
+                    ->where('isCheck',0)
+                    ->orderby('pic_check.updated_at','asc')->limit(10)->get()->toArray();
 
                 //总共多少个
                 $count=DB::connection('masterDB')->table('grid_info')

@@ -37,8 +37,8 @@ Route::group(['prefix'=>'admin'],function ()
 
 
         //审核
-        Route::match(['get','post'],'/grid/img2','admin\\AdminGridController@gridImg2')->name('gridImg2');
         Route::match(['get','post'],'/grid/img','admin\\AdminGridController@gridImg')->name('gridImg');
+        Route::match(['get','post'],'/grid/img2','admin\\AdminGridController@gridImg2')->name('gridImg2');
         Route::match(['post'],'/grid/ajax','admin\\AdminGridController@gridAjax');
 
 

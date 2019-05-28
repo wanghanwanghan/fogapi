@@ -653,7 +653,7 @@ function storeFile($content,$uid,$grid,$type)
             mkdir($path,0777,true);
         }
 
-        $filename=$uid.'_'.$grid->id."_$type".".jpg";
+        $filename=$uid.'_'.$grid->id."_$type".'readyToCheck'.".jpg";
 
         $width =640;
         $height=360;
@@ -671,7 +671,7 @@ function storeFile($content,$uid,$grid,$type)
             mkdir($path,0777,true);
         }
 
-        $filename=$uid.'_'.$grid->id."_$type".".jpg";
+        $filename=$uid.'_'.$grid->id."_$type".'readyToCheck'.".jpg";
     }
 
     if ($type=='avatar')

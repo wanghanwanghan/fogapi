@@ -6,7 +6,9 @@ use App\Http\Controllers\Server\ContentCheckBase;
 use App\Model\GridModel;
 use App\Model\GridTradeInfoModel;
 use App\Model\GridInfoModel;
+use App\Model\PicCheckModel;
 use Carbon\Carbon;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -337,6 +339,22 @@ class GridController extends BaseController
     //上传格子图片
     public function uploadPic(Request $request)
     {
+        if (!Schema::connection('masterDB')->hasTable('pic_check'))
+        {
+            Schema::connection('masterDB')->create('pic_check', function (Blueprint $table) {
+
+                $table->increments('id')->unsigned()->comment('自增主键');
+                $table->integer('uid')->unsigned()->index()->comment('用户主键');
+                $table->integer('gid')->unsigned()->index()->comment('格子表主键');
+                $table->string('picUrl','200')->nullable()->comment('图片地址');
+                $table->string('pic',10)->nullable()->comment('pic1或者pic2或者更多');
+                $table->tinyInteger('isCheck')->unsigned()->nullable()->index()->comment('是否审核过');
+                $table->index('updated_at');
+                $table->timestamps();
+
+            });
+        }
+
         $uid=$request->uid;
         $gName=$request->gName;
         $base64Pic=$request->pic;
@@ -346,19 +364,16 @@ class GridController extends BaseController
 
         if ($grid->belong!=$uid) return response()->json(['resCode' => Config::get('resCode.618')]);
 
-        //得到orm实例
-        $gridInfo=GridInfoModel::firstOrNew(['uid'=>$uid,'gid'=>$grid->id]);
-
         //保存用户上传的图片base64格式
-        $img =uploadMyImg($base64Pic);
+        $img1=uploadMyImg($base64Pic);
         $img2=uploadMyImg($base64Pic2);
 
-        if (!$img && !$img2) return response()->json(['resCode' => Config::get('resCode.619')]);
+        if (!$img1 && !$img2) return response()->json(['resCode' => Config::get('resCode.619')]);
 
         //保存图片到服务器
-        if ($img!=false)
+        if ($img1!=false)
         {
-            $path=storeFile($img,$uid,$grid,'pic1');
+            $path=storeFile($img1,$uid,$grid,'pic1');
 
         }elseif ($img2!=false)
         {
@@ -372,26 +387,22 @@ class GridController extends BaseController
         if (!$path) return response()->json(['resCode' => Config::get('resCode.620')]);
 
         //path入库，等待后台审核
-        if ($img!=false)
+        if ($img1!=false)
         {
-            $gridInfo->pic1=$path;
-
-            //pic1需要审核
-            $gridInfo->showPic1=0;
+            $picCheck=PicCheckModel::firstOrNew(['uid'=>$uid,'gid'=>$grid->id,'pic'=>'pic1']);
 
         }elseif ($img2!=false)
         {
-            $gridInfo->pic2=$path;
-
-            //妈的还要审
-            $gridInfo->showPic2=0;
+            $picCheck=PicCheckModel::firstOrNew(['uid'=>$uid,'gid'=>$grid->id,'pic'=>'pic2']);
 
         }else
         {
 
         }
 
-        $gridInfo->save();
+        $picCheck->picUrl=$path;
+        $picCheck->isCheck=0;
+        $picCheck->save();
 
         return response()->json(['resCode' => Config::get('resCode.200')]);
     }
