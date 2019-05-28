@@ -10,7 +10,7 @@
 
         <!-- Page Heading -->
         <h1 class="h3 mb-2 text-gray-800">说明</h1>
-        <p class="mb-3">审核用户格子<span style="color: red">自定义</span>图片，<span style="color: red">没有</span>通过审核的图片<span style="color: red">不显示</span>到app上.</p>
+        <p class="mb-3">审核用户格子<span style="color: red">排行榜</span>背景图片，<span style="color: red">没有</span>通过审核的图片<span style="color: red">不显示</span>到app上.</p>
 
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
@@ -84,7 +84,7 @@
                                     _token   : $("input[name=_token]").val(),
                                     type     : 'picPass',
                                     stringId : stringId,
-                                    whitchPic:1,
+                                    whitchPic:2,
                                 };
 
                             $.post(url,data,function (response) {
@@ -107,7 +107,7 @@
                                     _token   : $("input[name=_token]").val(),
                                     type     : 'picNoPass',
                                     stringId : stringId,
-                                    whitchPic:1,
+                                    whitchPic:2,
                                 };
 
                             $.post(url,data,function (response) {
@@ -136,7 +136,7 @@
             var data=
                 {
                     _token:$("input[name=_token]").val(),
-                    type  :'get_grid_img'
+                    type  :'get_grid_img_2'
                 };
 
             $.post(url,data,function (response)

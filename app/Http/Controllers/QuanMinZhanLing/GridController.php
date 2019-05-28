@@ -383,8 +383,8 @@ class GridController extends BaseController
         {
             $gridInfo->pic2=$path;
 
-            //pic2不审核了
-            $gridInfo->showPic2=1;
+            //妈的还要审
+            $gridInfo->showPic2=0;
 
         }else
         {

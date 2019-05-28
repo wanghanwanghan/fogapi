@@ -81,15 +81,15 @@
       </div>
 
       <li class="nav-item">
-        <a class="nav-link" href="{{route('gridName')}}">
-          <i class="fas fa-fw fa-pen"></i>
-          <span>格子名称</span></a>
+        <a class="nav-link" href="{{route('gridImg2')}}">
+          <i class="fas fa-fw fa-images"></i>
+          <span>排行榜格子图片</span></a>
       </li>
 
       <li class="nav-item">
         <a class="nav-link" href="{{route('gridImg')}}">
           <i class="fas fa-fw fa-images"></i>
-          <span>格子图片</span></a>
+          <span>自定义格子图片</span></a>
       </li>
 
       <!-- Divider -->

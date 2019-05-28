@@ -41,16 +41,43 @@ class AdminGridController extends AdminBaseController
 
                 break;
 
+            case 'get_grid_img_2':
+
+                //拿10个
+                $res=DB::connection('masterDB')->table('grid_info')
+                    ->leftJoin('grid','grid.id','=','grid_info.gid')
+                    ->where('pic2','<>',null)
+                    ->where('showPic2','<>',null)
+                    ->where('showPic2','0')
+                    ->orderby('grid_info.updated_at','asc')->limit(10)->get()->toArray();
+
+                //总共多少个
+                $count=DB::connection('masterDB')->table('grid_info')
+                    ->leftJoin('grid','grid.id','=','grid_info.gid')
+                    ->where('pic2','<>',null)
+                    ->where('showPic2','<>',null)
+                    ->where('showPic2','0')
+                    ->orderby('grid_info.updated_at','asc')->count();
+
+                return ['data'=>$res,'count'=>$count];
+
+                break;
+
             case 'picPass':
 
                 $stringId=$request->stringId;
+
+                $whitchPic=$request->whitchPic;
 
                 $arr=explode(',',$stringId);
 
                 //arr[0]是uid，arr[1]是gid
                 $info=GridInfoModel::where(['uid'=>$arr[0],'gid'=>$arr[1]])->first();
 
-                $info->showPic1=1;
+                if ($whitchPic==1) $info->showPic1=1;
+
+                if ($whitchPic==2) $info->showPic2=1;
+
                 $info->save();
 
                 return true;
@@ -61,13 +88,25 @@ class AdminGridController extends AdminBaseController
 
                 $stringId=$request->stringId;
 
+                $whitchPic=$request->whitchPic;
+
                 $arr=explode(',',$stringId);
 
                 //arr[0]是uid，arr[1]是gid
                 $info=GridInfoModel::where(['uid'=>$arr[0],'gid'=>$arr[1]])->first();
 
-                $info->pic1=null;
-                $info->showPic1=null;
+                if ($whitchPic==1)
+                {
+                    $info->pic1=null;
+                    $info->showPic1=null;
+                }
+
+                if ($whitchPic==2)
+                {
+                    $info->pic2=null;
+                    $info->showPic2=null;
+                }
+
                 $info->save();
 
                 return true;
@@ -76,27 +115,17 @@ class AdminGridController extends AdminBaseController
         }
     }
 
-    //审核格子名称页面
-    public function gridName(Request $request)
-    {
-        return view('admin.grid.grid_name');
-    }
-
     //审核格子图片页面
     public function gridImg(Request $request)
     {
         return view('admin.grid.grid_img');
     }
 
-
-
-
-
-
-
-
-
-
+    //审核格子排行榜背景图片页面
+    public function gridImg2(Request $request)
+    {
+        return view('admin.grid.grid_img_2');
+    }
 
 
 }
