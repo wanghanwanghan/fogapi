@@ -6,6 +6,7 @@ use App\Model\GridInfoModel;
 use App\Model\PicCheckModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Intervention\Image\Facades\Image;
 
 class AdminGridController extends AdminBaseController
 {
@@ -43,20 +44,18 @@ class AdminGridController extends AdminBaseController
             case 'get_grid_img_2':
 
                 //拿10个
-                $res=DB::connection('masterDB')->table('grid_info')
-                    ->leftJoin('grid','grid.id','=','grid_info.gid')
-                    ->where('pic2','<>',null)
-                    ->where('showPic2','<>',null)
-                    ->where('showPic2','0')
-                    ->orderby('grid_info.updated_at','asc')->limit(10)->get()->toArray();
+                $res=DB::connection('masterDB')->table('pic_check')
+                    ->leftJoin('grid','grid.id','=','pic_check.gid')
+                    ->where('pic','pic2')
+                    ->where('isCheck',0)
+                    ->orderby('pic_check.updated_at','asc')->limit(10)->get()->toArray();
 
                 //总共多少个
-                $count=DB::connection('masterDB')->table('grid_info')
-                    ->leftJoin('grid','grid.id','=','grid_info.gid')
-                    ->where('pic2','<>',null)
-                    ->where('showPic2','<>',null)
-                    ->where('showPic2','0')
-                    ->orderby('grid_info.updated_at','asc')->count();
+                $count=DB::connection('masterDB')->table('pic_check')
+                    ->leftJoin('grid','grid.id','=','pic_check.gid')
+                    ->where('pic','pic2')
+                    ->where('isCheck',0)
+                    ->orderby('pic_check.updated_at','asc')->count();
 
                 return ['data'=>$res,'count'=>$count];
 
@@ -70,35 +69,40 @@ class AdminGridController extends AdminBaseController
 
                 $arr=explode(',',$stringId);
 
-                $suffix=$arr[0]%5;
-
-                $path=public_path(DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix);
-
                 //arr[0]是uid，arr[1]是gid
                 $gridInfo=GridInfoModel::firstOrNew(['uid'=>$arr[0],'gid'=>$arr[1]]);
 
                 if ($whitchPic==1)
                 {
                     //arr[0]是uid，arr[1]是gid
-                    $info=PicCheckModel::where(['uid'=>$arr[0],'gid'=>$arr[1],'pic'=>'pic1'])->first();
+                    $picCheckInfo=PicCheckModel::where(['uid'=>$arr[0],'gid'=>$arr[1],'pic'=>'pic1'])->first();
 
                     //过审的图片
-                    $gridInfo->pic1=str_replace('readyToCheck','',$info->picUrl);
+                    $gridInfo->pic1=str_replace('readyToCheck','',$picCheckInfo->picUrl);
                     $gridInfo->showPic1=1;
 
-                    @rename($path.$info->picUrl,$path.$gridInfo->pic1);
+                    @unlink(public_path().$gridInfo->pic1);
+
+                    $img=Image::make(public_path().$picCheckInfo->picUrl);
+                    $img->save(public_path().$gridInfo->pic1);
                 }
 
                 if ($whitchPic==2)
                 {
                     //arr[0]是uid，arr[1]是gid
-                    $info=PicCheckModel::where(['uid'=>$arr[0],'gid'=>$arr[1],'pic'=>'pic2'])->first();
+                    $picCheckInfo=PicCheckModel::where(['uid'=>$arr[0],'gid'=>$arr[1],'pic'=>'pic2'])->first();
 
-                    $gridInfo->pic2=str_replace('readyToCheck','',$info->picUrl);
+                    $gridInfo->pic2=str_replace('readyToCheck','',$picCheckInfo->picUrl);
                     $gridInfo->showPic2=1;
 
-                    @rename($path.$info->picUrl,$path.$gridInfo->pic2);
+                    @unlink(public_path().$gridInfo->pic2);
+
+                    $img=Image::make(public_path().$picCheckInfo->picUrl);
+                    $img->save(public_path().$gridInfo->pic2);
                 }
+
+                $picCheckInfo->isCheck=1;
+                $picCheckInfo->save();
 
                 $gridInfo->save();
 
@@ -114,21 +118,20 @@ class AdminGridController extends AdminBaseController
 
                 $arr=explode(',',$stringId);
 
-                //arr[0]是uid，arr[1]是gid
-                $info=GridInfoModel::where(['uid'=>$arr[0],'gid'=>$arr[1]])->first();
-
                 if ($whitchPic==1)
                 {
-                    $info->pic1=null;
-                    $info->showPic1=null;
+                    //arr[0]是uid，arr[1]是gid
+                    $info=PicCheckModel::where(['uid'=>$arr[0],'gid'=>$arr[1],'pic'=>'pic1'])->first();
                 }
 
                 if ($whitchPic==2)
                 {
-                    $info->pic2=null;
-                    $info->showPic2=null;
+                    //arr[0]是uid，arr[1]是gid
+                    $info=PicCheckModel::where(['uid'=>$arr[0],'gid'=>$arr[1],'pic'=>'pic2'])->first();
                 }
 
+                $info->pic=null;
+                $info->isCheck=null;
                 $info->save();
 
                 return true;

@@ -124,7 +124,7 @@
                     }
 
                     //刷新页面
-                    //location.reload();
+                    location.reload();
                 });
         }
 
