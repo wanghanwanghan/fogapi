@@ -124,7 +124,7 @@
                     }
 
                     //刷新页面
-                    location.reload();
+                    //location.reload();
                 });
         }
 
@@ -156,7 +156,7 @@
                     newTr.append("<td style='vertical-align: middle'>"+value.name+"</td>");
 
                     //图片
-                    newTr.append("<td style='vertical-align: middle'><img src="+value.pic1+" onclick=showpic('"+value.pic1+"'); width='80px;' height='50px;'></td>");
+                    newTr.append("<td style='vertical-align: middle'><img src="+value.picUrl+" onclick=showpic('"+value.picUrl+"'); width='80px;' height='50px;'></td>");
 
                     //按钮
                     newTr.append("<td style='vertical-align: middle'><a href='#' id="+value.uid+","+value.gid+" onclick=picPass($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a></td>");
