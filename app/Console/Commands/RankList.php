@@ -69,6 +69,37 @@ class RankList extends Command
             });
         }
 
+        //取出所有用户的uid
+        Redis::connection('UserInfo')->multi();//开启事务
+        Redis::connection('UserInfo')->keys('1*');
+        Redis::connection('UserInfo')->keys('2*');
+        Redis::connection('UserInfo')->keys('3*');
+        Redis::connection('UserInfo')->keys('4*');
+        Redis::connection('UserInfo')->keys('5*');
+        Redis::connection('UserInfo')->keys('6*');
+        Redis::connection('UserInfo')->keys('7*');
+        Redis::connection('UserInfo')->keys('8*');
+        Redis::connection('UserInfo')->keys('9*');
+        $all=Redis::connection('UserInfo')->exec();//提交事务
+
+        $all=array_flatten($all);
+
+        //取出所有用户的金币
+        Redis::connection('UserInfo')->multi();//开启事务
+        foreach ($all as $one)
+        {
+            Redis::connection('UserInfo')->hget($one,'money');
+        }
+        $money=Redis::connection('UserInfo')->exec();//提交事务
+
+        //储存到排行榜专用的key中
+        Redis::connection('UserInfo')->multi();//开启事务
+        foreach ($all as $key=>$val)
+        {
+            Redis::connection('UserInfo')->hset('RankList_'.$val,'money',$money[$key]);
+        }
+        Redis::connection('UserInfo')->exec();//提交事务
+
         //算出每个用户格子总数和格子总价
         $sql='select belong as uid,count(1) as grid,sum(price+totle) as gridPrice from grid where belong in (select belong from grid group by belong having belong <> 0) group by belong';
 
@@ -84,7 +115,7 @@ class RankList extends Command
             obj2arr($oneUser);
 
             //取redis中的金币数量
-            $money=Redis::connection('UserInfo')->hget($oneUser['uid'],'money');
+            $money=Redis::connection('UserInfo')->hget('RankList_'.$oneUser['uid'],'money');
 
             $oneUser['money']=(int)$money;
             $oneUser['totleAssets']=$oneUser['gridPrice']+(int)$money;
