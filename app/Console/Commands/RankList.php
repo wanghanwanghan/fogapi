@@ -26,44 +26,6 @@ class RankList extends Command
         parent::__construct();
     }
 
-    //同时更新多个记录，参数，表名，数组，别忘了在一开始use DB
-    public function updateBatch($tableName='', $multipleData=[])
-    {
-        if( $tableName && !empty($multipleData) )
-        {
-            $updateColumn = array_keys($multipleData[0]);
-            $referenceColumn = $updateColumn[0];
-            unset($updateColumn[0]);
-            $whereIn = "";
-
-            $q = "UPDATE ".$tableName." SET ";
-            foreach ( $updateColumn as $uColumn )
-            {
-                $q .=  $uColumn." = CASE ";
-
-                foreach( $multipleData as $data )
-                {
-                    $q .= "WHEN ".$referenceColumn." = ".$data[$referenceColumn]." THEN '".$data[$uColumn]."' ";
-                }
-
-                $q .= "ELSE ".$uColumn." END, ";
-            }
-
-            foreach( $multipleData as $data )
-            {
-                $whereIn .= "'".$data[$referenceColumn]."', ";
-            }
-
-            $q = rtrim($q, ", ")." WHERE ".$referenceColumn." IN (".  rtrim($whereIn, ', ').")";
-
-            return DB::connection('masterDB')->update(DB::connection('masterDB')->raw($q));
-
-        }else
-        {
-            return false;
-        }
-    }
-
     //处理
     public function handle()
     {
@@ -163,7 +125,7 @@ class RankList extends Command
         }
     }
 
-    //最贵格子
+    //最贵格子排行
     public function gridAssets()
     {
         //这个不用存表了，直接放redis里
@@ -184,20 +146,31 @@ class RankList extends Command
             $userInfo=$userController->getUserNameAndAvatar($oneGrid['belong']);
 
             //格子图片
-            $pic1=GridInfoModel::where(['uid'=>$oneGrid['belong'],'gid'=>$oneGrid['id'],'showPic1'=>1])->first();
+            $gridInfo=GridInfoModel::where(['uid'=>$oneGrid['belong'],'gid'=>$oneGrid['id']])->first();
 
-            //格子第一显示图片
-            $pic2=GridInfoModel::where(['uid'=>$oneGrid['belong'],'gid'=>$oneGrid['id'],'showPic2'=>1])->first();
+            if ($gridInfo==null)
+            {
+                $pic1=null;
+                $pic2=null;
+                $name=null;
+
+            }else
+            {
+                $gridInfo->showPic1==1 ? $pic1=$gridInfo->pic1 : $pic1=null;
+                $gridInfo->showPic2==1 ? $pic2=$gridInfo->pic2 : $pic2=null;
+                $name=$gridInfo->name;
+            }
 
             $data[]=[
 
                 'row'=>$i,
                 'uid'=>$oneGrid['belong'],
                 'avatar'=>$userInfo['avatar'],
-                'pic1'=>$pic1==null ? null : $pic1->pic1,
-                'pic2'=>$pic2==null ? null : $pic2->pic2,
+                'pic1'=>$pic1,
+                'pic2'=>$pic2,
                 'userName'=>$userInfo['name'],
                 'gridName'=>$oneGrid['name'],
+                'name'=>$name,
                 'price'=>$gridController->nextNeedToPayOrGirdworth($oneGrid)
 
             ];
@@ -206,5 +179,43 @@ class RankList extends Command
         }
 
         Redis::connection('WriteLog')->set($this->gridRankListKey,json_encode($data));
+    }
+
+    //同时更新多个记录，参数，表名，数组，别忘了在一开始use DB
+    public function updateBatch($tableName='', $multipleData=[])
+    {
+        if( $tableName && !empty($multipleData) )
+        {
+            $updateColumn = array_keys($multipleData[0]);
+            $referenceColumn = $updateColumn[0];
+            unset($updateColumn[0]);
+            $whereIn = "";
+
+            $q = "UPDATE ".$tableName." SET ";
+            foreach ( $updateColumn as $uColumn )
+            {
+                $q .=  $uColumn." = CASE ";
+
+                foreach( $multipleData as $data )
+                {
+                    $q .= "WHEN ".$referenceColumn." = ".$data[$referenceColumn]." THEN '".$data[$uColumn]."' ";
+                }
+
+                $q .= "ELSE ".$uColumn." END, ";
+            }
+
+            foreach( $multipleData as $data )
+            {
+                $whereIn .= "'".$data[$referenceColumn]."', ";
+            }
+
+            $q = rtrim($q, ", ")." WHERE ".$referenceColumn." IN (".  rtrim($whereIn, ', ').")";
+
+            return DB::connection('masterDB')->update(DB::connection('masterDB')->raw($q));
+
+        }else
+        {
+            return false;
+        }
     }
 }

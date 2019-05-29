@@ -14,15 +14,16 @@ class RankListController extends BaseController
         $uid=$request->uid;
         $type=$request->type;
 
-        //获取个人资产
         switch ($type)
         {
+            //获取个人资产
             case '1':
 
                 return response()->json($this->getUserAssets($uid));
 
                 break;
 
+            //格子排行
             case '2':
 
                 return response()->json($this->getGridAssets($uid));
