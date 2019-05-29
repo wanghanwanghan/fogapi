@@ -52,7 +52,7 @@ class GridController extends BaseController
         $money=(new UserController())->getUserMoney($uid);
 
         //需要花费的价格
-        $payMoney=$this->needToPay($gridInfo);
+        $payMoney=$this->nextNeedToPayOrGirdworth($gridInfo);
 
         //没钱了，不能买
         if ($money < $payMoney) return response()->json(['resCode'=>Config::get('resCode.607')]);
@@ -168,8 +168,16 @@ class GridController extends BaseController
     }
 
     //购买格子需要花多少钱
-    public function needToPay($grid)
+    public function nextNeedToPayOrGirdworth($grid)
     {
+        if (is_array($grid))
+        {
+            isset($grid['price']) ? $price=$grid['price'] : $price=0;
+            isset($grid['totle']) ? $totle=$grid['totle'] : $totle=0;
+
+            return $price + $totle;
+        }
+
         return $grid->price + $grid->totle;
     }
 
@@ -264,7 +272,7 @@ class GridController extends BaseController
 
         $info['showName']=$showName;//用户自定义名字
         $info['showPic1']=$showPic1;//用户自定义图片
-        $info['price']=$this->needToPay($gridInfo);//价格
+        $info['price']=$this->nextNeedToPayOrGirdworth($gridInfo);//价格
         $info['gName']=$gridInfo->name;//格子坐标例如w1n1
         $info['belong']=$gridInfo->belong;//所有者uid
         $info['belongName']=$userInfo['name'];//所有者名字
@@ -441,7 +449,7 @@ class GridController extends BaseController
         $gridInfo['tradeNow']=(int)Redis::connection('GridInfo')->get($gName.'_'.Carbon::now()->format('Ymd'));
         $gridInfo['tradeAll']=$this->getGridTodayBuyTotle($info1->name);
         $gridInfo['totle']=$info1->totle;
-        $gridInfo['price']=$this->needToPay($info1);
+        $gridInfo['price']=$this->nextNeedToPayOrGirdworth($info1);
         $gridInfo['highPrice']=$info1->hightPrice;
         $gridInfo['firstTrade']=$info4==null ? null : date('Y-m-d H:i:s',$info4->paytime);
         $gridInfo['recentlyTrade']=$info1->updated_at==null ? null : ($info1->updated_at)->format('Y-m-d H:i:s');

@@ -52,11 +52,13 @@ class UserController extends BaseController
             ->orderBy('updated_at','desc')
             ->get(['gid','name','showName','pic1','showPic1'])->toArray();
 
+        $gridController=new GridController();
+
         if (empty($gridInfoExt))
         {
             foreach ($gridInfo as &$one)
             {
-                $one['price']=$one['price']+$one['totle'];
+                $one['price']=$gridController->nextNeedToPayOrGirdworth($one);
                 $one['name']=null;
                 $one['pic1']=null;
             }
@@ -94,7 +96,7 @@ class UserController extends BaseController
                     }
 
                     $info['timestamp']=Carbon::parse($info['updated_at'])->timestamp;
-                    $info['price']=$info['price']+$info['totle'];
+                    $info['price']=$gridController->nextNeedToPayOrGirdworth($info);
                 }
             }
         }
@@ -260,7 +262,7 @@ class UserController extends BaseController
         //钱不够
         $money=$this->getUserMoney($uid);
 
-        $need=(new GridController())->needToPay($gridInfo);
+        $need=(new GridController())->nextNeedToPayOrGirdworth($gridInfo);
 
         if ($money < $need) return Config::get('resCode.607');
         //=========================================================================

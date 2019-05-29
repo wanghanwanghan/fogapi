@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\QuanMinZhanLing\GridController;
 use App\Http\Controllers\QuanMinZhanLing\UserController;
 use App\Model\GridInfoModel;
 use App\Model\GridModel;
@@ -174,6 +175,8 @@ class RankList extends Command
 
         $userController=new UserController();
 
+        $gridController=new GridController();
+
         //名次
         $i=1;
         foreach ($res as $oneGrid)
@@ -195,7 +198,7 @@ class RankList extends Command
                 'pic2'=>$pic2==null ? null : $pic2->pic2,
                 'userName'=>$userInfo['name'],
                 'gridName'=>$oneGrid['name'],
-                'price'=>$oneGrid['price']+$oneGrid['totle']
+                'price'=>$gridController->nextNeedToPayOrGirdworth($oneGrid)
 
             ];
 
