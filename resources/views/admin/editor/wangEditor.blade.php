@@ -8,11 +8,12 @@
     <div class="container-fluid">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <a href="#" class="btn btn-success btn-icon-split">
-                    <span class="text">提交</span>
-                    <span class="icon text-white-50">
-                        <i class="fas fa-smile-beam"></i>
-                    </span>
+                <a href="#" id="mySubmit1" class="btn btn-success btn-icon-split">
+                    <span class="text">查看内容html</span>
+                </a>
+
+                <a href="#" id="mySubmit2" class="btn btn-danger btn-icon-split">
+                    <span class="text">查看内容纯文本</span>
                 </a>
             </div>
             <div class="card-body">
@@ -63,19 +64,19 @@
 
         //下面两个配置，使用其中一个即可显示“上传图片”的tab。但是两者不要同时使用！！！
         editor.customConfig.uploadImgShowBase64 = true;   // 使用 base64 保存图片
-        //editor.customConfig.uploadImgServer = '/upload';  // 上传图片到服务器
+        //editor.customConfig.uploadImgServer = '/admin/uploadPic';  // 上传图片到服务器
 
         //隐藏“网络图片”tab
         editor.customConfig.showLinkImg = false;
 
         editor.create();
 
-        document.getElementById('btn1').addEventListener('click', function () {
+        document.getElementById('mySubmit1').addEventListener('click', function () {
             // 读取 html
             alert(editor.txt.html())
         }, false);
 
-        document.getElementById('btn2').addEventListener('click', function () {
+        document.getElementById('mySubmit2').addEventListener('click', function () {
             // 读取 text
             alert(editor.txt.text())
         }, false);
