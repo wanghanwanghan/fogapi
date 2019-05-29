@@ -72,7 +72,11 @@ class RankList extends Command
         //算出每个用户格子总数和格子总价
         $sql='select belong as uid,count(1) as grid,sum(price+totle) as gridPrice from grid where belong in (select belong from grid group by belong having belong <> 0) group by belong';
 
-        $dataInGridTable=DB::connection('masterDB')->select($sql);
+        $dataInGridTable=DB::connection('masterDB')->transaction(function () use ($sql){
+
+            return DB::connection('masterDB')->select($sql);
+
+        });
 
         //组成对象
         foreach ($dataInGridTable as &$oneUser)

@@ -66,8 +66,8 @@
                                         <a href="#" onclick="nextStep(1)" class="btn btn-success btn-icon-split">
                                             <span class="text">下一步</span>
                                             <span class="icon text-white-50">
-                                            <i class="fas fa-check"></i>
-                                        </span>
+                                                <i class="fas fa-check"></i>
+                                            </span>
                                         </a>
                                     </li>
                                 </ul>

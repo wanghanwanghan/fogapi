@@ -123,6 +123,20 @@
       <!-- Divider -->
       <hr class="sidebar-divider">
 
+      <!-- Heading -->
+      <div class="sidebar-heading">
+        编辑器
+      </div>
+
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('wangEditor')}}">
+          <i class="fas fa-fw fa-file-word"></i>
+          <span>wangEditor</span></a>
+      </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
       <!-- Sidebar Toggler (Sidebar) -->
       <div class="text-center d-none d-md-inline">
         <button class="rounded-circle border-0" id="sidebarToggle"></button>

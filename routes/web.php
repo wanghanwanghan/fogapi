@@ -51,6 +51,19 @@ Route::group(['prefix'=>'admin'],function ()
         //mysql
         Route::match(['get'],'/mysql/slowSelect','admin\\MysqlController@slowSelect')->name('slowSelect');
 
+        //editor
+        Route::match(['get'],'/editor/wangEditor','admin\\EditorController@wangEditor')->name('wangEditor');
+
+
+
+
+
+
+
+
+
+
+
         //系统安全相关
         Route::match(['post'],'/security/ajax','QuanMinZhanLing\\SecurityController@ajax');
 
