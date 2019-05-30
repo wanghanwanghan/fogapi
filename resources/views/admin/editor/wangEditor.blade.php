@@ -2,6 +2,8 @@
 
 @section('content')
 
+    {{csrf_field()}}
+
     {{--wangEditor--}}
     <script type="text/javascript" src="//unpkg.com/wangeditor/release/wangEditor.min.js"></script>
 
@@ -165,13 +167,46 @@
             'redo'           //重复
         ];
 
+        //将图片大小限制为 3M
+        editor.customConfig.uploadImgMaxSize = 3 * 1024 * 1024;
+
+        //限制一次最多上传 3  张图片
+        editor.customConfig.uploadImgMaxLength = 3;
+
+        //上传图片时可自定义传递一些参数，例如传递验证的token等。参数会被添加到formdata中。
+        editor.customConfig.uploadImgParams = {
+            // 如果版本 <=v3.1.0 ，属性值会自动进行 encode ，此处无需 encode
+            // 如果版本 >=v3.1.1 ，属性值不会自动 encode ，如有需要自己手动 encode
+            token: $("input[name=_token]").val()
+        };
+
+        //如果还需要将参数拼接到 url 中，可再加上如下配置，true是拼接，false是不拼接
+        editor.customConfig.uploadImgParamsWithUrl = false;
+
         //下面两个配置，使用其中一个即可显示“上传图片”的tab。但是两者不要同时使用！！！
-        editor.customConfig.uploadImgShowBase64 = true;   // 使用 base64 保存图片
-        //editor.customConfig.uploadImgServer = '/admin/uploadPic';  // 上传图片到服务器
+        //editor.customConfig.uploadImgShowBase64 = true;   // 使用 base64 保存图片
+        editor.customConfig.uploadImgServer = '/admin/editor/wangEditor/uploadPic';  // 上传图片到服务器
+
+        //将 timeout 时间改为 10s
+        editor.customConfig.uploadImgTimeout = 10000;
 
         //隐藏“网络图片”tab
         editor.customConfig.showLinkImg = false;
 
+        //忽略粘贴内容中的图片
+        editor.customConfig.pasteIgnoreImg = true;
+
+        editor.customConfig.colors = [
+            '#FF0000',
+            '#FF7D00',
+            '#FFFF00',
+            '#00FF00',
+            '#0000FF',
+            '#00FFFF',
+            '#FF00FF',
+        ];
+
+        //创建编辑器
         editor.create();
 
         document.getElementById('mySubmit1').addEventListener('click', function ()

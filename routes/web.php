@@ -51,6 +51,7 @@ Route::group(['prefix'=>'admin'],function ()
 
         //editor
         Route::match(['get'],'/editor/wangEditor','admin\\EditorController@wangEditor')->name('wangEditor');
+        Route::match(['post'],'/editor/wangEditor/uploadPic','admin\\EditorController@uploadPic');
 
 
 

@@ -263,7 +263,25 @@ class GridController extends BaseController
             $gridExt->showName==1 ? $showName=$gridExt->name : $showName='';
 
             //判断一下用户上传图片是不是通过审核
-            $gridExt->showPic1==1 ? $showPic1=$gridExt->pic1 : $showPic1='';
+            //如果格子是自己的
+            if ($uid==$gridExt->uid)
+            {
+                //直接显示待审核的图片
+                $pic=PicCheckModel::where(['uid'=>$uid,'gid'=>$gridInfo->id,'pic'=>'pic1'])->first();
+
+                if ($pic!=null)
+                {
+                    $showPic1=$pic->picUrl;
+
+                }else
+                {
+                    $gridExt->showPic1==1 ? $showPic1=$gridExt->pic1 : $showPic1='';
+                }
+
+            }else
+            {
+                $gridExt->showPic1==1 ? $showPic1=$gridExt->pic1 : $showPic1='';
+            }
         }
 
         //得到当前格子的信息
@@ -294,6 +312,20 @@ class GridController extends BaseController
                 $tmp[$row->name]=$one['avatar'];
 
                 continue;
+            }
+
+            //如果格子是自己的，显示待审核图片
+            if ($row->belong==$uid)
+            {
+                //直接显示待审核的图片
+                $pic=PicCheckModel::where(['uid'=>$uid,'gid'=>$gridInfo->id,'pic'=>'pic1'])->first();
+
+                if ($pic!=null)
+                {
+                    $tmp[$row->name]=$pic->picUrl;
+
+                    continue;
+                }
             }
 
             //一个一个查吧
