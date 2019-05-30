@@ -305,48 +305,7 @@ class GridController extends BaseController
 
         foreach ($nearUid as $row)
         {
-            if ($row->belong==0)
-            {
-                $one=$uObj->getUserNameAndAvatar($row->belong);
-
-                $tmp[$row->name]=$one['avatar'];
-
-                continue;
-            }
-
-            //如果格子是自己的，显示待审核图片
-            if ($row->belong==$uid)
-            {
-                //直接显示待审核的图片
-                $pic=PicCheckModel::where(['uid'=>$uid,'gid'=>$row->id,'pic'=>'pic1'])->first();
-
-                if ($pic!=null)
-                {
-                    $tmp[$row->name]=$pic->picUrl;
-
-                    continue;
-                }
-            }
-
-            //一个一个查吧
-            $one=GridInfoModel::where([
-
-                'gid'=>$row->id,
-                'uid'=>$row->belong,
-                'showPic1'=>1
-
-            ])->get(['pic1'])->first();
-
-            if ($one==null)
-            {
-                $one=$uObj->getUserNameAndAvatar($row->belong);
-
-            }else
-            {
-                $one['avatar']=$one->pic1;
-            }
-
-            $tmp[$row->name]=$one['avatar'];
+            $tmp[$row->name]=$this->thisGridShowWhichPic($uid,$row->id,'pic1');
         }
 
         $near=$tmp;
@@ -357,6 +316,8 @@ class GridController extends BaseController
     //this grid show which pic ?
     public function thisGridShowWhichPic($uid,$gidOrName,$picType)
     {
+        $uObj=new UserController();
+
         switch ($picType)
         {
             case 'pic1':
@@ -371,8 +332,6 @@ class GridController extends BaseController
                     //不是数字代表是gName
                     $gModel=GridModel::where('name',$gidOrName)->first();
                 }
-
-                $uObj=new UserController();
 
                 if ($uid==$gModel->belong)
                 {
@@ -392,7 +351,7 @@ class GridController extends BaseController
                     return $avatar['avatar'];
                 }
 
-                if ($uid!=$gModel->belong)
+                if ($uid!=$gModel->belong && $gModel->belong!=0)
                 {
                     //去审核已经通过的去找
                     $pic=GridInfoModel::where(['uid'=>$gModel->belong,'gid'=>$gModel->id,'showPic1'=>1])->first();
@@ -404,6 +363,11 @@ class GridController extends BaseController
 
                     return $avatar['avatar'];
                 }
+
+                //还是空就返回头像
+                $avatar=$uObj->getUserNameAndAvatar($gModel->belong);
+
+                return $avatar['avatar'];
 
                 break;
 
