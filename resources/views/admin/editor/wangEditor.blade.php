@@ -18,9 +18,112 @@
             </div>
             <div class="card-body">
 
-                <div id="div1" style="background-color:#f1f1f1; border:1px solid #ccc;" class="toolbar"></div>
+                <div class="col-12">
 
-                <div id="div2" style="border:1px solid #ccc; border-top:none; height:600px; z-index:10000;" class="text"></div>
+                    <div class="form-group row mb-2">
+                        <label class="col-md-2 col-form-label">测试1</label>
+                        <div class="col-md-10">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="form-group col-2 mt-2">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" id="checkbox1" name="checkbox1" class="custom-control-input">
+                                            <label class="custom-control-label" for="checkbox1">测试</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-2 mt-2">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" id="checkbox2" name="checkbox2" class="custom-control-input">
+                                            <label class="custom-control-label" for="checkbox2">测试</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-2">
+                        <label class="col-md-2 col-form-label">测试3</label>
+                        <div class="col-md-10">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="form-group col-2 mt-2">
+                                        <div class="custom-control custom-radio">
+                                            <input onclick="" type="radio" id="radio1" name="radio1" checked class="custom-control-input">
+                                            <label class="custom-control-label" for="radio1">测试</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-2 mt-2">
+                                        <div class="custom-control custom-radio">
+                                            <input onclick="" type="radio" id="radio2" name="radio1" class="custom-control-input">
+                                            <label class="custom-control-label" for="radio2">测试</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-2">
+                        <label class="col-md-2 col-form-label">测试4</label>
+                        <div class="col-md-10">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="form-group col-2 mt-2">
+                                        <div class="custom-control custom-radio">
+                                            <input onclick="" type="radio" id="radio3" name="radio3" class="custom-control-input">
+                                            <label class="custom-control-label" for="radio3">测试</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-2 mt-2">
+                                        <div class="custom-control custom-radio">
+                                            <input onclick="" type="radio" id="radio4" name="radio3" checked class="custom-control-input">
+                                            <label class="custom-control-label" for="radio4">测试</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="sidebar-divider">
+
+                    <div class="form-group row mb-2">
+                        <label class="col-md-2 col-form-label">测试2</label>
+                        <div class="col-md-10">
+                            <div class="input-group">
+                                <input type="text" class="col-2 form-control" name="" id="" placeholder="测试">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-2">
+                        <label class="col-md-2 col-form-label">测试2</label>
+                        <div class="col-md-10">
+                            <div class="input-group">
+                                <select type="text" class="col-2 form-control" name="" id="">
+                                    <option class="form-control">1</option>
+                                    <option class="form-control">2</option>
+                                    <option class="form-control">3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="sidebar-divider">
+
+                </div>
+
+                <div class="col-12">
+                    <div id="div1" style="background-color:#f1f1f1; border:1px solid #ccc;" class="toolbar"></div>
+                </div>
+
+                <div class="col-12">
+                    <div id="div2" style="border:1px solid #ccc; border-top:none; height:600px; z-index:10000;" class="text"></div>
+                </div>
 
             </div>
         </div>
@@ -71,13 +174,13 @@
 
         editor.create();
 
-        document.getElementById('mySubmit1').addEventListener('click', function () {
-            // 读取 html
+        document.getElementById('mySubmit1').addEventListener('click', function ()
+        {
             alert(editor.txt.html())
         }, false);
 
-        document.getElementById('mySubmit2').addEventListener('click', function () {
-            // 读取 text
+        document.getElementById('mySubmit2').addEventListener('click', function ()
+        {
             alert(editor.txt.text())
         }, false);
 

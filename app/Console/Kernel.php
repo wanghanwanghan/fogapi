@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('Grid:ChangeAvatar')->everyMinute()->withoutOverlapping();
 
         //排行榜统计
-        $schedule->command('Grid:RankList')->everyMinute()->withoutOverlapping();
+        $schedule->command('Grid:RankList')->everyFiveMinutes()->withoutOverlapping();
 
         //n天不交易的格子自动降价m%
         $schedule->command('Grid:ReducePrice')->cron('30 2 * * *')->withoutOverlapping();
