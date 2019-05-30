@@ -318,7 +318,7 @@ class GridController extends BaseController
             if ($row->belong==$uid)
             {
                 //直接显示待审核的图片
-                $pic=PicCheckModel::where(['uid'=>$uid,'gid'=>$gridInfo->id,'pic'=>'pic1'])->first();
+                $pic=PicCheckModel::where(['uid'=>$uid,'gid'=>$row->id,'pic'=>'pic1'])->first();
 
                 if ($pic!=null)
                 {
@@ -352,6 +352,67 @@ class GridController extends BaseController
         $near=$tmp;
 
         return response()->json(['resCode' => Config::get('resCode.200'),'current'=>$info,'near'=>$near]);
+    }
+
+    //this grid show which pic ?
+    public function thisGridShowWhichPic($uid,$gidOrName,$picType)
+    {
+        switch ($picType)
+        {
+            case 'pic1':
+
+                if (is_numeric($gidOrName))
+                {
+                    //是数字代表是gid
+                    $gModel=GridModel::find($gidOrName);
+
+                }else
+                {
+                    //不是数字代表是gName
+                    $gModel=GridModel::where('name',$gidOrName)->first();
+                }
+
+                $uObj=new UserController();
+
+                if ($uid==$gModel->belong)
+                {
+                    //是自己的格子，直接显示待审核的图片
+                    $pic=PicCheckModel::where(['uid'=>$uid,'gid'=>$gModel->id,'pic'=>$picType])->first();
+
+                    if ($pic!=null) return $pic->picUrl;
+
+                    //去审核已经通过的去找
+                    $pic=GridInfoModel::where(['uid'=>$uid,'gid'=>$gModel->id,'showPic1'=>1])->first();
+
+                    if ($pic!=null) return $pic->pic1;
+
+                    //还是空就返回头像
+                    $avatar=$uObj->getUserNameAndAvatar($uid);
+
+                    return $avatar['avatar'];
+                }
+
+                if ($uid!=$gModel->belong)
+                {
+                    //去审核已经通过的去找
+                    $pic=GridInfoModel::where(['uid'=>$gModel->belong,'gid'=>$gModel->id,'showPic1'=>1])->first();
+
+                    if ($pic!=null) return $pic->pic1;
+
+                    //还是空就返回头像
+                    $avatar=$uObj->getUserNameAndAvatar($gModel->belong);
+
+                    return $avatar['avatar'];
+                }
+
+                break;
+
+            default:
+
+                return 'woshirenjishen';
+
+                break;
+        }
     }
 
     //重命名格子
