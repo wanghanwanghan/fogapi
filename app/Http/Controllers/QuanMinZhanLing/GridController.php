@@ -305,7 +305,48 @@ class GridController extends BaseController
 
         foreach ($nearUid as $row)
         {
-            $tmp[$row->name]=$this->thisGridShowWhichPic($uid,$row->id,'pic1');
+            if ($row->belong==0)
+            {
+                $one=$uObj->getUserNameAndAvatar($row->belong);
+
+                $tmp[$row->name]=$one['avatar'];
+
+                continue;
+            }
+
+            //如果格子是自己的，显示待审核图片
+            if ($row->belong==$uid)
+            {
+                //直接显示待审核的图片
+                $pic=PicCheckModel::where(['uid'=>$uid,'gid'=>$row->id,'pic'=>'pic1'])->first();
+
+                if ($pic!=null)
+                {
+                    $tmp[$row->name]=$pic->picUrl;
+
+                    continue;
+                }
+            }
+
+            //一个一个查吧
+            $one=GridInfoModel::where([
+
+                'gid'=>$row->id,
+                'uid'=>$row->belong,
+                'showPic1'=>1
+
+            ])->get(['pic1'])->first();
+
+            if ($one==null)
+            {
+                $one=$uObj->getUserNameAndAvatar($row->belong);
+
+            }else
+            {
+                $one['avatar']=$one->pic1;
+            }
+
+            $tmp[$row->name]=$one['avatar'];
         }
 
         $near=$tmp;
