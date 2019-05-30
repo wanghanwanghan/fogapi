@@ -424,7 +424,7 @@ class UserController extends BaseController
             $moneyTotle=$moneyTotle['usr']['totleAssets'];
         }else
         {
-            $moneyTotle=0;
+            $moneyTotle=Redis::connection('UserInfo')->hget($uid,'money');
         }
 
         //从user_rank_list表中取数据

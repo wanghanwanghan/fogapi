@@ -79,7 +79,13 @@ class RankListController extends BaseController
             unset($usr['gridPrice']);
         }
 
-        $all=arraySort1($all,['asc','now']);
+        if (empty($all))
+        {
+            $all=null;
+        }else
+        {
+            $all=arraySort1($all,['asc','now']);
+        }
 
         return ['resCode'=>Config::get('resCode.200'),'all'=>$all,'usr'=>$usr];
     }
