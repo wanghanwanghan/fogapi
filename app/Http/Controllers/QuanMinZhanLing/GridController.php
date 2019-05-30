@@ -366,12 +366,19 @@ class GridController extends BaseController
                 if (is_numeric($gidOrName))
                 {
                     //是数字代表是gid
-                    $gModel=GridModel::find($gidOrName);
+                    $gModel=GridModel::where('id',$gidOrName)->first();
 
                 }else
                 {
                     //不是数字代表是gName
                     $gModel=GridModel::where('name',$gidOrName)->first();
+                }
+
+                if ($gModel->belong==0)
+                {
+                    $avatar=$uObj->getUserNameAndAvatar($gModel->belong);
+
+                    return $avatar['avatar'];
                 }
 
                 if ($uid==$gModel->belong)
@@ -392,7 +399,7 @@ class GridController extends BaseController
                     return $avatar['avatar'];
                 }
 
-                if ($uid!=$gModel->belong && $gModel->belong!=0)
+                if ($uid!=$gModel->belong)
                 {
                     //去审核已经通过的去找
                     $pic=GridInfoModel::where(['uid'=>$gModel->belong,'gid'=>$gModel->id,'showPic1'=>1])->first();
@@ -404,11 +411,6 @@ class GridController extends BaseController
 
                     return $avatar['avatar'];
                 }
-
-                //还是空就返回头像
-                $avatar=$uObj->getUserNameAndAvatar($gModel->belong);
-
-                return $avatar['avatar'];
 
                 break;
 
