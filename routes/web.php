@@ -4,6 +4,11 @@ Route::fallback(function () {return 'no page';});
 
 Route::group(['prefix'=>'admin'],function ()
 {
+    //登陆
+    Route::match(['get'],'/login','admin\\AdminLoginController@adminLogin');
+    Route::match(['post'],'/login/ajax','admin\\AdminLoginController@loginAjax');
+
+    //其他需要验证登陆的路由
     Route::group(['middleware'=>['AdminLogin']],function (){
 
         //管理后台路由
@@ -21,11 +26,6 @@ Route::group(['prefix'=>'admin'],function ()
             return view('admin.index')->with(['info'=>$info]);
 
         })->name('main');
-
-        //登陆
-        Route::match(['get'],'/login','admin\\AdminLoginController@adminLogin');
-
-        Route::match(['post'],'/login/ajax','admin\\AdminLoginController@loginAjax');
 
         //系统公告
         Route::match(['get','post'],'/sys/create/grid','admin\\AdminSysController@sysCreateForGrid')->name('sysCreateForGrid');
