@@ -180,6 +180,8 @@ return [
         //发送email
         \Naux\Mail\SendCloudServiceProvider::class,
 
+        //googleauth
+        \Earnp\GoogleAuthenticator\GoogleAuthenticatorServiceprovider::class,
 
 
 
@@ -233,6 +235,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
+        'GoogleAuthWithApp' => \Earnp\GoogleAuthenticator\Facades\GoogleAuthenticator::class,
     ],
 
 ];

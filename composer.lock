@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6e3517b372546c9612722cf10c1aeddb",
+    "content-hash": "a22785eb0c1aa249edaf9e64d4e57af5",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -229,6 +229,46 @@
                 "parser"
             ],
             "time": "2014-09-09T13:34:57+00:00"
+        },
+        {
+            "name": "earnp/laravel-google-authenticator",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/earnp/laravel-google-authenticator.git",
+                "reference": "51a72cc665bab1524eb2ede193071b7ace06ebb6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/earnp/laravel-google-authenticator/zipball/51a72cc665bab1524eb2ede193071b7ace06ebb6",
+                "reference": "51a72cc665bab1524eb2ede193071b7ace06ebb6",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Earnp\\GoogleAuthenticator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "lusong",
+                    "email": "714628712@qq.com",
+                    "homepage": "https://phpartisan.cn"
+                }
+            ],
+            "description": "Laravel 5 GoogleAuthenticator Package",
+            "time": "2018-06-01T03:29:47+00:00"
         },
         {
             "name": "easywechat-composer/easywechat-composer",
@@ -6094,6 +6134,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "earnp/laravel-google-authenticator": 20,
         "eaglewu/swoole-ide-helper": 20
     },
     "prefer-stable": false,

@@ -14,10 +14,6 @@ Route::group(['prefix'=>'admin'],function ()
 
 
 
-
-
-
-
             $info=\Illuminate\Support\Facades\Redis::connection('default')->get('ServerInfo');
 
             $info=json_decode($info,true);
@@ -25,6 +21,9 @@ Route::group(['prefix'=>'admin'],function ()
             return view('admin.index')->with(['info'=>$info]);
 
         })->name('main');
+
+        //登陆
+        Route::match(['get'],'/login','admin\\AdminLoginController@adminLogin');
 
         //系统公告
         Route::match(['get','post'],'/sys/create/grid','admin\\AdminSysController@sysCreateForGrid')->name('sysCreateForGrid');
