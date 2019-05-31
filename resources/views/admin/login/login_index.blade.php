@@ -16,11 +16,15 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template-->
-    <link href="{{asset('css/admin/sb-admin-2.min.css')}}" rel="stylesheet">
+    <link href="{{asset('css/admin/sb-admin-2.min.css')}}?<?php echo time()?>" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 
 </head>
 
 <body class="bg-gradient-primary">
+
+{{csrf_field()}}
 
 <div class="container">
 
@@ -52,7 +56,7 @@
                                     <hr>
 
                                     <div class="modal-body align-items-center text-center">
-                                        <p class="modal-title" id="exampleModalLabel" style="color:black">GoogleAuthApp扫码</p>
+                                        <p class="modal-title" id="exampleModalLabel" style="color:black">密钥绑定码：<?php if ($code) echo $code; else echo '不显示'; ?></p>
                                         <div>{!! $qrCode !!}</div>
                                     </div>
 
@@ -60,12 +64,13 @@
 
                                 </form>
 
-                                <a href="#" class="btn btn-primary btn-user btn-block">登陆</a>
+                                <a href="#" onclick="login()" class="btn btn-primary btn-user btn-block">登陆</a>
 
-                                    <hr>
-                                    <div class="text-center">
-                                        <a class="small" href="#">有问题？和纪申联系！</a>
-                                    </div>
+                                <hr>
+
+                                <div class="text-center">
+                                    <a class="small" href="#">有问题？和纪申联系！</a>
+                                </div>
 
                             </div>
                         </div>
@@ -80,5 +85,38 @@
 </div>
 
 </body>
+
+<script type="text/javascript">
+
+    function login() {
+
+        var url ='/admin/login/ajax';
+
+        var data=
+            {
+                _token:$("input[name=_token]").val(),
+                type  :'login_check',
+                phoneNum:$("#phoneNum").val(),
+                googleCode:$("#googleCode").val(),
+            };
+
+        $.post(url,data,function (response)
+        {
+            if (response.error==0)
+            {
+                //验证成功
+                location.href='/admin';
+
+            }else
+            {
+                //验证失败
+                alert('验证失败');
+            }
+
+        },'json');
+
+    }
+
+</script>
 
 </html>

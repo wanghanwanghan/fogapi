@@ -25,6 +25,8 @@ Route::group(['prefix'=>'admin'],function ()
         //登陆
         Route::match(['get'],'/login','admin\\AdminLoginController@adminLogin');
 
+        Route::match(['post'],'/login/ajax','admin\\AdminLoginController@loginAjax');
+
         //系统公告
         Route::match(['get','post'],'/sys/create/grid','admin\\AdminSysController@sysCreateForGrid')->name('sysCreateForGrid');
         Route::match(['get','post'],'/sys/create/msg/grid','admin\\AdminSysController@sysCreateMsgForGrid')->name('sysCreateMsgForGrid');
