@@ -69,6 +69,9 @@ class AdminLoginController extends AdminBaseController
             //璀璀
             '18511936093'=>['key'=>'3I4RRIIVTPEO3FKN','password'=>'cuicui123'],
 
+            //郭蕾
+            '13161902431'=>['key'=>'ZCHXU6KNRRBHBKDF','password'=>'guolei123'],
+
             //唐兆丰
             '15011372771'=>['key'=>'RIFR65PFW3JVTUYH','password'=>'zhaofeng123'],
 
