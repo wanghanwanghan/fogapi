@@ -786,7 +786,14 @@ function checkFileExists($file)
 {
     if (strtolower(substr($file,0,4))=='http')
     {
-        $header=get_headers($file,true);
+        try
+        {
+            $header=get_headers($file,true);
+
+        }catch (Exception $e)
+        {
+            return false;
+        }
 
         return isset($header[0]) && (strpos($header[0],'200') || strpos($header[0],'304'));
 

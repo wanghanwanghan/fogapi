@@ -61,6 +61,8 @@ class RankListController extends BaseController
         }
         unset($oneUser);
 
+        dd($all);
+
         //个人排行
         if (empty($usr))
         {

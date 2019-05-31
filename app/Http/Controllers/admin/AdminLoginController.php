@@ -91,6 +91,7 @@ class AdminLoginController extends AdminBaseController
     {
         $res=['code'=>'纪申嘿嘿嘿','qrCode'=>QrCode::size(300)->margin(1)->generate('https://source.unsplash.com/Mv9hjnEUHR4/600x800')];
 
+        //不展示绑定googleAuth的二维码
         if (0) $res=$this->createGoogleAuth();
 
         return view('admin.login.login_index')->with($res);

@@ -205,7 +205,7 @@ class UserController extends BaseController
     public function getUserNameAndAvatar($uid,$update=false)
     {
         //redis里没有就从tssj里拿
-        $userinfo['name']=Redis::connection('UserInfo')->hget($uid,'name');
+        $userinfo['name']  =Redis::connection('UserInfo')->hget($uid,'name');
         $userinfo['avatar']=Redis::connection('UserInfo')->hget($uid,'avatar');
 
         //自动更新
@@ -230,7 +230,7 @@ class UserController extends BaseController
 
             }else
             {
-                $userinfo['avatar']='';
+                $userinfo['avatar']='/imgModel/systemAvtar.png';
             }
 
             Redis::connection('UserInfo')->hset($uid,'name',$userinfo['name']);
