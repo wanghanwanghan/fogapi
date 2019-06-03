@@ -33,6 +33,8 @@ class ChangeAvatarNotice extends Command
 
             if ($res==null || $res->avatar=='') continue;
 
+            $userName=trim($res->username);
+
             //判断图片是否存在
             $check=checkFileExists('http://www.wodeluapp.com/attachment/'.$res->avatar);
 
@@ -49,6 +51,9 @@ class ChangeAvatarNotice extends Command
 
                 //头像存入redis
                 Redis::connection('UserInfo')->hset($oneUid,'avatar',$res);
+
+                //名字存入redis
+                Redis::connection('UserInfo')->hset($oneUid,'name',$userName);
 
             }catch (\Exception $e)
             {

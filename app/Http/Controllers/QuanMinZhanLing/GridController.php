@@ -528,7 +528,8 @@ class GridController extends BaseController
         $info2=GridInfoModel::where(['gid'=>$info1->id,'uid'=>$info1->belong,'showName'=>1])->first();
 
         //必然有信息
-        $info3=getTssjUserInfo($info1->belong);
+        $userInfo=(new UserController())->getUserNameAndAvatar($info1->belong);
+        $info3=$userInfo['name'];
 
         $suffix=string2Number($gName);
         $suffix=$suffix%50;
@@ -545,7 +546,7 @@ class GridController extends BaseController
         //以下拼数组
         $gridInfo['gname']=$info1->name;
         $gridInfo['name']=$info2==null ? null : $info2->name;
-        $gridInfo['belong']=$info3->username;
+        $gridInfo['belong']=$info3;
         $gridInfo['tradeNow']=(int)Redis::connection('GridInfo')->get($gName.'_'.Carbon::now()->format('Ymd'));
         $gridInfo['tradeAll']=$this->getGridTodayBuyTotle($info1->name);
         $gridInfo['totle']=$info1->totle;
