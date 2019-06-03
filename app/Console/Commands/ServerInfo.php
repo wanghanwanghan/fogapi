@@ -84,7 +84,9 @@ class ServerInfo extends Command
 
             $res=array_values(array_filter(explode(' ',$res)));
 
-            $info['mem']=['totle'=>$res[1],'free'=>$res[3],'used'=>$res[2]];
+            $per=substr($res[3],0,strlen($res[3])-1) / substr($res[1],0,strlen($res[1])-1) * 100;
+
+            $info['mem']=['totle'=>$res[1],'free'=>$res[3],'used'=>$res[2],'per'=>round($per,2).'%'];
 
             //查看负载
             //load average

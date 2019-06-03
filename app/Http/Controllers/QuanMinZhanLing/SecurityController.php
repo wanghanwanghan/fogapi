@@ -215,7 +215,10 @@ Eof;
                     $rangeArry[$one->rangeType]+=$one->num;
                 }
 
-                return array_combine(array_values($rangeType),array_values($rangeArry));
+                //多少人拥有格子
+                $userTotle=array_sum(array_values($rangeArry));
+
+                return ['data'=>array_combine(array_values($rangeType),array_values($rangeArry)),'userTotle'=>$userTotle];
 
                 break;
 

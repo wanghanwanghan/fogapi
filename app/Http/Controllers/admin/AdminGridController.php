@@ -21,6 +21,19 @@ class AdminGridController extends AdminBaseController
     {
         switch ($request->type)
         {
+            case 'get_img_size':
+
+                $imgUrl=$request->imgUrl;
+
+                $imgArr=getimagesize(public_path($imgUrl));
+
+                $width =$imgArr[0]*3;
+                $height=$imgArr[1]*3;
+
+                return ['width'=>$width,'height'=>$height];
+
+                break;
+
             case 'get_grid_img':
 
                 //拿10个

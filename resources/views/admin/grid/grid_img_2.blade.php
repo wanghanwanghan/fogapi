@@ -49,7 +49,7 @@
                 closeBtn: 0,
                 scrollbar: false,
                 resize:false,
-                // area: ['200px','200px'],
+                area: ['640px','360px'],
                 skin: 'layui-layer-nobg', //没有背景色
                 shadeClose: true,
                 content: 'http://newfogapi.wodeluapp.com'+url

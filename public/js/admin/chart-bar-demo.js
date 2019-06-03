@@ -43,11 +43,13 @@ $.post(url,data,function (response) {
     var labels = [];
     var data = [];
 
-    $.each(response, function (key, value)
+    $.each(response.data, function (key, value)
     {
         labels.push(key);
         data.push(value);
     });
+
+    $("#userTotle").html(response.userTotle);
 
     var ctx = document.getElementById("myBarChart");
     var myBarChart = new Chart(ctx, {

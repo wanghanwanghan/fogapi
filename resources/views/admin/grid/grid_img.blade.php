@@ -36,26 +36,47 @@
             </div>
         </div>
 
+        <!--二维码,随便放在当前页面的那里都可以,因为是通过ajax控制,请求成功后才会弹出的-->
+        <div class="modal fade" id="img_div" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content bg-transparent" style="border:none">
+                    <div class="modal-body align-items-center text-center">
+                        <br>
+                        {{--生成的二维码会放在这里--}}
+                        <div id="img_content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
 
         //展示大图
-        function showpic(url) {
+        function showpic(imgUrl) {
 
-            layer.open({
-                type: 2,
-                title: false,
-                closeBtn: 0,
-                scrollbar: false,
-                resize:false,
-                // area: ['200px','200px'],
-                skin: 'layui-layer-nobg', //没有背景色
-                shadeClose: true,
-                content: 'http://newfogapi.wodeluapp.com'+url
-            });
+            $("#img_content").children().remove();
+
+            var data=
+                {
+                    _token:$("input[name=_token]").val(),
+                    imgUrl:imgUrl,
+                    type  :'get_img_size',
+                };
+
+            $.post('/admin/grid/ajax',data,function (response) {
+
+                //填上图片
+                $('#img_content').append("<img width="+response.width+"px; height="+response.width+"px; src="+imgUrl+">");
+
+                //弹出图片
+                $('#img_div').modal('show');
+
+            },'json');
 
         }
+
         //通过审核
         function picPass(stringId)
         {

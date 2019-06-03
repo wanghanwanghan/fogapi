@@ -36,8 +36,8 @@
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Mem使用率</div>
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">总共{{ round($info['mem']['totle']/1024/1024,1) }}G 已用{{ round($info['mem']['used']/1024/1024,1) }}G</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ round($info['mem']['used']/$info['mem']['totle'],3) }}%</div>
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">总共{{ $info['mem']['totle'] }} 已用{{ $info['mem']['used'] }}</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $info['mem']['per'] }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-2x text-gray-300 fa-bomb"></i>
@@ -238,7 +238,7 @@
             <div class="col-xl-8 col-lg-7">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">格子保有量</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">格子保有量，当前有 <span id="userTotle" style="color: red"></span> 名用户拥有格子</h6>
                         <div class="dropdown no-arrow">
                             <a class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
