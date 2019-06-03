@@ -52,12 +52,13 @@ class ServerInfo extends Command
                     }
                 }
 
-                preg_match_all('/Mem/',$tmp[1],$thisRes);
+                //内存不这么取了
+                //preg_match_all('/Mem/',$tmp[1],$thisRes);
 
-                if (!empty(current($thisRes)))
-                {
-                    $info['mem']=['totle'=>$tmp[3],'free'=>$tmp[5],'used'=>$tmp[8]];
-                }
+                //if (!empty(current($thisRes)))
+                //{
+                //    $info['mem']=['totle'=>$tmp[3],'free'=>$tmp[5],'used'=>$tmp[8]];
+                //}
 
                 preg_match_all('/Swap/',$tmp[1],$thisRes);
 
@@ -66,6 +67,24 @@ class ServerInfo extends Command
                     $info['swap']=['totle'=>$tmp[2],'free'=>$tmp[4],'used'=>$tmp[13]];
                 }
             }
+
+            //内存用free -h取
+            $fp=popen("free -h | egrep 'Mem'","r");
+
+            $rs="";
+
+            while(!feof($fp))
+            {
+                $rs .= fread($fp,1024);
+            }
+
+            pclose($fp);
+
+            $res=current(array_filter(explode(PHP_EOL,$rs)));
+
+            $res=array_values(array_filter(explode(' ',$res)));
+
+            $info['mem']=['totle'=>$res[1],'free'=>$res[3],'used'=>$res[2]];
 
             //查看负载
             //load average
