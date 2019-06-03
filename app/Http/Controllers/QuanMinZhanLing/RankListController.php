@@ -41,7 +41,7 @@ class RankListController extends BaseController
     //个人资产
     public function getUserAssets($uid)
     {
-        $all=RankListModel::orderBy('now')->limit(100)->get()->toArray();
+        $all=RankListModel::orderBy('now')->limit(200)->get()->toArray();
 
         $usr=RankListModel::where('uid',$uid)->get()->toArray();
 

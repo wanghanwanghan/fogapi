@@ -106,5 +106,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //分享图片
     Route::match(['get'],'SharePicture','QuanMinZhanLing\\UserController@sharePicture');
 
+    //查看钱袋
+    Route::match(['get','post'],'UserWallet','QuanMinZhanLing\\UserController@userWallet');
+
 });
 

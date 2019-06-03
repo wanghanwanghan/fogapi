@@ -175,10 +175,10 @@ class GridController extends BaseController
             isset($grid['price']) ? $price=$grid['price'] : $price=0;
             isset($grid['totle']) ? $totle=$grid['totle'] : $totle=0;
 
-            return $price + $totle;
+            return $price + $this->gridPriceRange($totle);
         }
 
-        return $grid->price + $grid->totle;
+        return $grid->price + $this->gridPriceRange($grid->totle);
     }
 
     //格子当天最大交易次数
@@ -559,6 +559,49 @@ class GridController extends BaseController
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$gridInfo]);
     }
 
+    //格子涨价范围
+    public function gridPriceRange($totle)
+    {
+        if ($totle==0) return 0;
 
+        if ($totle%33==0) return 33;
+
+        return $totle%33;
+    }
+
+    //格子交易税
+    public function gridTradeTax($target,$money)
+    {
+        if ($target=='SaleUser')
+        {
+            //获取一个基数
+            $perInConfig=Config::get('myDefine.'.$target);
+
+            //100起征，格子价格在100-1000的收取卖方10%，1001-5000收取20%，5001以上收取30%
+            if ($money>5000)
+            {
+                return intval($money*0.7);
+            }
+
+            if ($money>1000)
+            {
+                return intval($money*0.8);
+            }
+
+            if ($money>100)
+            {
+                return intval($money*0.9);
+            }
+        }
+
+        if ($target=='BuyUser')
+        {
+            //获取一个基数
+            $perInConfig=Config::get('myDefine.'.$target);
+
+        }
+
+        return $money;
+    }
 
 }

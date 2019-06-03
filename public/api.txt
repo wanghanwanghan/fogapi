@@ -1,3 +1,20 @@
+钱袋加钱
+
+post
+http://newfogapi.wodeluapp.com/api/UserWallet
+
+参数
+int      uid=17469                     用户主键
+int      area=123                      用户面积
+=================================================================
+查看钱袋
+
+get
+http://newfogapi.wodeluapp.com/api/UserWallet
+
+参数
+int      uid=17469                     用户主键
+int      area=123                      用户面积
 =================================================================
 分享图片
 

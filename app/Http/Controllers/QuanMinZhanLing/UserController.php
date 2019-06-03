@@ -16,6 +16,67 @@ use Intervention\Image\Facades\Image;
 
 class UserController extends BaseController
 {
+    //用户钱袋
+    public function userWallet(Request $request)
+    {
+        //get查看钱，post加钱
+
+        $uid =(int)trim($request->uid);
+        $area=intval((int)trim($request->area));
+
+        $wallet=Redis::connection('UserInfo')->hget($uid,'wallet');
+
+        if ($uid==0) return ['resCode'=>Config::get('resCode.200'),'money'=>0];
+
+        //第一次进
+        if ($wallet==null)
+        {
+            if ($request->isMethod('post'))
+            {
+                Redis::connection('UserInfo')->hset($uid,'wallet',json_encode(['area'=>$area,'lastUpdate'=>time()]));
+
+                //加钱
+                $this->exprUserMoney($uid,0,10,'+');
+            }
+
+            return response()->json(['resCode'=>Config::get('resCode.200'),'money'=>10]);
+        }
+
+        //以后每探索1km给25，自然时间是每12分钟给1
+        $wallet=json_decode($wallet,true);
+
+        $areaMoney=0;
+        $timeMoney=0;
+
+        if ($area > $wallet['area'])
+        {
+            $areaMoney=($area - $wallet['area']) * 25;
+
+            //为这次存入redis做准备
+            $wallet['area']=$area;
+        }
+
+        if (time() - $wallet['lastUpdate'] >= 720)
+        {
+            $timeMoney=intval((time() - $wallet['lastUpdate']) / 720);
+
+            //为这次存入redis做准备
+            $wallet['lastUpdate']=time();
+        }
+
+        $areaMoney + $timeMoney > 200 ? $money=200 : $money=$areaMoney + $timeMoney;
+
+        if ($request->isMethod('post'))
+        {
+            Redis::connection('UserInfo')->hset($uid,'wallet',json_encode($wallet));
+
+            //加钱
+            $this->exprUserMoney($uid,0,$money,'+');
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'money'=>$money]);
+    }
+
     //获取用户的全部格子信息
     public function getUserGridInfo(Request $request)
     {
@@ -142,6 +203,7 @@ class UserController extends BaseController
         //买方扣款 被买方加款
         if ($belongid==0)
         {
+            //从系统买
             $res=Redis::connection('UserInfo')->hget($uid,'money');
 
             Redis::connection('UserInfo')->hset($uid,'money',$res - $money);
@@ -150,14 +212,20 @@ class UserController extends BaseController
 
         }else
         {
+            //买方减钱
             $res=Redis::connection('UserInfo')->hget($uid,'money');
 
             Redis::connection('UserInfo')->hset($uid,'money',$res - $money);
 
+            //卖方加钱
             $res=Redis::connection('UserInfo')->hget($belongid,'money');
+
+            //钱不全额加，系统要扣除部分
+            $money=(new GridController())->gridTradeTax('SaleUser',$money);
 
             Redis::connection('UserInfo')->hset($belongid,'money',$res + $money);
 
+            //设置生涯信息
             $this->setTradeTotleForCareer($uid);
             $this->setTradeTotleForCareer($belongid);
         }
