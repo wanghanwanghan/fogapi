@@ -363,7 +363,7 @@ class UserController extends BaseController
     //获取最近的交易信息
     public function getRecentlyTradeInfo(Request $request)
     {
-        $uid=$request->uid;
+        $uid=(int)trim($request->uid);
         $page=$request->page;
         $paytime=trim($request->paytime);
 
@@ -402,6 +402,8 @@ class UserController extends BaseController
             ->offset($offset)
             ->get()->toArray();
 
+        $gridTradeTax=new GridController();
+
         foreach ($res as &$val)
         {
             if (isset($val['paytime']))
@@ -413,6 +415,12 @@ class UserController extends BaseController
             {
                 $val['paytime']=null;
                 $val['datetime']=null;
+            }
+
+            //如果这条记录的belong属于该uid，需要显示收税以后的价格
+            if ($val['belong']==$uid && $uid!=0)
+            {
+                $val['paymoney']=$gridTradeTax->gridTradeTax('SaleUser',$val['paymoney']);
             }
         }
         unset($val);
