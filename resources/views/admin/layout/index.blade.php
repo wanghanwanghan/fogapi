@@ -51,6 +51,16 @@
       </li>
 
       <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+      <!-- Nav Item - Dashboard -->
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('appSetupIndex')}}">
+          <i class="fas fa-fw fa-file"></i>
+          <span>上传app安装包</span></a>
+      </li>
+
+      <!-- Divider -->
       <hr class="sidebar-divider">
 
       <!-- Heading -->

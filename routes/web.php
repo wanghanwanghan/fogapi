@@ -18,6 +18,7 @@ Route::group(['prefix'=>'admin'],function ()
 
 
 
+
             $info=\Illuminate\Support\Facades\Redis::connection('default')->get('ServerInfo');
 
             $info=json_decode($info,true);
@@ -36,6 +37,12 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['get','post'],'/sys/create/msg/detail/{id}','admin\\AdminSysController@sysMsgDetail')->name('sysMsgDetail');
 
         Route::match(['post'],'/sys/ajax','admin\\AdminSysController@sysAjax');
+
+
+        //上传app安装包
+        Route::match(['get'],'/app/setup/index','admin\\AppSetupController@appSetupIndex')->name('appSetupIndex');
+        Route::match(['post'],'/app/setup/ajax','admin\\AppSetupController@ajax');
+
 
 
 
