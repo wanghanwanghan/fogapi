@@ -1,3 +1,11 @@
+获取版本号
+
+get
+http://newfogapi.wodeluapp.com/api/GetAppVersion
+
+参数
+没参数
+=================================================================
 钱袋加钱
 
 post

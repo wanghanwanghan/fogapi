@@ -13,6 +13,16 @@ use Illuminate\Foundation\Inspiring;
 |
 */
 
+//激励
 Artisan::command('inspire', function () {
+
     $this->comment(Inspiring::quote());
+
 })->describe('Display an inspiring quote');
+
+//test
+Artisan::command('duanran', function () {
+
+    $this->comment('duanran');
+
+})->describe('echo "duanran" in command line');

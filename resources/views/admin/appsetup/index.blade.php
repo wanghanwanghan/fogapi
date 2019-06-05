@@ -24,7 +24,7 @@
                                 <div class="form-group">
                                     <label>安卓版本号：</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control col-xl-3" name="androidVer" id="androidVer" placeholder="x.x.x">
+                                        <input type="text" class="form-control col-xl-3" name="androidVer" id="androidVer">
                                         <div class="input-group-append">
                                             <a class="btn btn-info" href="#">Ver</a>
                                         </div>
@@ -78,7 +78,7 @@
 
             $('#result').append('<p>文件已上传成功，原名：<span>' + this.resourceName + '</span></p>');
             $('#result').append('<p>大小：<span>' + parseFloat(this.resourceSize / (1000 * 1000)).toFixed(2) + 'MB' + '</span></p>');
-            $('#result').append('<p>储存后：<span>/aetherupload/display/file_2019_'+ filename +'</span></p>');
+            $('#result').append('<p>储存后：<span id="myAndroidUrl">/aetherupload/display/file_subdir_'+ filename +'</span></p>');
 
             $('#result').append('<p><i id="myWait" class="fa fa-spinner fa-spin fa-1x fa-fw margin-bottom"></i></p>');
 
@@ -91,7 +91,9 @@
                     _token:$("input[name=_token]").val(),
                     type  :'updateVer',
                     androidVer:$("#androidVer").val(),
+                    androidUrl:$("#myAndroidUrl").html(),
                     appleVer:'',
+                    appleUrl:'',
                 };
 
             $.post(url,data,function (myResponse) {

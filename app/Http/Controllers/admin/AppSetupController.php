@@ -13,13 +13,16 @@ class AppSetupController extends AdminBaseController
         {
             case 'updateVer':
 
+                //最新版本号
                 $androidVer=trim($request->androidVer);
 
-                if ($androidVer=='') break;
+                //最新版本下载url
+                $androidUrl=trim($request->androidUrl);
 
-                if (!preg_match('/\d+\.\d+\.\d+/',$androidVer)) break;
+                if ($androidVer=='' || $androidUrl=='') break;
 
-                Redis::connection('default')->set('tssjAndroidAppVersion',$androidVer);
+                Redis::connection('default')->hset('tssjAndroidAppVersion','ver',$androidVer);
+                Redis::connection('default')->hset('tssjAndroidAppVersion','url',$androidUrl);
 
                 return ['resCode'=>200];
 

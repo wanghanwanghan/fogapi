@@ -75,7 +75,7 @@ return [
     |
     */
 
-    'resource_subdir_rule' => 'year',
+    'resource_subdir_rule' => 'const',
 
     /*
     |--------------------------------------------------------------------------

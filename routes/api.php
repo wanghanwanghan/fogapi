@@ -109,5 +109,43 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //查看钱袋
     Route::match(['get','post'],'UserWallet','QuanMinZhanLing\\UserController@userWallet');
 
+    //获取app版本号
+    Route::match(['get'],'GetAppVersion',function (){
+
+        //安卓版本号
+        $androidVer=(string)\Illuminate\Support\Facades\Redis::connection('default')->hget('tssjAndroidAppVersion','ver');
+
+        //安卓下载链接
+        $androidUrl=(string)\Illuminate\Support\Facades\Redis::connection('default')->hget('tssjAndroidAppVersion','url');
+
+        //apple版本号
+        $appleVer  =(string)\Illuminate\Support\Facades\Redis::connection('default')->hget('tssjAppleAppVersion','ver');
+
+        //apple下载链接
+        $appleUrl  =(string)\Illuminate\Support\Facades\Redis::connection('default')->hget('tssjAppleAppVersion','url');
+
+        if ($androidVer=='') $androidVer=$androidUrl='0';
+        if ($appleVer=='')   $appleVer=$appleUrl='0';
+
+        $android=['ver'=>$androidVer,'url'=>$androidUrl];
+        $apple=['ver'=>$appleVer,'url'=>$appleUrl];
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'android'=>$android,'apple'=>$apple]);
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
 
