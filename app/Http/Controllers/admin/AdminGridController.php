@@ -119,7 +119,7 @@ class AdminGridController extends AdminBaseController
 
                 $gridInfo->save();
 
-                return true;
+                return ['200'];
 
                 break;
 
@@ -147,7 +147,7 @@ class AdminGridController extends AdminBaseController
                 $info->isCheck=null;
                 $info->save();
 
-                return true;
+                return ['200'];
 
                 break;
         }

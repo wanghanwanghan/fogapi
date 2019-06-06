@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 use Geohash\GeoHash;
 
@@ -45,7 +46,7 @@ class center extends Command
                 $table->index('name');
                 $table->index('belong');
 
-                //Alter table grid partition by linear key(belong) partitions 50;
+                //Alter table grid partition by linear key(belong) partitions 128;
             });
         }
 
@@ -74,17 +75,33 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('masterDB')->table($this->myTableName)->insert([
-                    'lat'=>number_format($lat,6),
-                    'lng'=>number_format($lng,6),
-                    'geohash'=>$hash,
-                    'name'=>"n{$i}w{$j}",
-                    'price'=>10,
-                    'hightPrice'=>10,
-                    'belong'=>0,
-                    'totle'=>0,
-                    'showGrid'=>'1'
-                ]);
+                try
+                {
+                    $myCheck=DB::connection('masterDB')->table($this->myTableName)->where('name',"n{$i}w{$j}")->first();
+
+                    if ($myCheck)
+                    {
+                        Redis::connection('default')->incr('inserttotle');
+
+                    }else
+                    {
+                        DB::connection('masterDB')->table($this->myTableName)->insert([
+                            'lat'=>number_format($lat,6),
+                            'lng'=>number_format($lng,6),
+                            'geohash'=>$hash,
+                            'name'=>"n{$i}w{$j}",
+                            'price'=>10,
+                            'hightPrice'=>10,
+                            'belong'=>0,
+                            'totle'=>0,
+                            'showGrid'=>'1'
+                        ]);
+                    }
+
+                }catch (\Exception $e)
+                {
+                    Redis::connection('default')->incr('inserttotle_error');
+                }
 
                 $lng-=0.035;
             }
@@ -114,17 +131,33 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('masterDB')->table($this->myTableName)->insert([
-                    'lat'=>number_format($lat,6),
-                    'lng'=>number_format($lng,6),
-                    'geohash'=>$hash,
-                    'name'=>"s{$i}w{$j}",
-                    'price'=>10,
-                    'hightPrice'=>10,
-                    'belong'=>0,
-                    'totle'=>0,
-                    'showGrid'=>'1'
-                ]);
+                try
+                {
+                    $myCheck=DB::connection('masterDB')->table($this->myTableName)->where('name',"s{$i}w{$j}")->first();
+
+                    if ($myCheck)
+                    {
+                        Redis::connection('default')->incr('inserttotle');
+
+                    }else
+                    {
+                        DB::connection('masterDB')->table($this->myTableName)->insert([
+                            'lat'=>number_format($lat,6),
+                            'lng'=>number_format($lng,6),
+                            'geohash'=>$hash,
+                            'name'=>"s{$i}w{$j}",
+                            'price'=>10,
+                            'hightPrice'=>10,
+                            'belong'=>0,
+                            'totle'=>0,
+                            'showGrid'=>'1'
+                        ]);
+                    }
+
+                }catch (\Exception $e)
+                {
+                    Redis::connection('default')->incr('inserttotle_error');
+                }
 
                 $lng-=0.035;
             }
@@ -154,17 +187,33 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('masterDB')->table($this->myTableName)->insert([
-                    'lat'=>number_format($lat,6),
-                    'lng'=>number_format($lng,6),
-                    'geohash'=>$hash,
-                    'name'=>"n{$i}e{$j}",
-                    'price'=>10,
-                    'hightPrice'=>10,
-                    'belong'=>0,
-                    'totle'=>0,
-                    'showGrid'=>'1'
-                ]);
+                try
+                {
+                    $myCheck=DB::connection('masterDB')->table($this->myTableName)->where('name',"n{$i}e{$j}")->first();
+
+                    if ($myCheck)
+                    {
+                        Redis::connection('default')->incr('inserttotle');
+
+                    }else
+                    {
+                        DB::connection('masterDB')->table($this->myTableName)->insert([
+                            'lat'=>number_format($lat,6),
+                            'lng'=>number_format($lng,6),
+                            'geohash'=>$hash,
+                            'name'=>"n{$i}e{$j}",
+                            'price'=>10,
+                            'hightPrice'=>10,
+                            'belong'=>0,
+                            'totle'=>0,
+                            'showGrid'=>'1'
+                        ]);
+                    }
+
+                }catch (\Exception $e)
+                {
+                    Redis::connection('default')->incr('inserttotle_error');
+                }
 
                 $lng+=0.035;
             }
@@ -194,17 +243,33 @@ class center extends Command
             {
                 $hash=$geo->encode($lat,$lng,12);
 
-                DB::connection('masterDB')->table($this->myTableName)->insert([
-                    'lat'=>number_format($lat,6),
-                    'lng'=>number_format($lng,6),
-                    'geohash'=>$hash,
-                    'name'=>"s{$i}e{$j}",
-                    'price'=>10,
-                    'hightPrice'=>10,
-                    'belong'=>0,
-                    'totle'=>0,
-                    'showGrid'=>'1'
-                ]);
+                try
+                {
+                    $myCheck=DB::connection('masterDB')->table($this->myTableName)->where('name',"s{$i}e{$j}")->first();
+
+                    if ($myCheck)
+                    {
+                        Redis::connection('default')->incr('inserttotle');
+
+                    }else
+                    {
+                        DB::connection('masterDB')->table($this->myTableName)->insert([
+                            'lat'=>number_format($lat,6),
+                            'lng'=>number_format($lng,6),
+                            'geohash'=>$hash,
+                            'name'=>"s{$i}e{$j}",
+                            'price'=>10,
+                            'hightPrice'=>10,
+                            'belong'=>0,
+                            'totle'=>0,
+                            'showGrid'=>'1'
+                        ]);
+                    }
+
+                }catch (\Exception $e)
+                {
+                    Redis::connection('default')->incr('inserttotle_error');
+                }
 
                 $lng+=0.035;
             }
@@ -231,17 +296,33 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('masterDB')->table($this->myTableName)->insert([
-                'lat'=>number_format($lat,6),
-                'lng'=>number_format($lng,6),
-                'geohash'=>$hash,
-                'name'=>"w{$i}",
-                'price'=>10,
-                'hightPrice'=>10,
-                'belong'=>0,
-                'totle'=>0,
-                'showGrid'=>'1'
-            ]);
+            try
+            {
+                $myCheck=DB::connection('masterDB')->table($this->myTableName)->where('name',"w{$i}")->first();
+
+                if ($myCheck)
+                {
+                    Redis::connection('default')->incr('inserttotle');
+
+                }else
+                {
+                    DB::connection('masterDB')->table($this->myTableName)->insert([
+                        'lat'=>number_format($lat,6),
+                        'lng'=>number_format($lng,6),
+                        'geohash'=>$hash,
+                        'name'=>"w{$i}",
+                        'price'=>10,
+                        'hightPrice'=>10,
+                        'belong'=>0,
+                        'totle'=>0,
+                        'showGrid'=>'1'
+                    ]);
+                }
+
+            }catch (\Exception $e)
+            {
+                Redis::connection('default')->incr('inserttotle_error');
+            }
         }
 
         $lat='39.9104';
@@ -254,17 +335,33 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('masterDB')->table($this->myTableName)->insert([
-                'lat'=>number_format($lat,6),
-                'lng'=>number_format($lng,6),
-                'geohash'=>$hash,
-                'name'=>"s{$i}",
-                'price'=>10,
-                'hightPrice'=>10,
-                'belong'=>0,
-                'totle'=>0,
-                'showGrid'=>'1'
-            ]);
+            try
+            {
+                $myCheck=DB::connection('masterDB')->table($this->myTableName)->where('name',"s{$i}")->first();
+
+                if ($myCheck)
+                {
+                    Redis::connection('default')->incr('inserttotle');
+
+                }else
+                {
+                    DB::connection('masterDB')->table($this->myTableName)->insert([
+                        'lat'=>number_format($lat,6),
+                        'lng'=>number_format($lng,6),
+                        'geohash'=>$hash,
+                        'name'=>"s{$i}",
+                        'price'=>10,
+                        'hightPrice'=>10,
+                        'belong'=>0,
+                        'totle'=>0,
+                        'showGrid'=>'1'
+                    ]);
+                }
+
+            }catch (\Exception $e)
+            {
+                Redis::connection('default')->incr('inserttotle_error');
+            }
         }
 
         $lat='39.9104';
@@ -277,17 +374,33 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('masterDB')->table($this->myTableName)->insert([
-                'lat'=>number_format($lat,6),
-                'lng'=>number_format($lng,6),
-                'geohash'=>$hash,
-                'name'=>"e{$i}",
-                'price'=>10,
-                'hightPrice'=>10,
-                'belong'=>0,
-                'totle'=>0,
-                'showGrid'=>'1'
-            ]);
+            try
+            {
+                $myCheck=DB::connection('masterDB')->table($this->myTableName)->where('name',"e{$i}")->first();
+
+                if ($myCheck)
+                {
+                    Redis::connection('default')->incr('inserttotle');
+
+                }else
+                {
+                    DB::connection('masterDB')->table($this->myTableName)->insert([
+                        'lat'=>number_format($lat,6),
+                        'lng'=>number_format($lng,6),
+                        'geohash'=>$hash,
+                        'name'=>"e{$i}",
+                        'price'=>10,
+                        'hightPrice'=>10,
+                        'belong'=>0,
+                        'totle'=>0,
+                        'showGrid'=>'1'
+                    ]);
+                }
+
+            }catch (\Exception $e)
+            {
+                Redis::connection('default')->incr('inserttotle_error');
+            }
         }
 
         $lat='39.9104';
@@ -300,17 +413,33 @@ class center extends Command
 
             $hash=$geo->encode($lat,$lng,12);
 
-            DB::connection('masterDB')->table($this->myTableName)->insert([
-                'lat'=>number_format($lat,6),
-                'lng'=>number_format($lng,6),
-                'geohash'=>$hash,
-                'name'=>"n{$i}",
-                'price'=>10,
-                'hightPrice'=>10,
-                'belong'=>0,
-                'totle'=>0,
-                'showGrid'=>'1'
-            ]);
+            try
+            {
+                $myCheck=DB::connection('masterDB')->table($this->myTableName)->where('name',"n{$i}")->first();
+
+                if ($myCheck)
+                {
+                    Redis::connection('default')->incr('inserttotle');
+
+                }else
+                {
+                    DB::connection('masterDB')->table($this->myTableName)->insert([
+                        'lat'=>number_format($lat,6),
+                        'lng'=>number_format($lng,6),
+                        'geohash'=>$hash,
+                        'name'=>"n{$i}",
+                        'price'=>10,
+                        'hightPrice'=>10,
+                        'belong'=>0,
+                        'totle'=>0,
+                        'showGrid'=>'1'
+                    ]);
+                }
+
+            }catch (\Exception $e)
+            {
+                Redis::connection('default')->incr('inserttotle_error');
+            }
         }
 
 
@@ -320,19 +449,33 @@ class center extends Command
         $hash=$geo->encode($lat,$lng,12);
 
         //c0
-        DB::connection('masterDB')->table($this->myTableName)->insert([
-            'lat'=>number_format($lat,6),
-            'lng'=>number_format($lng,6),
-            'geohash'=>$hash,
-            'name'=>"c0",
-            'price'=>10,
-            'hightPrice'=>10,
-            'belong'=>0,
-            'totle'=>0,
-            'showGrid'=>'1'
-        ]);
+        try
+        {
+            $myCheck=DB::connection('masterDB')->table($this->myTableName)->where('name',"c0")->first();
 
+            if ($myCheck)
+            {
+                Redis::connection('default')->incr('inserttotle');
 
+            }else
+            {
+                DB::connection('masterDB')->table($this->myTableName)->insert([
+                    'lat'=>number_format($lat,6),
+                    'lng'=>number_format($lng,6),
+                    'geohash'=>$hash,
+                    'name'=>"c0",
+                    'price'=>10,
+                    'hightPrice'=>10,
+                    'belong'=>0,
+                    'totle'=>0,
+                    'showGrid'=>'1'
+                ]);
+            }
+
+        }catch (\Exception $e)
+        {
+            Redis::connection('default')->incr('inserttotle_error');
+        }
 
 
     }

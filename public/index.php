@@ -55,6 +55,9 @@ $response = $kernel->handle(
     $request = Illuminate\Http\Request::capture()
 );
 
+//更新代码时候打开
+if (env('UPDATE_SYSTEM',false)) abort(500);
+
 $response->send();
 
 $kernel->terminate($request, $response);

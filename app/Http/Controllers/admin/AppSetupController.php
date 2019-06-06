@@ -28,6 +28,20 @@ class AppSetupController extends AdminBaseController
 
                 break;
 
+            case 'appleUpdateVer':
+
+                //最新版本号
+                $appleVer=trim($request->appleVer);
+
+                if ($appleVer=='') break;
+
+                Redis::connection('default')->hset('tssjAppleAppVersion','ver',$appleVer);
+                Redis::connection('default')->hset('tssjAppleAppVersion','url',0);
+
+                return ['resCode'=>200];
+
+                break;
+
             default:
 
                 break;

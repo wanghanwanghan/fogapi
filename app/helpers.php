@@ -759,7 +759,7 @@ function decodeForAES($str,$secret)
     $method1='AES-128-ECB';
     $method2='AES-256-ECB';
 
-    $salt='WoYaoZhanLingDiQiu';
+    $salt='WoYaoZhanLingDiQiu';//盐值
 
     $res=openssl_decrypt(pack("H*",$secret),$method1,$salt,OPENSSL_RAW_DATA);
 
@@ -925,3 +925,8 @@ function getSlowlySql($s)
 
     return true;
 }
+
+
+
+
+

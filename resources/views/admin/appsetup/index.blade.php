@@ -63,6 +63,45 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-xl-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 text-center" >
+                        <i class="fa fa-apple fa-3x" aria-hidden="true" style="color: gray"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+
+                            <div class="form-group">
+                                <label>苹果本号：</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control col-xl-3" name="appleVer" id="appleVer">
+                                    <div class="input-group-append">
+                                        <a class="btn btn-info" href="#">Ver</a>
+                                    </div>
+                                </div>
+
+                                <p></p>
+                                <p>RedisDBN：default</p>
+                                <p>RedisKey：tssjAppleAppVersion</p>
+
+                            </div>
+
+                            <hr>
+
+                            <div class="form-group">
+                                <label>苹果没有安装包，输入版本号后点击下面的提交</label>
+                            </div>
+
+                            <button onclick="appleUpdateVer();" class="btn btn-sm btn-primary">提交</button>
+
+                            <hr/>
+
+                            <div id="result"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -82,7 +121,6 @@
 
             $('#result').append('<p><i id="myWait" class="fa fa-spinner fa-spin fa-1x fa-fw margin-bottom"></i></p>');
 
-
             //更新app版本号
             var url ='/admin/app/setup/ajax';
 
@@ -92,8 +130,6 @@
                     type  :'updateVer',
                     androidVer:$("#androidVer").val(),
                     androidUrl:$("#myAndroidUrl").html(),
-                    appleVer:'',
-                    appleUrl:'',
                 };
 
             $.post(url,data,function (myResponse) {
@@ -110,6 +146,33 @@
                 $("#myWait").addClass('d-none');
 
             },'json');
+        };
+
+        function appleUpdateVer() {
+
+            //更新app版本号
+            var url ='/admin/app/setup/ajax';
+
+            var data=
+                {
+                    _token:$("input[name=_token]").val(),
+                    type  :'appleUpdateVer',
+                    appleVer:$("#appleVer").val(),
+                };
+
+            $.post(url,data,function (myResponse) {
+
+                if (myResponse.resCode==200)
+                {
+                    swal("版本号更新成功", "版本号更新成功", "success");
+
+                }else
+                {
+                    swal("版本号更新失败", "版本号更新失败", "error");
+                }
+
+            },'json');
+
         }
 
     </script>

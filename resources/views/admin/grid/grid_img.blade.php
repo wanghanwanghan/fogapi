@@ -108,9 +108,7 @@
                                     whitchPic:1,
                                 };
 
-                            $.post(url,data,function (response) {
-
-                            },'json');
+                            $.post(url,data,function () {},'json');
 
                             swal("通过审核", "app上已经可以显示了", "success");
 
@@ -131,9 +129,7 @@
                                     whitchPic:1,
                                 };
 
-                            $.post(url,data,function (response) {
-
-                            },'json');
+                            $.post(url,data,function () {},'json');
 
                             swal("删除成功", "图片已经没有了，不能恢复了", "success");
                             //====================================================

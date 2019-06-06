@@ -334,6 +334,8 @@ class Achievement extends Command
         //从第0个开始取，取5个
         $limit5=array_slice($step,0,5);
 
+        if (empty($limit5)) return true;
+
         $userAch['4xxx']['limit5']=$limit5;
 
         //获取4xxx成就系列
