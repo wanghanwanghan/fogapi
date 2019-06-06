@@ -24,7 +24,7 @@ class center extends Command
     public function handle()
     {
         //c0 ['lat'=>'39.9104','lng'=>'116.397392']
-        //     纬度0.025        经度0.035
+        //纬度0.025   经度0.035
 
         if (!Schema::connection('masterDB')->hasTable($this->myTableName))
         {
@@ -64,13 +64,13 @@ class center extends Command
         $lat='39.9104';
         $lat+=0.025;
 
-        //坐标轴和c0先不画
-        for ($i=1;$i<=550;$i++)
+        //坐标轴和c0先不画 1680w
+        for ($i=1;$i<=2000;$i++)
         {
             $lng='116.397392';
             $lng-=0.035;
 
-            for ($j=1;$j<=1250;$j++)
+            for ($j=1;$j<=8400;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
@@ -97,20 +97,20 @@ class center extends Command
         $w=1;//西
         $e=1;//东
 
-        //向上   550   向下880    向左1250  向右550
+        //向上550   向下880   向左1250   向右550
         //向上2000  向下5000  向左8400   向右1800
 
         //往西南 lat减少 lng减少 w西增加 s南增加
         $lat='39.9104';
         $lat-=0.025;
 
-        //坐标轴和c0先不画
-        for ($i=1;$i<=880;$i++)
+        //坐标轴和c0先不画 4200w
+        for ($i=1;$i<=5000;$i++)
         {
             $lng='116.397392';
             $lng-=0.035;
 
-            for ($j=1;$j<=1250;$j++)
+            for ($j=1;$j<=8400;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
@@ -137,20 +137,20 @@ class center extends Command
         $w=1;//西
         $e=1;//东
 
-        //向上   550   向下880    向左1250  向右550
+        //向上550   向下880   向左1250   向右550
         //向上2000  向下5000  向左8400   向右1800
 
         //往东北 lat增加 lng增加 e东增加 n北增加
         $lat='39.9104';
         $lat+=0.025;
 
-        //坐标轴和c0先不画
-        for ($i=1;$i<=550;$i++)
+        //坐标轴和c0先不画 360w
+        for ($i=1;$i<=2000;$i++)
         {
             $lng='116.397392';
             $lng+=0.035;
 
-            for ($j=1;$j<=550;$j++)
+            for ($j=1;$j<=1800;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
@@ -177,20 +177,20 @@ class center extends Command
         $w=1;//西
         $e=1;//东
 
-        //向上   550   向下880    向左1250  向右550
+        //向上550   向下880   向左1250   向右550
         //向上2000  向下5000  向左8400   向右1800
 
         //往东南 lat减少 lng增加 e东增加 s南增加
         $lat='39.9104';
         $lat-=0.025;
 
-        //坐标轴和c0先不画
-        for ($i=1;$i<=880;$i++)
+        //坐标轴和c0先不画 900w
+        for ($i=1;$i<=5000;$i++)
         {
             $lng='116.397392';
             $lng+=0.035;
 
-            for ($j=1;$j<=550;$j++)
+            for ($j=1;$j<=1800;$j++)
             {
                 $hash=$geo->encode($lat,$lng,12);
 
@@ -217,7 +217,7 @@ class center extends Command
         $w=1;//西
         $e=1;//东
 
-        //向上   550   向下880    向左1250  向右550
+        //向上550   向下880   向左1250   向右550
         //向上2000  向下5000  向左8400   向右1800
 
         //画4个坐标轴和c0
@@ -225,7 +225,7 @@ class center extends Command
         $lng='116.397392';
 
         //西
-        for ($i=1;$i<=1250;$i++)
+        for ($i=1;$i<=8400;$i++)
         {
             $lng-=0.035;
 
@@ -248,7 +248,7 @@ class center extends Command
         $lng='116.397392';
 
         //南
-        for ($i=1;$i<=880;$i++)
+        for ($i=1;$i<=5000;$i++)
         {
             $lat-=0.025;
 
@@ -271,7 +271,7 @@ class center extends Command
         $lng='116.397392';
 
         //东
-        for ($i=1;$i<=550;$i++)
+        for ($i=1;$i<=1800;$i++)
         {
             $lng+=0.035;
 
@@ -294,7 +294,7 @@ class center extends Command
         $lng='116.397392';
 
         //北
-        for ($i=1;$i<=550;$i++)
+        for ($i=1;$i<=2000;$i++)
         {
             $lat+=0.025;
 

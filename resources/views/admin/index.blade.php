@@ -36,7 +36,7 @@
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Mem使用率</div>
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">总共{{ $info['mem']['totle'] }} 已用{{ $info['mem']['used'] }}</div>
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">总共{{ $info['mem']['totle'] }}G 已用{{ $info['mem']['used'] }}G 剩余{{ $info['mem']['free'] }}G</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $info['mem']['per'] }}</div>
                             </div>
                             <div class="col-auto">

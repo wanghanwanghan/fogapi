@@ -69,7 +69,7 @@ class ServerInfo extends Command
             }
 
             //内存用free -h取
-            $fp=popen("free -h | egrep 'Mem'","r");
+            $fp=popen("free -m | egrep 'Mem'","r");
 
             $rs="";
 
@@ -84,9 +84,9 @@ class ServerInfo extends Command
 
             $res=array_values(array_filter(explode(' ',$res)));
 
-            $per=substr($res[3],0,strlen($res[3])-1) / substr($res[1],0,strlen($res[1])-1) * 100;
+            $per=$res[2] / $res[1] * 100;
 
-            $info['mem']=['totle'=>$res[1],'free'=>$res[3],'used'=>$res[2],'per'=>round($per,2).'%'];
+            $info['mem']=['totle'=>round($res[1]/1024,0),'used'=>round($res[2]/1024,0),'free'=>round($res[3]/1024,1),'per'=>round($per,1).'%'];
 
             //查看负载
             //load average
