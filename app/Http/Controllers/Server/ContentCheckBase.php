@@ -50,7 +50,7 @@ class ContentCheckBase
 
         $res=json_decode($res['msg']);
 
-        $logid=$res->log_id;
+        //$logid=$res->log_id;
 
         $result=$res->result;
 
