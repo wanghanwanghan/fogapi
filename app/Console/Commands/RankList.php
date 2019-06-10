@@ -101,7 +101,7 @@ class RankList extends Command
         Redis::connection('UserInfo')->exec();//提交事务
 
         //算出每个用户格子总数和格子总价，这个所有有格子的用户
-        $sql='select belong as uid,count(1) as grid,sum(price+totle) as gridPrice from grid where belong in (select belong from grid group by belong having belong <> 0) group by belong';
+        $sql='select belong as uid,count(1) as grid,sum(price+totle) as gridPrice from grid where belong in (select distinct belong from grid where belong <> 0) group by belong';
 
         $dataInGridTable=DB::connection('masterDB')->transaction(function () use ($sql)
         {

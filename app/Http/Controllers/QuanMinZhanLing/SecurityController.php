@@ -167,8 +167,8 @@ class SecurityController extends BaseController
             case 'get_grid_installation_base':
 
                 $sql=<<<Eof
-select elt(interval(tmp.gridTotle,0,10,20,30,40,50,60,70,80,90,100,110,120,130,140),'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15') as rangeType,count(1) as num 
-from (select belong,count(1) as gridTotle from grid group by belong having belong <> 0) as tmp 
+select elt(interval(tmpOne.gridTotle,0,10,20,30,40,50,60,70,80,90,100,110,120,130,140),'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15') as rangeType,count(1) as num 
+from (select belong,count(1) AS gridTotle from (select belong from grid where belong <> 0) as tmpTwo group by belong) as tmpOne 
 group by rangeType;
 Eof;
                 //统计15个区间
