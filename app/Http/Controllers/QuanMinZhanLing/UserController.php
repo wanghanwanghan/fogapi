@@ -16,6 +16,33 @@ use Intervention\Image\Facades\Image;
 
 class UserController extends BaseController
 {
+    //每人每天钱袋领取上线
+    public function userWalletLimit($uid,$act='get',$money=0)
+    {
+        $ymd=date('Ymd',time());
+
+        $limit=Config::get('myDefine.UserWalletLimit');
+
+        $limitInfo=(int)Redis::connection('UserInfo')->get('UserWalletLimit_'.$ymd.'_'.$uid);
+
+        if ($act==='get')
+        {
+            //返回true说明到上限了
+            if ($limitInfo >= $limit) return true;
+
+            return false;
+        }
+
+        if ($act==='set')
+        {
+            Redis::connection('UserInfo')->set('UserWalletLimit_'.$ymd.'_'.$uid,$limitInfo + $money);
+
+            Redis::connection('UserInfo')->expire('UserWalletLimit_'.$ymd.'_'.$uid,86400);
+
+            return true;
+        }
+    }
+
     //用户钱袋
     public function userWallet(Request $request)
     {
@@ -24,9 +51,12 @@ class UserController extends BaseController
         $uid =(int)trim($request->uid);
         $area=intval((int)trim($request->area));
 
-        $wallet=Redis::connection('UserInfo')->hget($uid,'wallet');
-
         if ($uid==0) return ['resCode'=>Config::get('resCode.200'),'money'=>0];
+
+        //每人每天钱袋领取上限，返回true说明到上限了
+        if ($this->userWalletLimit($uid)) return ['resCode'=>Config::get('resCode.200'),'money'=>0];
+
+        $wallet=Redis::connection('UserInfo')->hget($uid,'wallet');
 
         //第一次进
         if ($wallet==null)
@@ -72,6 +102,9 @@ class UserController extends BaseController
 
             //加钱
             $this->exprUserMoney($uid,0,$money,'+');
+
+            //加上限
+            $this->userWalletLimit($uid,'set',$money);
         }
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'money'=>$money]);
@@ -290,7 +323,7 @@ class UserController extends BaseController
             //http://www.wodeluapp.com/attachment/avatar/000/13/77/19_avatar_135.jpg
             $res=checkFileExists('http://www.wodeluapp.com/attachment/'.$userinfo['avatar']);
 
-            if ($res)
+            if ($res && $userinfo['avatar']!='')
             {
                 $img=file_get_contents('http://www.wodeluapp.com/attachment/'.$userinfo['avatar']);
 

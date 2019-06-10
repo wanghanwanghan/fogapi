@@ -130,7 +130,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
         $android=['ver'=>$androidVer,'url'=>$androidUrl];
         $apple=['ver'=>$appleVer,'url'=>$appleUrl];
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'android'=>$android,'apple'=>$apple]);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'android'=>$android,'apple'=>$apple,'msg'=>'您当前使用的不是最新版本，请更新到最新版本。']);
 
     });
 

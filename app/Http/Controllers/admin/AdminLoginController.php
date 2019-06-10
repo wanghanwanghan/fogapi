@@ -33,10 +33,7 @@ class AdminLoginController extends AdminBaseController
 
                 $res=$this->canLogin($phone,$code);
 
-                if ($res==true)
-                {
-                    return ['error'=>'0'];
-                }
+                if ($res==true) return ['error'=>'0'];
 
                 return ['error'=>'1'];
 
@@ -52,7 +49,7 @@ class AdminLoginController extends AdminBaseController
         }
     }
 
-    //允许登陆的账号密码
+    //允许登陆的账号密码，验证登陆
     public function canLogin($phone,$code)
     {
         $userAccount= [
@@ -79,7 +76,16 @@ class AdminLoginController extends AdminBaseController
 
         if (!array_key_exists($phone,$userAccount)) return false;
 
+        //googleAuth验证
         if (GoogleAuthWithApp::CheckCode($userAccount[$phone]['key'],$code))
+        {
+            session()->put('adminLastLogin',time());
+
+            return true;
+        }
+
+        //密码验证
+        if ($userAccount[$phone]['password']==$code)
         {
             session()->put('adminLastLogin',time());
 
@@ -92,7 +98,7 @@ class AdminLoginController extends AdminBaseController
     //登陆首页
     public function adminLogin()
     {
-        $res=['code'=>'纪申嘿嘿嘿','qrCode'=>QrCode::size(300)->margin(1)->generate('https://source.unsplash.com/Mv9hjnEUHR4/600x800')];
+        $res=['code'=>'纪申嘿嘿嘿','qrCode'=>QrCode::size(150)->margin(1)->generate('https://source.unsplash.com/Mv9hjnEUHR4/600x800')];
 
         //不展示绑定googleAuth的二维码
         if (0) $res=$this->createGoogleAuth();

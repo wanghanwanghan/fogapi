@@ -117,6 +117,15 @@
 
     }
 
+    $(document).keydown(function (event) {
+
+        if (event.keyCode=='13')
+        {
+            login();
+        }
+
+    });
+
 </script>
 
 </html>
