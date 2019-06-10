@@ -638,8 +638,8 @@ function storeFile($content,$uid,$grid,$type)
 {
     $suffix=$uid%5;
 
-    $width =100;
-    $height=100;
+    $width =200;
+    $height=200;
 
     //pic2是格子排行榜第一名的图片
     if ($type=='pic2')
@@ -690,13 +690,7 @@ function storeFile($content,$uid,$grid,$type)
 
     try
     {
-        //640*360
-        $image=\Intervention\Image\Facades\Image::make($content)->resize($width,$height,function($constraint)
-        {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-
-        })->save($path.$filename);
+        \Intervention\Image\Facades\Image::make($content)->resize($width,$height)->save($path.$filename);
 
         return $pathStoreInDB.$filename;
 
@@ -706,12 +700,7 @@ function storeFile($content,$uid,$grid,$type)
 
         try
         {
-            $image=\Intervention\Image\Facades\Image::make($content)->resize($width,$height,function($constraint)
-            {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-
-            })->save($path.$filename);
+            \Intervention\Image\Facades\Image::make($content)->resize($width,$height)->save($path.$filename);
 
             return $pathStoreInDB.$filename;
 

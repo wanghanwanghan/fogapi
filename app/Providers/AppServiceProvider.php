@@ -13,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        getSlowlySql(2);
+        getSlowlySql(1);
     }
 
     /**
