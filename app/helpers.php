@@ -152,9 +152,11 @@ function jsonEncode($target)
 }
 
 //decode
-function jsonDecode($target)
+function jsonDecode($target,$type='array')
 {
-    return json_decode($target,true);
+    $type=='array' ? $type=true : $type=false;
+
+    return json_decode($target,$type);
 }
 
 //为字符串的指定位置添加指定字符

@@ -165,7 +165,7 @@ class RankList extends Command
         //这个不用存表了，直接放redis里
 
         //统计价格最高的格子200名
-        $res=GridModel::where('belong','>',0)->orderBy('price','desc')->limit(200)->offset(0)->get()->toArray();
+        $res=GridModel::where('belong','>',0)->orderBy('price','desc')->orderBy('updated_at','asc')->limit(200)->get()->toArray();
 
         $data=[];
 

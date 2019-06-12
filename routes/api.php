@@ -136,6 +136,9 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
     });
 
+    //用户反馈意见
+    Route::match(['get','post'],'UserFeedback','QuanMinZhanLing\\FeedbackController@feedbackHandler');
+
 
 
 
