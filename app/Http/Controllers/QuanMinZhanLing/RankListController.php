@@ -114,7 +114,9 @@ class RankListController extends BaseController
 
             if (is_numeric($gid))
             {
-                $pic2=GridInfoModel::where(['uid'=>$res[0]['uid'],'gid'=>$gid,'showPic2'=>1])->first();
+                $info=GridInfoModel::where(['uid'=>$res[0]['uid'],'gid'=>$gid,'showPic2'=>1])->first();
+
+                if ($info) $pic2=$info->pic2;
             }
         }
 
