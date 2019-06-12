@@ -200,7 +200,7 @@ class AdminSysController extends AdminBaseController
             unset($oneGirdName);
 
             //开始计算范围
-            $json=json_encode($girdName);
+            $json=jsonEncode($girdName);
 
             $arr=
                 [
@@ -309,7 +309,7 @@ class AdminSysController extends AdminBaseController
             unset($oneGirdName);
 
             //开始计算范围
-            $json=json_encode($girdName);
+            $json=jsonEncode($girdName);
 
             $arr=
                 [
@@ -418,7 +418,7 @@ class AdminSysController extends AdminBaseController
             unset($oneGirdName);
 
             //开始计算范围
-            $json=json_encode($girdName);
+            $json=jsonEncode($girdName);
 
             $arr=
                 [
@@ -527,7 +527,7 @@ class AdminSysController extends AdminBaseController
             unset($oneGirdName);
 
             //开始计算范围
-            $json=json_encode($girdName);
+            $json=jsonEncode($girdName);
 
             $arr=
                 [
@@ -736,7 +736,7 @@ class AdminSysController extends AdminBaseController
 
             if ($one->range!='')
             {
-                $res=json_decode($one->range,true);
+                $res=jsonDecode($one->range);
 
                 $one->range='';
                 foreach ($res as $row)

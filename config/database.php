@@ -171,7 +171,13 @@ return [
 
 
 
-
+        //集团相关
+        'GroupInfo' => [
+            'host' => '183.136.232.236',
+            'password' => 'wanghan123',
+            'port' => '6379',
+            'database' => 10,
+        ],
 
         //log相关键值或队列，排行榜，更换头像
         'WriteLog' => [
@@ -212,8 +218,6 @@ return [
             'port' => '6379',
             'database' => 15,
         ],
-
-        //4月25日剩余18g
     ],
 
 ];

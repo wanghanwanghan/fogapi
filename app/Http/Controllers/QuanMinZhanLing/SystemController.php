@@ -97,12 +97,12 @@ class SystemController extends BaseController
         }
         unset($one);
 
-        $tradeInfo_md5=md5(json_encode($tradeInfo));
+        $tradeInfo_md5=md5(jsonEncode($tradeInfo));
 
         //系统信息
         $systemInfo=$this->getSystemMessage($request)->getData();
 
-        $systemInfo_md5=md5(json_encode($systemInfo));
+        $systemInfo_md5=md5(jsonEncode($systemInfo));
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>md5($tradeInfo_md5.$systemInfo_md5)]);
     }
@@ -114,7 +114,7 @@ class SystemController extends BaseController
         $sid=$request->sid;//公告主键
         $uid=$request->uid;//用户主键
         $type=(int)$request->type;//1是领钱，2是领物品
-        //$gid=json_decode($request->gid,true);//物品主键
+        //$gid=jsonDecode($request->gid);//物品主键
 
         if (!is_numeric($sid) && $sid==0) return response()->json(['resCode' => Config::get('resCode.604')]);
 

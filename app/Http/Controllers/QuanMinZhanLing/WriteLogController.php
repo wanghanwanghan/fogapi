@@ -19,7 +19,7 @@ class WriteLogController extends BaseController
         //$arr['payCount']=$gridInfo->totle + 1;
         //$arr['payTime']=time();
 
-        $arr=json_encode($arr);
+        $arr=jsonEncode($arr);
 
         Redis::connection('WriteLog')->lpush('tradeInfo',$arr);
 

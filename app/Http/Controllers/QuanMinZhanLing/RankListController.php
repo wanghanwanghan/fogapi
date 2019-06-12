@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\GridInfoModel;
+use App\Model\GridModel;
 use App\Model\RankListModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -98,10 +100,25 @@ class RankListController extends BaseController
 
         if ($res==null) return ['resCode'=>Config::get('resCode.604')];
 
-        $res=json_decode($res,true);
+        $res=jsonDecode($res);
 
         $res=arraySort1($res,['asc','row']);
         $res=changeArrKey($res,['row'=>'now']);
+
+        $pic2=null;
+
+        //格子排行榜第一的图片随时更新
+        if (isset($res[0]['uid']) && $res[0]['uid']!='' && $res[0]['uid']!=0 && $res[0]['gridName']!='')
+        {
+            $gid=GridModel::where('name',$res[0]['gridName'])->first()->id;
+
+            if (is_numeric($gid))
+            {
+                $pic2=GridInfoModel::where(['uid'=>$res[0]['uid'],'gid'=>$gid,'showPic2'=>1])->first();
+            }
+        }
+
+        $res[0]['pic2']=$pic2;
 
         return ['resCode'=>Config::get('resCode.200'),'data'=>$res];
     }

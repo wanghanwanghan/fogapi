@@ -16,29 +16,17 @@ class ShopController extends BaseController
             Schema::connection('masterDB')->create('shop', function (Blueprint $table) {
 
                 $table->increments('id')->unsigned()->comment('自增主键');
+                $table->string('name',50)->comment('卡片名称');
+                $table->string('depict',200)->comment('卡片描述');
+                $table->integer('target')->unsigned()->comment('1无限制，2自己的格子，3去过的格子');
+                $table->integer('times')->unsigned()->comment('每天最大使用次数');
 
             });
         }
 
         //用户持有卡片表
-        if (!Schema::connection('masterDB')->hasTable('shop'))
-        {
-            Schema::connection('masterDB')->create('shop', function (Blueprint $table) {
-
-                $table->increments('id')->unsigned()->comment('自增主键');
-
-            });
-        }
 
         //使用明细表
-        if (!Schema::connection('masterDB')->hasTable('shop'))
-        {
-            Schema::connection('masterDB')->create('shop', function (Blueprint $table) {
-
-                $table->increments('id')->unsigned()->comment('自增主键');
-
-            });
-        }
 
         return true;
     }

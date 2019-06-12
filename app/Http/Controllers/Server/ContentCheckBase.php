@@ -37,7 +37,7 @@ class ContentCheckBase
         {
             $res=file_get_contents('https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=EL5edZghypl5rNhZOKriA8eh&client_secret=AYlNbCLlfRt5OYy5QT8mzkN5OXZjzNcY');
 
-            $res=json_decode($res,true);
+            $res=jsonDecode($res);
 
             return $res['access_token'];
         });
@@ -48,7 +48,7 @@ class ContentCheckBase
 
         $res=curlSend($url,$content,true,['Content-Type:application/x-www-form-urlencoded']);
 
-        $res=json_decode($res['msg']);
+        $res=jsonDecode($res['msg']);
 
         //$logid=$res->log_id;
 

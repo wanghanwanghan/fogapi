@@ -37,7 +37,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //展示签到
     Route::match(['get'],'SignIn','QuanMinZhanLing\\SignInController@showSign');
 
-    //获取用户金钱和购地卡数量
+    //获取用户金钱和购地卡数量和钻石
     Route::match(['post'],'GetUserInfo',function (Request $request){
 
         $user=new \App\Http\Controllers\QuanMinZhanLing\UserController();
@@ -45,6 +45,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
         $money=$user->getUserMoney(trim($request->uid));
 
         $card=$user->getBuyCardCount(trim($request->uid));
+
+        $diamond=$user->getUserDiamond(trim($request->uid));
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'money'=>$money,'card'=>$card]);
 

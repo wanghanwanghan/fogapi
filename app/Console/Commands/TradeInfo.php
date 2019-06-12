@@ -41,7 +41,7 @@ class TradeInfo extends Command
 
             $tableName=$this->createTable('masterDB');
 
-            $info=json_decode($info,true);
+            $info=jsonDecode($info);
 
             $userinfo=DB::connection('tssj_old')->table('tssj_member')->where('userid',$info['uid'])->first();
 

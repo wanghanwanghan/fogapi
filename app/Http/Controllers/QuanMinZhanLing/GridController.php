@@ -241,7 +241,7 @@ class GridController extends BaseController
 
         }else
         {
-            $near=json_decode($near,true);
+            $near=jsonDecode($near);
         }
 
         if (!is_array($near)) return response()->json(['resCode' => Config::get('resCode.604')]);

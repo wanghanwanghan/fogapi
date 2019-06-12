@@ -34,7 +34,7 @@ class Achievement extends Command
             return [];
         }else
         {
-            return json_decode($res,true);
+            return jsonDecode($res);
         }
     }
 
@@ -101,7 +101,7 @@ class Achievement extends Command
 
             $userAch['1xxx']['1001']=1;
 
-            Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userAch));
+            Redis::connection('UserInfo')->hset($uid,'Achievement',jsonEncode($userAch));
 
             return true;
         }
@@ -135,7 +135,7 @@ class Achievement extends Command
 
             $userAch['1xxx']['1002']=1;
 
-            Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userAch));
+            Redis::connection('UserInfo')->hset($uid,'Achievement',jsonEncode($userAch));
 
             return true;
         }
@@ -226,7 +226,7 @@ class Achievement extends Command
         $userAch['2xxx']['buyTotle']=$buy;
         $userAch['2xxx']['saleTotle']=$sale;
 
-        Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userAch));
+        Redis::connection('UserInfo')->hset($uid,'Achievement',jsonEncode($userAch));
 
         return true;
     }
@@ -267,7 +267,7 @@ class Achievement extends Command
         //修改redis中的值
         $userAch['3xxx']['gridTotle']=$gridTotle;
 
-        Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userAch));
+        Redis::connection('UserInfo')->hset($uid,'Achievement',jsonEncode($userAch));
 
         return true;
     }
@@ -353,7 +353,7 @@ class Achievement extends Command
             }
         }
 
-        Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userAch));
+        Redis::connection('UserInfo')->hset($uid,'Achievement',jsonEncode($userAch));
 
         return true;
     }

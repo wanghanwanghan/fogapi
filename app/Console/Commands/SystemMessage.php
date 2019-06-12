@@ -133,7 +133,7 @@ class SystemMessage extends Command
         {
             if ($model->range=='') return true;
 
-            $in=json_decode($model->range,true);
+            $in=jsonDecode($model->range);
 
             if (!is_array($in) || empty($in)) return true;
 
@@ -182,7 +182,7 @@ class SystemMessage extends Command
         {
             if ($model->range=='') return true;
 
-            $in=json_decode($model->range,true);
+            $in=jsonDecode($model->range);
 
             if (!is_array($in) || empty($in)) return true;
 
@@ -231,7 +231,7 @@ class SystemMessage extends Command
         {
             if ($model->range=='') return true;
 
-            $in=json_decode($model->range,true);
+            $in=jsonDecode($model->range);
 
             if (!is_array($in) || empty($in)) return true;
 
@@ -280,7 +280,7 @@ class SystemMessage extends Command
         {
             if ($model->range=='') return true;
 
-            $in=json_decode($model->range,true);
+            $in=jsonDecode($model->range);
 
             if (!is_array($in) || empty($in)) return true;
 

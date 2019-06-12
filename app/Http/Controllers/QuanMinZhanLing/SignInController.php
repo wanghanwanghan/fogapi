@@ -38,7 +38,7 @@ class SignInController extends BaseController
         {
             $res=Redis::connection('SignIn')->get($continuousSignIn);
 
-            $res=json_decode($res,true);
+            $res=jsonDecode($res);
 
             //是不是连续签到
             if ($res['nextSignIn']!='' && $res['nextSignIn']==$key)
@@ -54,7 +54,7 @@ class SignInController extends BaseController
 
             $res['nextSignIn']=Carbon::now()->addDay()->format('Ymd');
 
-            Redis::connection('SignIn')->set($continuousSignIn,json_encode($res));
+            Redis::connection('SignIn')->set($continuousSignIn,jsonEncode($res));
 
         }catch (\Exception $e)
         {
@@ -106,7 +106,7 @@ class SignInController extends BaseController
         {
             $res=Redis::connection('SignIn')->get($continuousSignIn);
 
-            $res=json_decode($res,true);
+            $res=jsonDecode($res);
 
             if ($res!=null && $res['nextSignIn']==$star && $res['continuation']==7)
             {

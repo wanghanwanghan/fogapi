@@ -145,6 +145,18 @@ function arraySort2($array)
     return array_merge($left_arr,[$key],$right_arr);
 }
 
+//encode
+function jsonEncode($target)
+{
+    return json_encode($target);
+}
+
+//decode
+function jsonDecode($target)
+{
+    return json_decode($target,true);
+}
+
 //为字符串的指定位置添加指定字符
 function mbSubstrReplace($string, $replacement,$start,$length=NULL)
 {
@@ -198,7 +210,7 @@ function addressForIP($ip)
 {
     $res_json=file_get_contents('http://apis.juhe.cn/ip/ip2addr?ip='.$ip.'&dtype=json&key=ffb7c65113fddc659264139050eaccf2');
 
-    $res_arry=json_decode($res_json,true);
+    $res_arry=jsonDecode($res_json);
 
     if ($res_arry['error_code']!='0' || $res_arry['resultcode']!='200')
     {
@@ -284,7 +296,7 @@ function baiduTranslate($q,$from='auto',$to='en')
 
     $res=file_get_contents($fullUrl);
 
-    $res=\json_decode($res,true);
+    $res=jsonDecode($res);
 
     if (isset($res['trans_result']))
     {
@@ -325,7 +337,7 @@ function amapSelect($lng,$lat,$flood=4)
         return false;
     }
 
-    $res=\json_decode($res,true);
+    $res=jsonDecode($res);
 
     if (isset($res['regeocode']['addressComponent']) && !empty($res['regeocode']['addressComponent']) && is_array($res['regeocode']['addressComponent']))
     {
@@ -580,7 +592,7 @@ function curlSend($url,$data,$isPost=true,$headerArray=[]):array
 
     curl_setopt($curl,CURLOPT_SSL_VERIFYPEER,FALSE);
 
-    //$data=json_encode($data);//转换成json
+    //$data=jsonEncode($data);//转换成json
 
     curl_setopt($curl,CURLOPT_POSTFIELDS,$data);//提交的数据
 
@@ -765,7 +777,7 @@ function decodeForAES($str,$secret)
 function obj2arr(&$object)
 {
     //10万数据量性能也不会差
-    $object=json_decode(json_encode($object),true);
+    $object=jsonDecode(jsonEncode($object));
 
     return $object;
 }
@@ -879,7 +891,7 @@ function getSlowlySql($s)
 
             if ($res==null)
             {
-                $query->bindings==[] ? $bind='' : $bind=json_encode($query->bindings);
+                $query->bindings==[] ? $bind='' : $bind=jsonEncode($query->bindings);
 
                 $sql="insert into slow_sql values(null,'{$md5Sql}','{$sql}','{$bind}',{$time},unix_timestamp())";
 

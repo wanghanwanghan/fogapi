@@ -212,7 +212,7 @@ class RankList extends Command
             $i++;
         }
 
-        Redis::connection('WriteLog')->set($this->gridRankListKey,json_encode($data));
+        Redis::connection('WriteLog')->set($this->gridRankListKey,jsonEncode($data));
     }
 
     //同时更新多个记录，参数，表名，数组，别忘了在一开始use DB

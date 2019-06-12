@@ -125,7 +125,7 @@ class ServerInfo extends Command
 
             $info['lastUpdate']=time();
 
-            Redis::connection('default')->set('ServerInfo',json_encode($info));
+            Redis::connection('default')->set('ServerInfo',jsonEncode($info));
 
             sleep(17);
         }

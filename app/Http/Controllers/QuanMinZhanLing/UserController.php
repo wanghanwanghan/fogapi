@@ -63,7 +63,7 @@ class UserController extends BaseController
         {
             if ($request->isMethod('post'))
             {
-                Redis::connection('UserInfo')->hset($uid,'wallet',json_encode(['area'=>$area,'lastUpdate'=>time()]));
+                Redis::connection('UserInfo')->hset($uid,'wallet',jsonEncode(['area'=>$area,'lastUpdate'=>time()]));
 
                 //加钱
                 $this->exprUserMoney($uid,0,10,'+');
@@ -73,7 +73,7 @@ class UserController extends BaseController
         }
 
         //以后每探索1km给25，自然时间是每12分钟给1
-        $wallet=json_decode($wallet,true);
+        $wallet=jsonDecode($wallet);
 
         $areaMoney=0;
         $timeMoney=0;
@@ -94,11 +94,14 @@ class UserController extends BaseController
             $wallet['lastUpdate']=time();
         }
 
-        $areaMoney + $timeMoney > 200 ? $money=200 : $money=$areaMoney + $timeMoney;
+        //加系数
+        $x=0;
+
+        $areaMoney + $timeMoney > Config::get('myDefine.WalletLimit') + $x ? $money = Config::get('myDefine.WalletLimit') + $x : $money = $areaMoney + $timeMoney;
 
         if ($request->isMethod('post'))
         {
-            Redis::connection('UserInfo')->hset($uid,'wallet',json_encode($wallet));
+            Redis::connection('UserInfo')->hset($uid,'wallet',jsonEncode($wallet));
 
             //加钱
             $this->exprUserMoney($uid,0,$money,'+');
@@ -219,6 +222,28 @@ class UserController extends BaseController
 
             return Config::get('myDefine.InitMoney');
         }
+    }
+
+    //获取用户钻石
+    public function getUserDiamond($uid)
+    {
+        return (int)Redis::connection('UserInfo')->hget($uid,'diamond');
+    }
+
+    //充值成功后增加钻石或者购买东西减少钻石
+    public function exprUserDiamond($uid,$diamond,$expr='-')
+    {
+        if ($expr==='-')
+        {
+            return true;
+        }
+
+        if ($expr==='+')
+        {
+            return true;
+        }
+
+        return false;
     }
 
     //买卖结束后增加或减少用户金钱

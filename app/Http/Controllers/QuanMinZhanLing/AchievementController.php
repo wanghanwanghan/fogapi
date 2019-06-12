@@ -39,7 +39,7 @@ class AchievementController extends BaseController
         if ($achievementInfo==null) return response()->json(['resCode' => Config::get('resCode.200'),'data'=>null]);
 
         //处理数组
-        $achievementInfo=json_decode($achievementInfo,true);
+        $achievementInfo=jsonDecode($achievementInfo);
 
         foreach ($achievementInfo as $one)
         {
@@ -79,13 +79,13 @@ class AchievementController extends BaseController
         //写入redis
         $userInfo=Redis::connection('UserInfo')->hget($uid,'Achievement');
 
-        $userInfo=json_decode($userInfo,true);
+        $userInfo=jsonDecode($userInfo);
 
         $achPrefix=substr($aid,0,1);
 
         $userInfo[$achPrefix.'xxx'][$aid]=2;
 
-        Redis::connection('UserInfo')->hset($uid,'Achievement',json_encode($userInfo));
+        Redis::connection('UserInfo')->hset($uid,'Achievement',jsonEncode($userInfo));
 
         //数据入库
         AchievementInfoModel::suffix($this->suffix);

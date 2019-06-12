@@ -101,7 +101,7 @@ class SendSmsBase
             'type'=>0
         );
 
-        $post_data = json_encode($post_data);
+        $post_data = jsonEncode($post_data);
 
         $ci = curl_init();
         /* Curl settings */
@@ -126,7 +126,7 @@ class SendSmsBase
 
 
 
-        dd(json_decode($response,true));
+        dd(jsonDecode($response));
 
 
 
