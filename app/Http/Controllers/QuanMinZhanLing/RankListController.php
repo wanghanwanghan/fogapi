@@ -110,11 +110,11 @@ class RankListController extends BaseController
         //格子排行榜第一的图片随时更新
         if (isset($res[0]['uid']) && $res[0]['uid']!='' && $res[0]['uid']!=0 && $res[0]['gridName']!='')
         {
-            $gid=GridModel::where('name',$res[0]['gridName'])->first()->id;
+            $info=GridModel::where('name',$res[0]['gridName'])->first();
 
-            if (is_numeric($gid))
+            if ($info)
             {
-                $info=GridInfoModel::where(['uid'=>$res[0]['uid'],'gid'=>$gid,'showPic2'=>1])->first();
+                $info=GridInfoModel::where(['uid'=>$res[0]['uid'],'gid'=>$info->id,'showPic2'=>1])->first();
 
                 if ($info) $pic2=$info->pic2;
             }
