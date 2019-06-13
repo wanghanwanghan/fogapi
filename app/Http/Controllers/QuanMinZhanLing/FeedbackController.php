@@ -13,6 +13,7 @@ use Intervention\Image\Facades\Image;
 
 class FeedbackController extends BaseController
 {
+    //建数据表
     public function createTable()
     {
         if (!Schema::connection('masterDB')->hasTable('user_feedback'))
@@ -112,11 +113,18 @@ class FeedbackController extends BaseController
     //用户提交一个反馈
     public function setFeedback($request,$uid)
     {
-        $redayToInsert=[
-            'uid'=>$uid,
-            'userContent'=>trim($request->content),
-            'isReply'=>0,
-        ];
+        try
+        {
+            $redayToInsert=[
+                'uid'=>$uid,
+                'userContent'=>str_replace(["\n","\r\n"],'.',filter4(trim($request->content))),
+                'isReply'=>0,
+            ];
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.604')]);
+        }
 
         //拿图片
         $picArr=$request->picArr;
@@ -137,6 +145,9 @@ class FeedbackController extends BaseController
             //一个一个存图片
             foreach ($picArr as $onePic)
             {
+                //最多6张，以后的都不接收了
+                if ($i===7) continue;
+
                 $thisPicPath=$this->storeImg(uploadMyImg($onePic));
 
                 $redayToInsert['userPic'.$i]=$thisPicPath;
@@ -146,29 +157,31 @@ class FeedbackController extends BaseController
         }
 
         //拿视频
-        $videoArr=$request->videoArr;
+        $videoArr=[
+            $request->file('video1'),
+            $request->file('video2'),
+            $request->file('video3'),
+        ];
 
-        if (is_array($videoArr))
+        //video计数器
+        $i=1;
+
+        foreach (array_filter($videoArr) as $oneVideo)
         {
+            //最多3个视频，以后的都不接收了
+            if ($i===4) continue;
 
-        }else
-        {
-            $videoArr=jsonDecode($videoArr);
-        }
+            $thisVideoPath=$this->storeVideo($oneVideo);
 
-        if (!empty($videoArr) && $videoArr!='')
-        {
-            //pic计数器
-            $i=1;
-
-            //一个一个存视频
-            $this->storeVideo();
+            $redayToInsert['userVideo'.$i]=$thisVideoPath;
 
             $i++;
         }
 
         try
         {
+            $redayToInsert['partitionUseThis']=date('Ym',time());
+
             UserFeedbackModel::create($redayToInsert);
 
         }catch (\Exception $e)
@@ -200,7 +213,7 @@ class FeedbackController extends BaseController
 
         try
         {
-            Image::make($base64)->save($storePath.$filename);
+            Image::make($base64)->save($path.$filename);
 
             return $storePath.$filename;
 
@@ -212,7 +225,7 @@ class FeedbackController extends BaseController
 
             try
             {
-                Image::make($base64)->save($storePath.$filename);
+                Image::make($base64)->save($path.$filename);
 
                 return $storePath.$filename;
 
@@ -224,19 +237,47 @@ class FeedbackController extends BaseController
     }
 
     //存储视频
-    public function storeVideo()
+    public function storeVideo($file)
     {
+        //获取上传文件的后缀，如abc.png，获取到的为png
+        $fileExtension=$file->getClientOriginalExtension();
 
+        //获取上传文件的大小
+        $fileSize=$file->getClientSize();
+
+        //获取缓存在tmp目录下的文件名，带后缀，如php8933.tmp
+        $filaName=$file->getFilename();
+
+        //获取上传的文件缓存在tmp文件夹下的绝对路径
+        $realPath=$file->getRealPath();
+
+        //生成年月日
+        $Ym=date('Ym',time());
+
+        //mysql中存的路径
+        $storePath=DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.'feedback'.DIRECTORY_SEPARATOR.$Ym.DIRECTORY_SEPARATOR;
+
+        //要把视频移动到这个目录
+        $path=public_path(DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.'feedback'.DIRECTORY_SEPARATOR.$Ym.DIRECTORY_SEPARATOR);
+
+        //创建目录
+        if (!is_dir($path)) mkdir($path,0777,true);
+
+        //移动后的新文件名
+        $newFileName=str_replace('.','',microtime(true)).str_random(5).'.'.$fileExtension;
+
+        //将缓存在tmp目录下的文件移到某个位置，返回的是这个文件移动过后的路径
+        try
+        {
+            $path=$file->move($path,$newFileName);
+
+            return $storePath.$newFileName;
+
+        }catch (\Exception $e)
+        {
+            return null;
+        }
     }
-
-
-
-
-
-
-
-
-
 
 
 }

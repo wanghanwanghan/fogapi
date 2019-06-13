@@ -58,7 +58,10 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['get','post'],'/grid/img2','admin\\AdminGridController@gridImg2')->name('gridImg2');
         Route::match(['post'],'/grid/ajax','admin\\AdminGridController@gridAjax');
 
-
+        //用户反馈
+        Route::match(['get'],'/user/feedback','admin\\AdminUserFeedbackController@index')->name('feedback');
+        Route::match(['get'],'/user/feedback/detail/{id}','admin\\AdminUserFeedbackController@feedbackDetail')->name('feedbackDetail');
+        Route::match(['post'],'/user/feedback/ajax','admin\\AdminUserFeedbackController@ajax');
 
         //微信支付
         Route::match(['get'],'/wechat/index','admin\\WechatController@index')->name('wechatIndex');

@@ -150,7 +150,5 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
 
 
-
-
 });
 

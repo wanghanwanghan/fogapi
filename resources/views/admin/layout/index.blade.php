@@ -107,6 +107,20 @@
 
       <!-- Heading -->
       <div class="sidebar-heading">
+        用户反馈
+      </div>
+
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('feedback')}}">
+          <i class="fas fa-fw fa-comments"></i>
+          <span>反馈意见</span></a>
+      </li>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider">
+
+      <!-- Heading -->
+      <div class="sidebar-heading">
         微信支付相关
       </div>
 
