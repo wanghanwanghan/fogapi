@@ -61,6 +61,7 @@ Route::group(['prefix'=>'admin'],function ()
         //用户反馈
         Route::match(['get'],'/user/feedback','admin\\AdminUserFeedbackController@index')->name('feedback');
         Route::match(['get'],'/user/feedback/detail/{id}','admin\\AdminUserFeedbackController@feedbackDetail')->name('feedbackDetail');
+        Route::match(['post'],'/user/feedback/uploadPic/{id}','admin\\AdminUserFeedbackController@uploadPic')->name('feedbackUploadPic');
         Route::match(['post'],'/user/feedback/ajax','admin\\AdminUserFeedbackController@ajax');
 
         //微信支付
