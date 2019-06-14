@@ -111,6 +111,7 @@ class AdminUserFeedbackController extends AdminBaseController
                     return ['resCode'=>202];
                 }
 
+                //提取回复内容
                 $info->tssjContent=$text;
 
                 //提取图片src
@@ -135,8 +136,12 @@ class AdminUserFeedbackController extends AdminBaseController
                     }
                 }
 
-                $info->isReply=1;
-                $info->save();
+                if ($text!='' || !empty(current($res)))
+                {
+                    $info->isReply=1;
+
+                    $info->save();
+                }
 
                 return ['resCode'=>200];
 

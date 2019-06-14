@@ -133,7 +133,7 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary float-left mt-2">回复用户</h6>
-                <a href="#" id="mySubmit1" class="btn btn-success btn-icon-split float-right">
+                <a href="#" id="mySubmit1" class="btn btn-success btn-icon-split float-right mr-5">
                     <span class="text" style="width: 100px">提交</span>
                     <span class="icon text-white-100">😍</span>
                 </a>
