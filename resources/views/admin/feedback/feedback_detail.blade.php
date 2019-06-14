@@ -132,9 +132,10 @@
     <div class="container-fluid">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary float-left">官方回复</h6>
+                <h6 class="m-0 font-weight-bold text-primary float-left mt-2">回复用户</h6>
                 <a href="#" id="mySubmit1" class="btn btn-success btn-icon-split float-right">
-                    <span class="text">提交</span>
+                    <span class="text" style="width: 100px">提交</span>
+                    <span class="icon text-white-100">😍</span>
                 </a>
             </div>
             <div class="card-body">
@@ -245,9 +246,12 @@
                 if (response.resCode==200)
                 {
                     swal("回复成功", "回复成功", "success");
+
                 }else
                 {
                     swal("回复失败", "回复失败", "error");
+
+                    return;
                 }
 
                 //刷新页面

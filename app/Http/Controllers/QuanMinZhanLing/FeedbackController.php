@@ -67,12 +67,14 @@ class FeedbackController extends BaseController
 
         $fid=trim($request->fid);
 
+        $page=trim($request->page);
+
         if (!is_numeric($uid)) return response()->json(['resCode'=>Config::get('resCode.604')]);
 
         //get查看自己所有的意见
         if ($request->isMethod('get'))
         {
-            return $this->getFeedback($request,$uid,$fid);
+            return $this->getFeedback($page,$uid,$fid);
         }
 
         //post提交自己新增的意见
@@ -85,9 +87,9 @@ class FeedbackController extends BaseController
     }
 
     //获取反馈列表，或一个反馈的详情
-    public function getFeedback($request,$uid,$fid)
+    public function getFeedback($page,$uid,$fid)
     {
-        if (!is_numeric($request->page) || trim($request->page) <= 1) $page=1;
+        if (!is_numeric($page) || $page <= 1) $page=1;
 
         $limit=10;
 
@@ -100,14 +102,14 @@ class FeedbackController extends BaseController
 
         if (is_numeric($fid))
         {
-            $msg=UserFeedbackModel::where('id',$fid)->first()->toArray();
+            $msg[]=UserFeedbackModel::where('id',$fid)->first()->toArray();
 
         }else
         {
             $msg=UserFeedbackModel::where('uid',$uid)->limit($limit)->offset($offset)->orderBy('isReply','desc')->orderBy('updated_at','desc')->get()->toArray();
         }
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>jsonEncode($msg)]);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$msg]);
     }
 
     //用户提交一个反馈
