@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\Redis;
 
 class AdminUserFeedbackController extends AdminBaseController
 {
+    //用户反馈首页
     public function index(Request $request)
     {
-        $page=$request->page;
+        $page=$request->page ?: 1;
         $limit=10;
         $offset=($page-1)*$limit;
 
-        $res=UserFeedbackModel::orderBy('id','desc')->limit($limit)->offset($offset)->get(['id','uid','userContent','isReply','updated_at']);
+        $res=UserFeedbackModel::orderBy('id','desc')->paginate($limit);
 
         foreach ($res as $oneFeedback)
         {
