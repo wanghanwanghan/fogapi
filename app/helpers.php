@@ -699,7 +699,7 @@ function storeFile($content,$uid,$grid,$type)
             mkdir($path,0777,true);
         }
 
-        $filename=$uid.'_avatar.jpg';
+        $filename=$uid.'_avatarreadyToCheck.jpg';
     }
 
     try

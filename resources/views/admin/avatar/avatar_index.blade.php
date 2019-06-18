@@ -165,7 +165,7 @@
                     newTr.append("<td style='vertical-align: middle'>"+value.name+"</td>");
 
                     //头像
-                    newTr.append("<td style='vertical-align: middle'><img src="+value.picUrl+" onclick=showpic('"+value.avatarUrl+"'); width='80px;' height='50px;'></td>");
+                    newTr.append("<td style='vertical-align: middle'><img src="+value.avatarUrl+" onclick=showpic('"+value.avatarUrl+"'); width='80px;' height='50px;'></td>");
 
                     //按钮
                     newTr.append("<td style='vertical-align: middle'><a href='#' id="+value.id+","+value.uid+" onclick=picPass($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a></td>");

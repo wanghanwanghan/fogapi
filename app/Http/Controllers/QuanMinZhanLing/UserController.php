@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\AvatarCheckModel;
 use App\Model\GridInfoModel;
 use App\Model\GridModel;
 use App\Model\RankListModel;
@@ -331,36 +332,53 @@ class UserController extends BaseController
     public function getUserNameAndAvatar($uid,$update=false)
     {
         //redis里没有就从tssj里拿
-        $userinfo['name']  =Redis::connection('UserInfo')->hget($uid,'name');
-        $userinfo['avatar']=Redis::connection('UserInfo')->hget($uid,'avatar');
-
-        //自动更新
-        //if (rand(1,100) > 80) $update=true;
+        $userinfo['name']  =trim(Redis::connection('UserInfo')->hget($uid,'name'));
+        $userinfo['avatar']=trim(Redis::connection('UserInfo')->hget($uid,'avatar'));
 
         if (($userinfo['name']=='' && $uid!=0) || ($userinfo['avatar']=='' && $uid!=0) || ($update===true && $uid!=0))
         {
             $res=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first();
 
-            $userinfo['name']=trim($res->username);
-            $userinfo['avatar']=trim($res->avatar);
-
-            //判断远程文件存不存在，如果存在就储存头像
-            //http://www.wodeluapp.com/attachment/avatar/000/13/77/19_avatar_135.jpg
-            $res=checkFileExists('http://www.wodeluapp.com/attachment/'.$userinfo['avatar']);
-
-            if ($res && $userinfo['avatar']!='')
+            //名字是空
+            if ($userinfo['name']=='')
             {
-                $img=file_get_contents('http://www.wodeluapp.com/attachment/'.$userinfo['avatar']);
+                if (trim($res->username)=='')
+                {
+                    $userinfo['name']='网友'.str_random(6);
+                }else
+                {
+                    $userinfo['name']=trim($res->username);
+                }
 
-                $userinfo['avatar']=storeFile($img,$uid,'','avatar');
-
-            }else
-            {
-                $userinfo['avatar']='/imgModel/systemAvtar.png';
+                Redis::connection('UserInfo')->hset($uid,'name',$userinfo['name']);
             }
 
-            Redis::connection('UserInfo')->hset($uid,'name',$userinfo['name']);
-            Redis::connection('UserInfo')->hset($uid,'avatar',$userinfo['avatar']);
+            //头像是空
+            if ($userinfo['avatar']=='')
+            {
+                if (trim($res->avatar)!='')
+                {
+                    //判断远程文件存不存在，如果存在就储存头像
+                    //存头像，把头像弄成待审核
+                    $res=checkFileExists('http://www.wodeluapp.com/attachment/'.trim($res->avatar));
+
+                    if (!$res)
+                    {
+                        $img=file_get_contents('http://www.wodeluapp.com/attachment/'.trim($res->avatar));
+
+                        $url=storeFile($img,$uid,'','avatar');
+
+                        if ($url!='')
+                        {
+                            AvatarCheckModel::updateOrCreate(['uid'=>$uid],['name'=>$userinfo['name'],'avatarUrl'=>$url,'isCheck'=>0]);
+                        }
+                    }
+                }
+
+                $userinfo['avatar']='/imgModel/systemAvtar.png';
+
+                Redis::connection('UserInfo')->hset($uid,'avatar',$userinfo['avatar']);
+            }
         }
 
         if ($uid==0)

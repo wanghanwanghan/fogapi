@@ -6,6 +6,7 @@ use App\Model\AvatarCheckModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Intervention\Image\Facades\Image;
 
 class AdminUserAvatarController extends AdminBaseController
 {
@@ -59,7 +60,13 @@ class AdminUserAvatarController extends AdminBaseController
 
                 $res->save();
 
-                Redis::connection('UserInfo')->hset($arr[1],'avatar',$res->avatarUrl);
+                $avatarUrl=str_replace('readyToCheck','',$res->avatarUrl);
+
+                $img=Image::make(public_path().$res->avatarUrl);
+
+                $img->save(public_path().$avatarUrl);
+
+                Redis::connection('UserInfo')->hset($arr[1],'avatar',$avatarUrl);
 
                 return ['200'];
 
