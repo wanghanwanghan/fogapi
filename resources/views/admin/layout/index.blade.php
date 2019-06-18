@@ -102,6 +102,12 @@
           <span>自定义格子图片</span></a>
       </li>
 
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('userAvatar')}}">
+          <i class="fas fa-fw fa-images"></i>
+          <span>自定义头像图片</span></a>
+      </li>
+
       <!-- Divider -->
       <hr class="sidebar-divider">
 

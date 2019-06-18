@@ -2,9 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Model\AvatarCheckModel;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Schema;
 
 class ChangeAvatarNotice extends Command
 {
@@ -17,8 +20,30 @@ class ChangeAvatarNotice extends Command
         parent::__construct();
     }
 
+    public function createTable()
+    {
+        //头像审核表
+        if (!Schema::connection('masterDB')->hasTable('avatar_check'))
+        {
+            Schema::connection('masterDB')->create('avatar_check', function (Blueprint $table) {
+
+                $table->increments('id')->unsigned()->comment('自增主键');
+                $table->integer('uid')->unsigned()->comment('用户主键')->index();
+                $table->string('name',100)->nullable()->comment('用户名称');
+                $table->string('avatarUrl',200)->nullable()->comment('头像url地址');
+                $table->tinyInteger('isCheck')->nullable()->unsigned()->comment('是否审核');
+                $table->timestamps();
+
+            });
+        }
+
+        return true;
+    }
+
     public function handle()
     {
+        $this->createTable();
+
         //取出待处理uid
         $allUid=Redis::connection('WriteLog')->smembers('ChangeAvatarAlready');
 
@@ -49,8 +74,9 @@ class ChangeAvatarNotice extends Command
                 //等于空说明出错了
                 if ($res=='') Redis::connection('WriteLog')->sadd('ChangeAvatarAlready',$oneUid);
 
-                //头像存入redis
-                Redis::connection('UserInfo')->hset($oneUid,'avatar',$res);
+                //头像不直接替换到redis里。需要审核，审核通过后，替换redis里的头像url
+                //Redis::connection('UserInfo')->hset($oneUid,'avatar',$res);
+                AvatarCheckModel::updateOrCreate(['uid'=>$oneUid],['name'=>$userName,'avatarUrl'=>$res,'isCheck'=>0]);
 
                 //名字存入redis
                 Redis::connection('UserInfo')->hset($oneUid,'name',$userName);
