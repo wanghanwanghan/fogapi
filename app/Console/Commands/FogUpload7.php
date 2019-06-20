@@ -9,9 +9,11 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 
-class FogUpload extends Command
+class FogUpload7 extends Command
 {
-    protected $signature = 'Tssj:FogUpload';
+    protected $signature = 'Tssj:FogUpload7';
+
+    protected $myTarget = 7;
 
     protected $description = '处理用户上传的迷雾';
 
@@ -51,7 +53,7 @@ class FogUpload extends Command
 
         while(true)
         {
-            $one=Redis::connection('TssjFog')->rpop('FogUploadList');
+            $one=Redis::connection('TssjFog')->rpop('FogUploadList_'.$this->myTarget);
 
             //没东西就退出
             if ($one=='') break;
@@ -93,12 +95,12 @@ class FogUpload extends Command
                         }
                     }
 
-                    if (isset($oneData['timestamps']))
+                    if (isset($oneData['timestamp']))
                     {
                         //apple
-                        if (is_numeric($oneData['timestamps']))
+                        if (is_numeric($oneData['timestamp']))
                         {
-                            $thisDotUnix=$oneData['timestamps'];
+                            $thisDotUnix=$oneData['timestamp'];
                         }
                     }
 

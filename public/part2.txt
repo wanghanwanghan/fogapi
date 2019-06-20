@@ -1,3 +1,12 @@
+迷雾下载
+
+post
+http://newfogapi.wodeluapp.com/api/FogDownload
+
+参数
+int    uid =17469            用户主键
+string data=经纬度的json串    格子名称
+=================================================================
 迷雾上传
 
 post

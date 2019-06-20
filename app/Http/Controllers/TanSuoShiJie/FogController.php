@@ -43,10 +43,13 @@ class FogController extends Controller
         $readyToHandle['uid']=$uid;
         $readyToHandle['data']=$data;
 
+        //通过uid分成10个队列处理数据
+        $suffix=$uid%10;
+
         try
         {
             //左进
-            Redis::connection('TssjFog')->lpush('FogUploadList',jsonEncode($readyToHandle));
+            Redis::connection('TssjFog')->lpush('FogUploadList_'.$suffix,jsonEncode($readyToHandle));
 
         }catch (\Exception $e)
         {
@@ -59,7 +62,6 @@ class FogController extends Controller
     //迷雾下载
     public function fogDownload(Request $request)
     {
-
 
 
     }
