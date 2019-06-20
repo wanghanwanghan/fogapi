@@ -1,10 +1,9 @@
 迷雾上传
 
 post
-http://newfogapi.wodeluapp.com/api/GetGridInfo
+http://newfogapi.wodeluapp.com/api/FogUpload
 
 参数
-int    uid=17469    用户主键
-string name=n1w1    格子名称
-array  near=['w2n1','w3n1','w4n1',.......]    附近24个格子名称
+int    uid =17469            用户主键
+string data=经纬度的json串    格子名称
 =================================================================

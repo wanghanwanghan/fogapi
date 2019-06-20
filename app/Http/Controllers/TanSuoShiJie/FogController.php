@@ -56,6 +56,13 @@ class FogController extends Controller
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
 
+    //迷雾下载
+    public function fogDownload(Request $request)
+    {
+
+
+
+    }
 
 
 

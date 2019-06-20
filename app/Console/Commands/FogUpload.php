@@ -82,10 +82,25 @@ class FogUpload extends Command
                     $lng=\sprintf("%.4f",$oneData['longitude']);
                     $geohash=$Geo->encode($lat,$lng,'8');
 
-                    if (!is_numeric($oneData['dateline'])) $oneData['dateline']=time();
+                    $thisDotUnix=time();
 
-                    $thisDotDate=date('Y-m-d H:i:s',$oneData['dateline']);
-                    $thisDotUnix=$oneData['dateline'];
+                    if (isset($oneData['dateline']))
+                    {
+                        //android
+                        if (is_numeric($oneData['dateline']))
+                        {
+                            $thisDotUnix=$oneData['dateline'];
+                        }
+                    }
+
+                    if (isset($oneData['timestamps']))
+                    {
+                        //apple
+                        if (is_numeric($oneData['timestamps']))
+                        {
+                            $thisDotUnix=$oneData['timestamps'];
+                        }
+                    }
 
                 }catch (\Exception $e)
                 {
