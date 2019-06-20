@@ -22,10 +22,11 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
         $uid=$request->uid;
         $money=$request->money;
+        $moneyFrom=$request->moneyFrom;
 
         $user=new \App\Http\Controllers\QuanMinZhanLing\UserController();
 
-        $user->exprUserMoney($uid,0,$money,'+');
+        $user->exprUserMoney($uid,0,$money,'+',['moneyFrom'=>$moneyFrom]);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'money'=>$user->getUserMoney(trim($request->uid))]);
 

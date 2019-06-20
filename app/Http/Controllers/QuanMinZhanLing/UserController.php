@@ -248,8 +248,13 @@ class UserController extends BaseController
     }
 
     //买卖结束后增加或减少用户金钱
-    public function exprUserMoney($uid,$belongid,$money,$expr='-')
+    public function exprUserMoney($uid,$belongid,$money,$expr='-',$extra=[])
     {
+        //$extra里也许含有的参数
+        //[
+        //   'moneyFrom'=>$moneyFrom,//手机app调用加钱接口时，标记这笔钱是通过什么方式加进来的
+        //]
+
         if ($expr=='+' && $belongid==0)
         {
             $res=Redis::connection('UserInfo')->hget($uid,'money');

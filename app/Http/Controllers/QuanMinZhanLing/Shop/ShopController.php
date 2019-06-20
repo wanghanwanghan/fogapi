@@ -16,10 +16,21 @@ class ShopController extends BaseController
             Schema::connection('masterDB')->create('shop', function (Blueprint $table) {
 
                 $table->increments('id')->unsigned()->comment('自增主键');
-                $table->string('name',50)->comment('卡片名称');
-                $table->string('depict',200)->comment('卡片描述');
-                $table->integer('target')->unsigned()->comment('1无限制，2自己的格子，3去过的格子');
-                $table->integer('times')->unsigned()->comment('每天最大使用次数');
+                $table->string('goodsName','100')->nullable()->comment('名称');
+                $table->string('describe','200')->nullable()->comment('描述');
+                $table->tinyInteger('goodsLevel')->nullable()->unsigned()->comment('等级');
+
+                $table->tinyInteger('goodsType')->nullable()->unsigned()->comment('1卡片');
+                $table->tinyInteger('targetType')->nullable()->unsigned()->comment('1对人，2对格');
+                $table->tinyInteger('effectType')->nullable()->unsigned()->comment('1增益，2抑制，3普通');
+
+
+
+
+
+
+
+
 
             });
         }

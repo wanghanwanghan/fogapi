@@ -28,4 +28,14 @@ class init
 
         return $next($request);
     }
+
+    //后置中间件
+    //public function handle($request, Closure $next)
+    //{
+    //    $response = $next($request);
+    //
+    //    //你的逻辑就在这里
+    //
+    //    return $response;
+    //}
 }

@@ -30,7 +30,7 @@ return [
     | choice installed on your machine before you begin development.
     |
     */
-
+    //=============================================================================================================================
     'connections' => [
 
         'tssj_old' => [
@@ -66,6 +66,148 @@ return [
             'host' => '183.136.232.236',
             'port' => '3306',
             'database' => 'grid_trade',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        //=============================================================================================================================
+        //以下是探索世界用户迷雾点数据库
+        'TssjFog0' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_0',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'TssjFog1' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_1',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'TssjFog2' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_2',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'TssjFog3' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_3',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'TssjFog4' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_4',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'TssjFog5' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_5',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'TssjFog6' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_6',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'TssjFog7' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_7',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'TssjFog8' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_8',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'TssjFog9' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'tssj_fog_9',
             'username' => 'chinaiiss',
             'password' => 'chinaiiss',
             'unix_socket' => '',
@@ -166,11 +308,6 @@ return [
             'database' => 0,
         ],
 
-
-
-
-
-
         //集团相关
         'GroupInfo' => [
             'host' => '183.136.232.236',
@@ -218,6 +355,23 @@ return [
             'port' => '6379',
             'database' => 15,
         ],
+
+        //以下是ubuntu -2的redis==================================================================
+
+        //探索世界迷雾上传队列
+        'TssjFog' => [
+            'host' => '183.136.232.237',
+            'password' => 'wanghan123',
+            'port' => '6379',
+            'database' => 1,
+        ],
+
+
+
+
+
+
+
     ],
 
 ];

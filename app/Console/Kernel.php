@@ -52,6 +52,16 @@ class Kernel extends ConsoleKernel
 
         //后台admin的控制面板，统计用户分布情况
         $schedule->command('Admin:UserDistribution')->daily()->withoutOverlapping();
+
+
+
+
+        //处理探索世界迷雾
+        //$schedule->command('Tssj:FogUpload')->everyMinute()->withoutOverlapping();
+
+
+
+
     }
 
     /**

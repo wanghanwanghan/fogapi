@@ -4,6 +4,15 @@
 
     {{csrf_field()}}
 
+    <style>
+        .margin
+        {
+            width: 150px;
+            height: 100px;
+            margin-right: 20px;
+        }
+    </style>
+
     {{--wangEditor--}}
     <script type="text/javascript" src="//unpkg.com/wangeditor/release/wangEditor.min.js"></script>
 
@@ -112,6 +121,18 @@
                                     <option class="form-control">3</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+
+                    <hr class="sidebar-divider">
+
+                    <div>
+                        <label><a href="#">添加你的缩略图</a> 最多4张</label>
+                        <div id="readyInsertThumb">
+                            <img src="https://iocaffcdn.phphub.org/uploads/communities/WtC3cPLHzMbKRSZnagU9.png" alt="..." class="margin">
+                            <img src="//www.baidu.com/img/bd_logo1.png" alt="..." class="margin">
+                            <img src="http://placehold.it/150x100" alt="..." class="margin">
+                            <img src="http://placehold.it/150x100" alt="..." class="margin">
                         </div>
                     </div>
 
