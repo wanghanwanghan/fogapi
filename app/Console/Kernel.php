@@ -57,7 +57,7 @@ class Kernel extends ConsoleKernel
 
 
         //处理探索世界迷雾
-        //$schedule->command('Tssj:FogUpload')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload')->everyMinute()->withoutOverlapping();
 
 
 
