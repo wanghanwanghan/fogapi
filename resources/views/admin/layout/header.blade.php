@@ -9,9 +9,7 @@
             <div class="t_news">
                 <b class="m-0 font-weight-bold" style="color: red">最新信息：</b>
                 <ul class="news_li">
-                    <li><a href="#" class="text-xs font-weight-bold text-primary text-uppercase">小超耍流氓脱衣服啦</a></li>
-                    <li><a href="#" class="text-xs font-weight-bold text-primary text-uppercase">大家快来看啊</a></li>
-                    <li><a href="#" class="text-xs font-weight-bold text-primary text-uppercase">mini丁丁太少见啦</a></li>
+                    <li><a href="#" class="text-xs font-weight-bold text-primary text-uppercase">迷雾队列中有{{ (jsonDecode(\Illuminate\Support\Facades\Redis::connection('default')->get('ServerInfo'))['fogUploadNum']) }}个点等待上传</a></li>
                 </ul>
                 <ul class="swap"></ul>
             </div>

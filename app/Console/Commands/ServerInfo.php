@@ -16,6 +16,18 @@ class ServerInfo extends Command
         parent::__construct();
     }
 
+    public function fogUploadNum()
+    {
+        $num=0;
+
+        for ($i=0;$i<=9;$i++)
+        {
+            $num += (int)Redis::connection('TssjFog')->llen('FogUploadList_'.$i);
+        }
+
+        return $num;
+    }
+
     public function handle()
     {
         for ($i=1;$i<=3;$i++)
@@ -124,6 +136,8 @@ class ServerInfo extends Command
             $info['disk']=['name'=>$res[0],'totle'=>$res[1],'used'=>$res[2],'free'=>$res[3],'percentage'=>$res[4]];
 
             $info['lastUpdate']=time();
+
+            $info['fogUploadNum']=$this->fogUploadNum();
 
             Redis::connection('default')->set('ServerInfo',jsonEncode($info));
 

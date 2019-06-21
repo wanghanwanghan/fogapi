@@ -80,8 +80,8 @@ class FogUpload9 extends Command
                 //生成geo是否出错和时间
                 try
                 {
-                    $lat=\sprintf("%.4f",$oneData['latitude']);
-                    $lng=\sprintf("%.4f",$oneData['longitude']);
+                    $lat=\sprintf("%.6f",$oneData['latitude']);
+                    $lng=\sprintf("%.6f",$oneData['longitude']);
                     $geohash=$Geo->encode($lat,$lng,'8');
 
                     $thisDotUnix=time();

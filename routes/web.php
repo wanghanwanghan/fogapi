@@ -77,7 +77,7 @@ Route::group(['prefix'=>'admin'],function ()
 
 
 
-        //系统安全相关
+        //系统安全相关，系统信息相关
         Route::match(['post'],'/security/ajax','QuanMinZhanLing\\SecurityController@ajax');
 
     });
