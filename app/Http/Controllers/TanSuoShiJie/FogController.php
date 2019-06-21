@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\TanSuoShiJie;
 
 use App\Http\Controllers\Controller;
+use App\Model\Tssj\FogModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
@@ -12,6 +13,9 @@ class FogController extends Controller
     //要完成的目标
     //10万用户，每人100万个点，一共1000亿个点的数据存储
     //分10个库，每个库200个表，每个表存5000万个点，一共可存1000亿个点
+
+    //打开几个工作队列 1-10
+    public $workList=10;
 
     //分库分表规则
     public function getDatabaseNoOrTableNo($uid)
@@ -44,7 +48,7 @@ class FogController extends Controller
         $readyToHandle['data']=$data;
 
         //通过uid分成10个队列处理数据
-        $suffix=$uid%10;
+        $suffix=$uid%$this->workList;
 
         try
         {
@@ -62,8 +66,25 @@ class FogController extends Controller
     //迷雾下载
     public function fogDownload(Request $request)
     {
+        $uid=trim($request->uid);
 
+        if (!is_numeric($uid) || $uid <= 0)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.604')]);
+        }
 
+        $suffix=$this->getDatabaseNoOrTableNo($uid);
+
+        FogModel::databaseSuffix($suffix['db']);
+        FogModel::tableSuffix($suffix['table']);
+
+        $page=trim($request->page);
+        $limit=5000;
+        $offset=($page-1)*$limit;
+
+        $res=FogModel::where('uid',$uid)->orderBy('id')->limit($limit)->offset($offset)->get(['id','lat','lng'])->toArray();
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'thisTotle'=>count($res),'data'=>$res]);
     }
 
 

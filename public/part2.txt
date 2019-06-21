@@ -4,8 +4,8 @@ post
 http://newfogapi.wodeluapp.com/api/FogDownload
 
 参数
-int    uid =17469            用户主键
-string data=经纬度的json串    格子名称
+int    uid =17469    用户主键
+int    page=1        第几页数据
 =================================================================
 迷雾上传
 
