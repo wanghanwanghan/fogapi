@@ -309,7 +309,7 @@
             var img={};
 
             html2canvas($("#page-top"), {
-                allowTaint: true,
+                allowTaint: false,
                 taintTest: false,
                 onrendered: function(canvas) {
 

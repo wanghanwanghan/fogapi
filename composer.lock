@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "39a6d71ff9ade1f8752fa2c46a33eac6",
+    "content-hash": "597138ad2647bb7f342bbbbacc7abde4",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -874,6 +874,67 @@
             ],
             "description": "Highlight PHP code in terminal",
             "time": "2018-09-29T18:48:56+00:00"
+        },
+        {
+            "name": "jdavidbakr/replaceable-model",
+            "version": "1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jdavidbakr/replaceable-model.git",
+                "reference": "36c65e678b42f8609effb93d2d948205790838da"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jdavidbakr/replaceable-model/zipball/36c65e678b42f8609effb93d2d948205790838da",
+                "reference": "36c65e678b42f8609effb93d2d948205790838da",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "illuminate/support": "~5.1",
+                "php": "~5.5|~7.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "~3.0",
+                "phpunit/phpunit": "4.*",
+                "scrutinizer/ocular": "~1.1",
+                "squizlabs/php_codesniffer": "~2.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "jdavidbakr\\ReplaceableModel\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "J David Baker",
+                    "email": "me@jdavidbaker.com",
+                    "homepage": "http://www.jdavidbaker.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Adds 'REPLACE' and 'INSERT IGNORE' query capability to eloquent models",
+            "homepage": "https://github.com/jdavidbakr/replaceable-model",
+            "keywords": [
+                "jdavidbakr",
+                "replaceable-model"
+            ],
+            "time": "2018-07-25T15:53:52+00:00"
         },
         {
             "name": "laravel/framework",

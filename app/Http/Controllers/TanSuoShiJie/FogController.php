@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\TanSuoShiJie;
 
+use App\Console\Commands\FogUpload0;
 use App\Http\Controllers\Controller;
 use App\Model\Tssj\FogModel;
 use Illuminate\Http\Request;
@@ -75,6 +76,8 @@ class FogController extends Controller
 
         $suffix=$this->getDatabaseNoOrTableNo($uid);
 
+        (new FogUpload0())->createTable($suffix);
+
         FogModel::databaseSuffix($suffix['db']);
         FogModel::tableSuffix($suffix['table']);
 
@@ -82,7 +85,7 @@ class FogController extends Controller
         $limit=5000;
         $offset=($page-1)*$limit;
 
-        $res=FogModel::where('uid',$uid)->orderBy('id')->limit($limit)->offset($offset)->get(['id','lat','lng'])->toArray();
+        $res=FogModel::where('uid',$uid)->orderBy('id')->limit($limit)->offset($offset)->get(['id','lat','lng','unixTime'])->toArray();
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'thisTotle'=>count($res),'data'=>$res]);
     }

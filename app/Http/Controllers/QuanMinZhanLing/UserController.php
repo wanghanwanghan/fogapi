@@ -365,9 +365,9 @@ class UserController extends BaseController
                 {
                     //判断远程文件存不存在，如果存在就储存头像
                     //存头像，把头像弄成待审核
-                    $res=checkFileExists('http://www.wodeluapp.com/attachment/'.trim($res->avatar));
+                    $check=checkFileExists('http://www.wodeluapp.com/attachment/'.trim($res->avatar));
 
-                    if (!$res)
+                    if ($check)
                     {
                         $img=file_get_contents('http://www.wodeluapp.com/attachment/'.trim($res->avatar));
 
