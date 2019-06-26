@@ -284,8 +284,8 @@ class UserController extends BaseController
             //卖方加钱
             $res=Redis::connection('UserInfo')->hget($belongid,'money');
 
-            //钱不全额加，系统要扣除部分
-            $money=(new GridController())->gridTradeTax('SaleUser',$money);
+            //钱不全额加，系统要扣除部分，并且记录缴税的数额
+            $money=(new UserController())->howMuchTaxDidIPay($belongid,'SaleUser',$money);
 
             Redis::connection('UserInfo')->hset($belongid,'money',$res + $money);
 
@@ -662,4 +662,42 @@ class UserController extends BaseController
 
         return response()->json(['resCode' => Config::get('resCode.200'),'data'=>url('imgCanDelete/'.$fileName."?".time())]);
     }
+
+    //用户缴税额数
+    public function howMuchTaxDidIPay($uid,$target,$money)
+    {
+        //缴税后的金额
+        $money2=(new GridController())->gridTradeTax($target,$money);
+
+        //不扣税，不记录
+        if ($money==$money2) return $money2;
+
+        //记录缴税金额
+        $ymd=date('Ymd',time());
+
+        $key='BuyGridPayTax_'.$ymd;
+
+        $tax=(int)Redis::connection('WriteLog')->hget($key,$uid);
+
+        $neenToPayTax=$money-$money2;
+
+        Redis::connection('WriteLog')->hset($key,$uid,$tax+$neenToPayTax);
+
+        Redis::connection('WriteLog')->expire($key,86400);
+
+        return $money2;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

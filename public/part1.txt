@@ -110,7 +110,7 @@ http://newfogapi.wodeluapp.com/api/GetRankList
 
 参数
 int      uid=17480           用户主键
-int      type=1              个人资产(type=1)还是最贵格子(type=2)
+int      type=1              个人资产(type=1)还是最贵格子(type=2),3,4,5是新加的3个排行榜
 =================================================================
 获取用户格子全部信息
 

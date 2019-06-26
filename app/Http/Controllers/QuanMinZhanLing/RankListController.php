@@ -32,6 +32,27 @@ class RankListController extends BaseController
 
                 break;
 
+            //格子总价榜
+            case '3':
+
+                return response()->json($this->getGridTotlePrice($uid));
+
+                break;
+
+            //格子数量榜
+            case '4':
+
+                return response()->json($this->getGridTotle($uid));
+
+                break;
+
+            //购买格子纳税榜
+            case '5':
+
+                return response()->json($this->getGridTax($uid));
+
+                break;
+
             default:
 
                 return response()->json(['resCode'=>Config::get('resCode.604')]);
@@ -124,4 +145,49 @@ class RankListController extends BaseController
 
         return ['resCode'=>Config::get('resCode.200'),'data'=>$res];
     }
+
+    //格子总价榜
+    public function getGridTotlePrice($uid)
+    {
+        $key='GridTotlePriceRank';
+
+        $res=jsonDecode(Redis::connection('WriteLog')->get($key));
+
+        $col=current(collect($res)->where('uid',$uid)->all());
+
+        if ($col==false) $col=[];
+
+        return ['resCode'=>Config::get('resCode.200'),'usr'=>$col,'all'=>collect($res)->slice(0,200)->all()];
+    }
+
+    //格子数量榜
+    public function getGridTotle($uid)
+    {
+        $key='GridTotleRank';
+
+        $res=jsonDecode(Redis::connection('WriteLog')->get($key));
+
+        $col=current(collect($res)->where('uid',$uid)->all());
+
+        if ($col==false) $col=[];
+
+        return ['resCode'=>Config::get('resCode.200'),'usr'=>$col,'all'=>collect($res)->slice(0,200)->all()];
+    }
+
+    //购买格子纳税榜
+    public function getGridTax($uid)
+    {
+        $key='GridTaxRank';
+
+        $res=jsonDecode(Redis::connection('WriteLog')->get($key));
+
+        $col=current(collect($res)->where('uid',$uid)->all());
+
+        if ($col==false) $col=[];
+
+        return ['resCode'=>Config::get('resCode.200'),'usr'=>$col,'all'=>collect($res)->slice(0,200)->all()];
+    }
+
+
+
 }

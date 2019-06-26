@@ -34,15 +34,18 @@ class RankList extends Command
             //个人资产
             $this->userAssets();
 
-        }catch (\Exception $e)
-        {
-
-        }
-
-        try
-        {
             //格子
             $this->gridAssets();
+
+            //===================20190626之后更新的新排行榜===================
+            //格子总价榜
+            $this->gridTotlePrice();
+
+            //格子数量榜
+            $this->gridTotle();
+
+            //购买格子纳税榜
+            $this->gridTax();
 
         }catch (\Exception $e)
         {
@@ -214,6 +217,142 @@ class RankList extends Command
 
         Redis::connection('WriteLog')->set($this->gridRankListKey,jsonEncode($data));
     }
+
+    //===================20190626之后更新的新排行榜===================
+    //格子总价榜
+    public function gridTotlePrice()
+    {
+        $sql='select belong,sum(price) as priceTotle,count(1) as gridTotle from grid where belong <> 0 group by belong order by priceTotle desc,gridTotle desc';
+
+        $res=DB::connection('masterDB')->select($sql);
+
+        //名次
+        $i=1;
+
+        //准备做成json的数组
+        $ret=[];
+
+        $userObj=new UserController();
+
+        foreach ($res as $one)
+        {
+            $userInfo=$userObj->getUserNameAndAvatar($one->belong);
+
+            $ret[]=[
+                'row'=>$i,
+                'uid'=>$one->belong,
+                'name'=>$userInfo['name'],
+                'avatar'=>$userInfo['avatar'],
+                'picInRedis1'=>Redis::connection('UserInfo')->hget($one->belong,'picInRedis1'),
+                'priceTotle'=>$one->priceTotle,
+                'gridTotle'=>$one->gridTotle,
+            ];
+
+            $i++;
+        }
+
+        Redis::connection('WriteLog')->set('GridTotlePriceRank',jsonEncode($ret));
+
+        return true;
+    }
+
+    //格子数量榜
+    public function gridTotle()
+    {
+        $sql='select belong,count(1) as gridTotle from grid where belong <> 0 group by belong order by gridTotle desc';
+
+        $res=DB::connection('masterDB')->select($sql);
+
+        //名次
+        $i=1;
+
+        //准备做成json的数组
+        $ret=[];
+
+        $userObj=new UserController();
+
+        foreach ($res as $one)
+        {
+            $userInfo=$userObj->getUserNameAndAvatar($one->belong);
+
+            $ret[]=[
+                'row'=>$i,
+                'uid'=>$one->belong,
+                'name'=>$userInfo['name'],
+                'avatar'=>$userInfo['avatar'],
+                'gridTotle'=>$one->gridTotle,
+            ];
+
+            $i++;
+        }
+
+        Redis::connection('WriteLog')->set('GridTotleRank',jsonEncode($ret));
+
+        return true;
+    }
+
+    //购买格子纳税榜
+    public function gridTax()
+    {
+        $ymd=date('Ymd',time());
+
+        //记录税的key
+        $key='BuyGridPayTax_'.$ymd;
+
+        //手机端http请求的key
+        $key2='GridTaxRank';
+
+        $res=Redis::connection('WriteLog')->hgetall($key);
+
+        if (empty($res) || $res==null)
+        {
+            Redis::connection('WriteLog')->set($key2,null);
+        }
+
+        $res=collect($res)->sort()->all();
+
+        //名次
+        $i=count($res);
+
+        //返回
+        $ret=[];
+
+        $userObj=new UserController();
+
+        foreach ($res as $key=>$val)
+        {
+            $userInfo=$userObj->getUserNameAndAvatar($key);
+
+            $ret[]=[
+                'row'=>$i,
+                'uid'=>$key,
+                'name'=>$userInfo['name'],
+                'avatar'=>$userInfo['avatar'],
+                'tax'=>$val,
+            ];
+
+            $i--;
+        }
+
+        Redis::connection('WriteLog')->set($key2,jsonEncode(arraySort1($ret,['asc','row'])));
+
+        return true;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //同时更新多个记录，参数，表名，数组，别忘了在一开始use DB
     public function updateBatch($tableName='', $multipleData=[])
