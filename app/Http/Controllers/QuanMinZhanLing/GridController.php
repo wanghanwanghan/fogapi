@@ -471,7 +471,11 @@ class GridController extends BaseController
 
         $grid=GridModel::where('name',$gName)->first();
 
-        if ($grid->belong!=$uid) return response()->json(['resCode' => Config::get('resCode.618')]);
+        //没传这个参数
+        if ($base64PicInRedis1=='')
+        {
+            if ($grid->belong!=$uid) return response()->json(['resCode' => Config::get('resCode.618')]);
+        }
 
         //保存用户上传的图片base64格式
         $img1=uploadMyImg($base64Pic);

@@ -23,7 +23,6 @@
                         <thead>
                         <tr>
                             <th>用户主键</th>
-                            <th>用户名称</th>
                             <th>图片内容</th>
                             <th>审核操作</th>
                         </tr>
@@ -100,7 +99,7 @@
                             var data=
                                 {
                                     _token   : $("input[name=_token]").val(),
-                                    type     : 'picPass',
+                                    type     : 'picPass_picInRedis1',
                                     stringId : stringId,
                                 };
 
@@ -120,7 +119,7 @@
                             var data=
                                 {
                                     _token   : $("input[name=_token]").val(),
-                                    type     : 'picNoPass',
+                                    type     : 'picNoPass_picInRedis1',
                                     stringId : stringId,
                                 };
 
@@ -161,11 +160,8 @@
                     //添加uid
                     newTr.append("<td style='vertical-align: middle'>"+value.uid+"</td>");
 
-                    //用户名称
-                    newTr.append("<td style='vertical-align: middle'>"+value.name+"</td>");
-
                     //图片内容
-                    newTr.append("<td style='vertical-align: middle'><img src="+value.avatarUrl+" onclick=showpic('"+value.avatarUrl+"'); width='80px;' height='50px;'></td>");
+                    newTr.append("<td style='vertical-align: middle'><img src="+value.picUrl+" onclick=showpic('"+value.picUrl+"'); width='80px;' height='50px;'></td>");
 
                     //按钮
                     newTr.append("<td style='vertical-align: middle'><a href='#' id="+value.id+","+value.uid+" onclick=picPass($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a></td>");

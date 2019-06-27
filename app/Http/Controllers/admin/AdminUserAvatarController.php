@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Model\AvatarCheckModel;
+use App\Model\PicCheckModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -68,6 +69,47 @@ class AdminUserAvatarController extends AdminBaseController
                     ->orderby('updated_at')->count();
 
                 return ['data'=>$res,'count'=>$count];
+
+                break;
+
+            case 'picPass_picInRedis1':
+
+                $stringId=$request->stringId;
+
+                $arr=explode(',',$stringId);
+
+                $res=PicCheckModel::find($arr[0]);
+
+                $res->isCheck=1;
+
+                $res->save();
+
+                $picUrl=str_replace('readyToCheck','',$res->picUrl);
+
+                $img=Image::make(public_path().$res->picUrl);
+
+                $img->save(public_path().$picUrl);
+
+                Redis::connection('UserInfo')->hset($arr[1],'PicInRedis1',$picUrl);
+
+                return ['200'];
+
+                break;
+
+            case 'picNoPass_picInRedis1':
+
+                $stringId=$request->stringId;
+
+                $arr=explode(',',$stringId);
+
+                $res=PicCheckModel::find($arr[0]);
+
+                $res->picUrl=null;
+                $res->isCheck=null;
+
+                $res->save();
+
+                return ['200'];
 
                 break;
 
