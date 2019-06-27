@@ -97,6 +97,12 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link" href="{{route('picInRedis1')}}">
+          <i class="fas fa-fw fa-images"></i>
+          <span>排行榜人的图片</span></a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link" href="{{route('gridImg')}}">
           <i class="fas fa-fw fa-images"></i>
           <span>自定义格子图片</span></a>

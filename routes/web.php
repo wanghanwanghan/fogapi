@@ -45,6 +45,7 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['get','post'],'/grid/img','admin\\AdminGridController@gridImg')->name('gridImg');
         Route::match(['get','post'],'/grid/img2','admin\\AdminGridController@gridImg2')->name('gridImg2');
         Route::match(['get','post'],'/user/avatar','admin\\AdminUserAvatarController@userAvatar')->name('userAvatar');
+        Route::match(['get','post'],'/user/pic1','admin\\AdminUserAvatarController@picInRedis1')->name('picInRedis1');
 
         Route::match(['post'],'/user/ajax','admin\\AdminUserAvatarController@userAjax');
         Route::match(['post'],'/grid/ajax','admin\\AdminGridController@gridAjax');

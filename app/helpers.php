@@ -702,6 +702,23 @@ function storeFile($content,$uid,$grid,$type)
         $filename=$uid.'_avatarreadyToCheck.jpg';
     }
 
+    if ($type=='redisPic1')
+    {
+        $path=public_path(DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR);
+
+        $pathStoreInDB=DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR;
+
+        if (!is_dir($path))
+        {
+            mkdir($path,0777,true);
+        }
+
+        $filename=$uid."_$type".'readyToCheck'.".jpg";
+
+        $width =640;
+        $height=360;
+    }
+
     try
     {
         \Intervention\Image\Facades\Image::make($content)->resize($width,$height)->save($path.$filename);

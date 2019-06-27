@@ -155,7 +155,7 @@ class RankListController extends BaseController
 
         $col=current(collect($res)->where('uid',$uid)->all());
 
-        if ($col==false) $col=[];
+        if ($col==false) $col=null;
 
         return ['resCode'=>Config::get('resCode.200'),'usr'=>$col,'all'=>collect($res)->slice(0,200)->all()];
     }
@@ -169,7 +169,7 @@ class RankListController extends BaseController
 
         $col=current(collect($res)->where('uid',$uid)->all());
 
-        if ($col==false) $col=[];
+        if ($col==false) $col=null;
 
         return ['resCode'=>Config::get('resCode.200'),'usr'=>$col,'all'=>collect($res)->slice(0,200)->all()];
     }
@@ -181,9 +181,14 @@ class RankListController extends BaseController
 
         $res=jsonDecode(Redis::connection('WriteLog')->get($key));
 
+        if ($res==null || empty($res) || $res==false)
+        {
+            return ['resCode'=>Config::get('resCode.200'),'usr'=>null,'all'=>[]];
+        }
+
         $col=current(collect($res)->where('uid',$uid)->all());
 
-        if ($col==false) $col=[];
+        if ($col==false) $col=null;
 
         return ['resCode'=>Config::get('resCode.200'),'usr'=>$col,'all'=>collect($res)->slice(0,200)->all()];
     }

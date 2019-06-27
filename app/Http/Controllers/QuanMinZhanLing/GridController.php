@@ -467,6 +467,7 @@ class GridController extends BaseController
         $gName=$request->gName;
         $base64Pic=$request->pic;
         $base64Pic2=$request->pic2;
+        $base64PicInRedis1=$request->picInRedis1;
 
         $grid=GridModel::where('name',$gName)->first();
 
@@ -475,8 +476,9 @@ class GridController extends BaseController
         //保存用户上传的图片base64格式
         $img1=uploadMyImg($base64Pic);
         $img2=uploadMyImg($base64Pic2);
+        $redisPic1=uploadMyImg($base64PicInRedis1);
 
-        if (!$img1 && !$img2) return response()->json(['resCode' => Config::get('resCode.619')]);
+        if (!$img1 && !$img2 && !$redisPic1) return response()->json(['resCode' => Config::get('resCode.619')]);
 
         //保存图片到服务器
         if ($img1!=false)
@@ -487,9 +489,14 @@ class GridController extends BaseController
         {
             $path=storeFile($img2,$uid,$grid,'pic2');
 
+        }elseif ($redisPic1!=false)
+        {
+            $path=storeFile($redisPic1,$uid,$grid,'redisPic1');
+
         }else
         {
-
+            //没用
+            $wanghan=1;
         }
 
         if (!$path) return response()->json(['resCode' => Config::get('resCode.620')]);
@@ -503,9 +510,14 @@ class GridController extends BaseController
         {
             $picCheck=PicCheckModel::firstOrNew(['uid'=>$uid,'gid'=>$grid->id,'pic'=>'pic2']);
 
+        }elseif ($redisPic1!=false)
+        {
+            $picCheck=PicCheckModel::firstOrNew(['uid'=>$uid,'gid'=>0,'pic'=>'redisPic1']);
+
         }else
         {
-
+            //还是没用
+            $wanghan=1;
         }
 
         $picCheck->picUrl=$path;

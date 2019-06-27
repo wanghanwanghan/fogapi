@@ -13,6 +13,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
     Route::match(['post'],'RenameGrid','QuanMinZhanLing\\GridController@renameGrid');
     Route::match(['post'],'UploadPic/pic1','QuanMinZhanLing\\GridController@uploadPic');//格子背景图
     Route::match(['post'],'UploadPic/pic2','QuanMinZhanLing\\GridController@uploadPic');//格子第一背景图
+    Route::match(['post'],'UploadPic/picInRedis1','QuanMinZhanLing\\GridController@uploadPic');//什么鸡巴玩意
 
     //格子详情
     Route::match(['post'],'GridDetails','QuanMinZhanLing\\GridController@gridDetails');

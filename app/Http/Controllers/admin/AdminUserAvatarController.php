@@ -15,6 +15,11 @@ class AdminUserAvatarController extends AdminBaseController
         return view('admin.avatar.avatar_index');
     }
 
+    public function picInRedis1()
+    {
+        return view('admin.avatar.pic1_index');
+    }
+
     public function userAjax(Request $request)
     {
         switch ($request->type)
@@ -41,6 +46,24 @@ class AdminUserAvatarController extends AdminBaseController
 
                 //总共多少个
                 $count=DB::connection('masterDB')->table('avatar_check')
+                    ->where('isCheck',0)
+                    ->orderby('updated_at')->count();
+
+                return ['data'=>$res,'count'=>$count];
+
+                break;
+
+            case 'get_user_pic1':
+
+                //拿10个
+                $res=DB::connection('masterDB')->table('pic_check')
+                    ->where('pic','redisPic1')
+                    ->where('isCheck',0)
+                    ->orderby('updated_at')->limit(10)->get()->toArray();
+
+                //总共多少个
+                $count=DB::connection('masterDB')->table('pic_check')
+                    ->where('pic','redisPic1')
                     ->where('isCheck',0)
                     ->orderby('updated_at')->count();
 
