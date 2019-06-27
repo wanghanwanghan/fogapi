@@ -727,6 +727,8 @@ class UserController extends BaseController
         $endDay=Carbon::now()->endOfDay()->timestamp;
         $uid=(int)$request->uid;
 
+        if ($uid <= 0) return response()->json(['resCode'=>Config::get('resCode.601')]);
+
         $json=Redis::connection('UserInfo')->hget($uid,'BuyCardType1');
 
         if ($json==null)
@@ -734,7 +736,7 @@ class UserController extends BaseController
             //第一次
             Redis::connection('UserInfo')->hset($uid,'BuyCardType1',jsonEncode(['count'=>0,'endOfDay'=>$endDay]));
 
-            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>['howMuchMoreCanIbuy'=>$max,'basePrice'=>$basePrice,'upPrice'=>$upPrice]]);
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>['howMuchMoreCanIbuy'=>$max,'buyMax'=>$max,'basePrice'=>$basePrice,'upPrice'=>$upPrice]]);
         }
 
         $arr=jsonDecode($json);
@@ -744,12 +746,12 @@ class UserController extends BaseController
             //新的一天
             Redis::connection('UserInfo')->hset($uid,'BuyCardType1',jsonEncode(['count'=>0,'endOfDay'=>$endDay]));
 
-            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>['howMuchMoreCanIbuy'=>$max,'basePrice'=>$basePrice,'upPrice'=>$upPrice]]);
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>['howMuchMoreCanIbuy'=>$max,'buyMax'=>$max,'basePrice'=>$basePrice,'upPrice'=>$upPrice]]);
 
         }else
         {
             //还在当天内
-            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>['howMuchMoreCanIbuy'=>$max - $arr['count'],'basePrice'=>$basePrice,'upPrice'=>$upPrice]]);
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>['howMuchMoreCanIbuy'=>$max - $arr['count'],'buyMax'=>$max,'basePrice'=>$basePrice,'upPrice'=>$upPrice]]);
         }
     }
 
@@ -761,6 +763,8 @@ class UserController extends BaseController
         $max=10;
 
         $uid=(int)$request->uid;
+
+        if ($uid <= 0) return response()->json(['resCode'=>Config::get('resCode.601')]);
 
         //add是加，sub是减，本次购买要花费的金额
         $subMoney=(int)$request->money;
@@ -782,7 +786,6 @@ class UserController extends BaseController
         $this->exprUserMoney($uid,0,$subMoney,$expr='-',$extra=['moneyFrom'=>'BuyCardType1']);
 
         $arr['count']+=$count;
-        $arr['endOfDay']=time();
 
         Redis::connection('UserInfo')->hset($uid,'BuyCardType1',jsonEncode($arr));
 

@@ -16,7 +16,7 @@ class FogController extends Controller
     //分10个库，每个库200个表，每个表存5000万个点，一共可存1000亿个点
 
     //打开几个工作队列 1-10
-    public $workList=10;
+    public $workList=5;
 
     //分库分表规则
     public function getDatabaseNoOrTableNo($uid)

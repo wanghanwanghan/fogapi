@@ -79,7 +79,7 @@ return [
         //以下是探索世界用户迷雾点数据库
         'TssjFog0' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_0',
             'username' => 'chinaiiss',
@@ -93,7 +93,7 @@ return [
         ],
         'TssjFog1' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_1',
             'username' => 'chinaiiss',
@@ -107,7 +107,7 @@ return [
         ],
         'TssjFog2' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_2',
             'username' => 'chinaiiss',
@@ -121,7 +121,7 @@ return [
         ],
         'TssjFog3' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_3',
             'username' => 'chinaiiss',
@@ -135,7 +135,7 @@ return [
         ],
         'TssjFog4' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_4',
             'username' => 'chinaiiss',
@@ -149,7 +149,7 @@ return [
         ],
         'TssjFog5' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_5',
             'username' => 'chinaiiss',
@@ -163,7 +163,7 @@ return [
         ],
         'TssjFog6' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_6',
             'username' => 'chinaiiss',
@@ -177,7 +177,7 @@ return [
         ],
         'TssjFog7' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_7',
             'username' => 'chinaiiss',
@@ -191,7 +191,7 @@ return [
         ],
         'TssjFog8' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_8',
             'username' => 'chinaiiss',
@@ -205,7 +205,7 @@ return [
         ],
         'TssjFog9' => [
             'driver' => 'mysql',
-            'host' => '183.136.232.236',
+            'host' => '183.136.232.237',
             'port' => '3306',
             'database' => 'tssj_fog_9',
             'username' => 'chinaiiss',
