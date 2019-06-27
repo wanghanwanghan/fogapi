@@ -243,7 +243,7 @@ class RankList extends Command
                 'uid'=>$one->belong,
                 'name'=>$userInfo['name'],
                 'avatar'=>$userInfo['avatar'],
-                'picInRedis1'=>Redis::connection('UserInfo')->hget($one->belong,'picInRedis1'),
+                'picInRedis1'=>Redis::connection('UserInfo')->hget($one->belong,'PicInRedis1'),
                 'priceTotle'=>$one->priceTotle,
                 'gridTotle'=>$one->gridTotle,
             ];

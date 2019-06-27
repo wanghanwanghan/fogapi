@@ -254,6 +254,17 @@ class UserController extends BaseController
         //[
         //   'moneyFrom'=>$moneyFrom,//手机app调用加钱接口时，标记这笔钱是通过什么方式加进来的
         //]
+        //                BuyCardType1 通过金币购买购地卡
+
+        if (!empty($extra) && $extra['moneyFrom']=='BuyCardType1')
+        {
+            //通过金币购买购地卡
+            $res=Redis::connection('UserInfo')->hget($uid,'money');
+
+            Redis::connection('UserInfo')->hset($uid,'money',$res - $money);
+
+            return true;
+        }
 
         if ($expr=='+' && $belongid==0)
         {
@@ -317,8 +328,8 @@ class UserController extends BaseController
         return Redis::connection('UserInfo')->get($key);
     }
 
-    //减购地卡
-    public function setBuyCardCount($uid,$num=1)
+    //减购地卡或增购地卡
+    public function setBuyCardCount($uid,$num=1,$expr='-')
     {
         $today=Carbon::now()->format('Ymd');
 
@@ -326,7 +337,24 @@ class UserController extends BaseController
 
         $count=Redis::connection('UserInfo')->get($key);
 
-        Redis::connection('UserInfo')->set($key,$count - $num);
+        if ($expr=='-')
+        {
+            Redis::connection('UserInfo')->set($key,$count - $num);
+
+            Redis::connection('UserInfo')->expire($key,86400);
+
+        }elseif ($expr=='+')
+        {
+            for ($i=1;$i<=$num;$i++)
+            {
+                Redis::connection('UserInfo')->incr($key);
+            }
+
+        }else
+        {
+            //没用
+            $wanghan=1;
+        }
 
         Redis::connection('UserInfo')->expire($key,86400);
 
@@ -688,7 +716,78 @@ class UserController extends BaseController
         return $money2;
     }
 
+    //返回购地卡购买状态
+    public function getBuyCardStatus(Request $request)
+    {
+        //返回还能买几张，价格基数，增长系数
+        $max=10;
+        $basePrice=200;
+        $upPrice=20;
 
+        $endDay=Carbon::now()->endOfDay()->timestamp;
+        $uid=(int)$request->uid;
+
+        $json=Redis::connection('UserInfo')->hget($uid,'BuyCardType1');
+
+        if ($json==null)
+        {
+            //第一次
+            Redis::connection('UserInfo')->hset($uid,'BuyCardType1',jsonEncode(['count'=>0,'endOfDay'=>$endDay]));
+
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>['howMuchMoreCanIbuy'=>$max,'basePrice'=>$basePrice,'upPrice'=>$upPrice]]);
+        }
+
+        $arr=jsonDecode($json);
+
+        if (time() > $arr['endOfDay'])
+        {
+            //新的一天
+            Redis::connection('UserInfo')->hset($uid,'BuyCardType1',jsonEncode(['count'=>0,'endOfDay'=>$endDay]));
+
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>['howMuchMoreCanIbuy'=>$max,'basePrice'=>$basePrice,'upPrice'=>$upPrice]]);
+
+        }else
+        {
+            //还在当天内
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>['howMuchMoreCanIbuy'=>$max - $arr['count'],'basePrice'=>$basePrice,'upPrice'=>$upPrice]]);
+        }
+    }
+
+    //设置购地卡购买状态
+    public function setBuyCardStatus(Request $request)
+    {
+        //要做的工作是，扣金币，增加购地卡
+
+        $max=10;
+
+        $uid=(int)$request->uid;
+
+        //add是加，sub是减，本次购买要花费的金额
+        $subMoney=(int)$request->money;
+
+        //本次购买次数
+        $count=(int)$request->count;
+
+        $nowMoney=(int)Redis::connection('UserInfo')->hget($uid,'money');
+
+        //钱不够
+        if ($nowMoney < $subMoney) return response()->json(['resCode'=>Config::get('resCode.607')]);
+
+        $arr=jsonDecode(Redis::connection('UserInfo')->hget($uid,'BuyCardType1'));
+
+        //次数没了
+        if ($arr['count'] >= $max) return response()->json(['resCode'=>Config::get('resCode.632')]);
+
+        //钱也够，购买次数也还有，下面执行扣钱和减次数
+        $this->exprUserMoney($uid,0,$subMoney,$expr='-',$extra=['moneyFrom'=>'BuyCardType1']);
+
+        $arr['count']+=$count;
+        $arr['endOfDay']=time();
+
+        Redis::connection('UserInfo')->hset($uid,'BuyCardType1',jsonEncode($arr));
+
+        return response()->json(['resCode'=>Config::get('resCode.200')]);
+    }
 
 
 

@@ -31,8 +31,16 @@ class AdminUserAvatarController extends AdminBaseController
 
                 $imgArr=getimagesize(public_path($imgUrl));
 
-                $width =$imgArr[0]*3;
-                $height=$imgArr[1]*3;
+                if ($imgArr[0]>500)
+                {
+                    $width =$imgArr[0];
+                    $height=$imgArr[1];
+
+                }else
+                {
+                    $width =$imgArr[0]*3;
+                    $height=$imgArr[1]*3;
+                }
 
                 return ['width'=>$width,'height'=>$height];
 

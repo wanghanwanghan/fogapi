@@ -1,3 +1,21 @@
+用户购买购地卡，减钱，减当天购买次数
+
+post
+http://newfogapi.wodeluapp.com/api/SetBuyCardStatus
+
+参数
+int      uid=17469                    用户主键
+int      count=2                      本次购买几张
+int      money=400                    本次购买需要花费的金钱
+=================================================================
+查看用户通过金币当天还能购买多少购地卡
+
+get
+http://newfogapi.wodeluapp.com/api/GetBuyCardStatus
+
+参数
+int      uid=17469                     用户主键
+=================================================================
 获取版本号
 
 get

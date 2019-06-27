@@ -54,6 +54,12 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
     });
 
+    //获取用户通过金币还能购买购地卡的数量
+    Route::match(['get','post'],'GetBuyCardStatus','QuanMinZhanLing\\UserController@getBuyCardStatus');
+
+    //设置用户通过金币还能购买购地卡的数量
+    Route::match(['get','post'],'SetBuyCardStatus','QuanMinZhanLing\\UserController@setBuyCardStatus');
+
     //获取一个格子和周围格子的信息
     Route::match(['post'],'GetGridInfo','QuanMinZhanLing\\GridController@getGridInfo');
 
