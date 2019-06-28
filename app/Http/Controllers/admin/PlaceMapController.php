@@ -80,6 +80,8 @@ class PlaceMapController extends AdminBaseController
                     return ['resCode'=>200,'data'=>$res,'count'=>$count];
                 }
 
+                return ['resCode'=>500,'data'=>[],'count'=>0];
+
                 break;
         }
 

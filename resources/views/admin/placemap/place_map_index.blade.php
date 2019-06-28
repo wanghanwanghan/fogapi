@@ -134,6 +134,11 @@
                 },
                 success:function(response,textStatus)
                 {
+                    if (response.resCode==500)
+                    {
+                        alert('出错了');
+                    }
+
                     $("#pointCount").html(response.count);
                     overlay.setData(response.data);
                     overlay.refresh();
