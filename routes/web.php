@@ -38,6 +38,9 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['get'],'/app/setup/index','admin\\AppSetupController@appSetupIndex')->name('appSetupIndex');
         Route::match(['post'],'/app/setup/ajax','admin\\AppSetupController@ajax');
 
+        //格子位置展示
+        Route::match(['get'],'/place/map','admin\\PlaceMapController@index')->name('placeMap');
+        Route::match(['post'],'/place/map/ajax','admin\\PlaceMapController@ajax');
 
 
 

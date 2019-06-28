@@ -134,7 +134,7 @@ class UserController extends BaseController
 
             $offset=($page-1)*$limit;
 
-            $gridInfo=GridModel::where('belong',$uid)->limit($limit)->offset($offset)->get(['id','name','price','totle','updated_at'])->toArray();
+            $gridInfo=GridModel::where('belong',$uid)->orderBy('updated_at','desc')->limit($limit)->offset($offset)->get(['id','name','price','totle','updated_at'])->toArray();
 
         }else
         {
@@ -788,6 +788,9 @@ class UserController extends BaseController
         $arr['count']+=$count;
 
         Redis::connection('UserInfo')->hset($uid,'BuyCardType1',jsonEncode($arr));
+
+        //增加购地卡
+        $this->setBuyCardCount($uid,$count,$expr='+');
 
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }

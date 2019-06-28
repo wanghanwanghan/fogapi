@@ -46,7 +46,7 @@
             max: 18,
             min: 5
         },
-    })
+    });
     let data = [{
         name: '北京',
         geometry: {
@@ -105,7 +105,7 @@
             }
         }
 
-    ]
+    ];
     var overlay = new inMap.PointAnimationOverlay({
         style: {
             fps: 90, //动画帧数
@@ -124,6 +124,4 @@
 
 
 </body>
-
 </html>
-

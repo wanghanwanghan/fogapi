@@ -60,6 +60,15 @@
           <span>上传app安装包</span></a>
       </li>
 
+      <hr class="sidebar-divider my-0">
+
+      <!-- Nav Item - Dashboard -->
+      <li class="nav-item">
+        <a class="nav-link" href="{{route('placeMap')}}">
+          <i class="fas fa-fw fa-map-pin"></i>
+          <span>格子位置展示</span></a>
+      </li>
+
       <!-- Divider -->
       <hr class="sidebar-divider">
 
