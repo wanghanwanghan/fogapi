@@ -8,10 +8,13 @@
         "php": ">=7.0.0",
         "earnp/laravel-google-authenticator": "dev-master",
         "fideloper/proxy": "~3.3",
+        "ignited/laravel-omnipay": "3.*",
         "intervention/image": "^2.4",
         "jdavidbakr/replaceable-model": "^1.0",
         "laravel/framework": "5.5.*",
         "laravel/tinker": "~1.0",
+        "lokielse/omnipay-alipay": "^3.0",
+        "lokielse/omnipay-wechatpay": "^3.0",
         "naux/sendcloud": "^1.1",
         "overtrue/easy-sms": "^1.1",
         "overtrue/laravel-wechat": "~4.0",
@@ -19,6 +22,7 @@
         "predis/predis": "^1.1",
         "simplesoftwareio/simple-qrcode": "^2.0",
         "yadakhov/insert-on-duplicate-key": "^1.2",
+        "yansongda/laravel-pay": "^2.0",
         "youthage/laravel-geohash": "^3.1"
     },
     "require-dev": {

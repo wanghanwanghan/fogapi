@@ -47,6 +47,20 @@ class FogUpload7 extends Command
         return true;
     }
 
+    public function checkGeoInRedis($uid,$geo,$lat,$lng)
+    {
+        //含有geo就返回true，不含有返回false
+
+        $res=Redis::connection('TssjFog')->hget('UserGeo_'.$uid,$geo);
+
+        if ($res) return true;
+
+        //不含有
+        Redis::connection('TssjFog')->hset('UserGeo_'.$uid,$geo,jsonEncode(['lat'=>$lat,'lng'=>$lng]));
+
+        return false;
+    }
+
     public function handle()
     {
         $Geo=new \Geohash\GeoHash();
@@ -83,6 +97,9 @@ class FogUpload7 extends Command
                     $lat=\sprintf("%.6f",$oneData['latitude']);
                     $lng=\sprintf("%.6f",$oneData['longitude']);
                     $geohash=$Geo->encode($lat,$lng,'8');
+
+                    //如果插入过了，就下一条
+                    if ($this->checkGeoInRedis($uid,$geohash,$lat,$lng)) continue;
 
                     $thisDotUnix=time();
 

@@ -39,7 +39,7 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapWebRoutes();
 
-        //
+        $this->mapNotificationRoutes();
     }
 
     /**
@@ -74,5 +74,13 @@ class RouteServiceProvider extends ServiceProvider
             ->middleware('api')
             ->namespace($this->namespace)
             ->group(base_path('routes/api_part2.php'));
+    }
+
+    //所有的回调通知
+    protected function mapNotificationRoutes()
+    {
+        Route::prefix('notification')
+            ->namespace($this->namespace.'\Notification')
+            ->group(base_path('routes/notification.php'));
     }
 }

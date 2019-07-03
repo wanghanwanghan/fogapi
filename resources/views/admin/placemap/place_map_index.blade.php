@@ -8,15 +8,15 @@
         .auto { padding:5px 15px; border:0; background:#fff; }
     </style>
 
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=U3q69k0Dv0GCYNiiZeHPf7BS"></script>
-    <script type="text/javascript" src="http://unpkg.com/inmap/dist/inmap.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=0lPULNZ5PmrFVg76kFuRjezF"></script>
+    <script type="text/javascript" src="https://unpkg.com/inmap@2.2.8/dist/inmap.min.js"></script>
 
     <div class="col-xl-12">
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">格子展示，共有 <span id="pointCount"> 0 </span> 个格子</h6>
                 <div class="input-group" style="width: 370px">
-                    <input type="text" class="form-control bg-light border-1 small" id="uidInput" placeholder="输入用户主键查单用户，不输入查全部">
+                    <input type="text" class="form-control bg-light border-1 small" id="uidInput" placeholder="用户主键，格子编号，不输入查全部">
                     <div class="input-group-append">
                         <button class="btn btn-primary" id="searchBtn" onclick="selectData($('#uidInput').val());" type="button">
                             <i class="fas fa-search fa-sm">搜索</i>
@@ -107,17 +107,74 @@
                     backgroundColor: "rgba(184,0,0,1)",
                     borderColor: "rgba(255,255,255,1)"
                 },
+                splitList: [
+                    {
+                        //区间颜色，由data中的count设置
+                        start: 0,
+                        end: 10.1,//开区间
+                        size:5,
+                        backgroundColor: "#4169e1"
+                    },
+                    {
+                        start: 11,
+                        end: 100.1,
+                        size:5,
+                        backgroundColor: "#ffbf00"
+                    },
+                    {
+                        start: 101,
+                        end: 1000.1,
+                        size:5,
+                        backgroundColor: "#228b22"
+                    },
+                    {
+                        start: 1001,
+                        end: 5000.1,
+                        size:5,
+                        backgroundColor: "#8b0000"
+                    },
+                    {
+                        start: 5001,
+                        size:5,
+                        backgroundColor: "#000000"
+                    }
+                ],
             },
-            draw: {
-                interval: 400, //间隔时间
-                splitCount: 5000 //每批绘画的数量
+            //draw: {
+            //    interval: 400, //间隔时间
+            //    splitCount: 5000 //每批绘画的数量
+            //},
+            legend: {
+                show: true,
+                title: "格子价格",
+                formatter: function(val,index,item)
+                {
+                    return val + "元";
+                }
             },
-            data: data
+            data: data,
+            event: {
+                onMouseClick: function (item,event)
+                {
+                    //能获取当前点的信息
+                    console.log(item);//把这个发给php
+                    console.log(event);
+                }
+            }
         });
         inmap.add(overlay);
     </script>
 
     <script>
+
+        $(document).keydown(function (event) {
+
+            if (event.keyCode=='13')
+            {
+                selectData($('#uidInput').val());
+            }
+
+        });
 
         function selectData(uid) {
 
@@ -137,6 +194,16 @@
                     if (response.resCode==500)
                     {
                         alert('出错了');
+                    }
+
+                    if (response.resCode==201)
+                    {
+                        alert('无数据');
+                    }
+
+                    if (response.resCode==202)
+                    {
+                        alert('格子不存在');
                     }
 
                     $("#pointCount").html(response.count);

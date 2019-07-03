@@ -23,13 +23,15 @@ class PlaceMapController extends AdminBaseController
 
                 if ($uid=='')
                 {
-                    //全部数据
-                    $data=Cache::remember('allPoint',600,function()
-                    {
-                        return GridModel::where('belong','<>',0)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
-                    });
+                    //ini_set('memory_limit','256M');
 
-                    //$data=GridModel::where('belong','<>',0)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
+                    //全部数据
+                    //$data=Cache::remember('allPointForPlaceMap',600,function()
+                    //{
+                    //    return GridModel::where('belong','<>',0)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
+                    //});
+
+                    $data=GridModel::where('belong','<>',0)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
 
                     $count=$data->count();
 
@@ -37,6 +39,7 @@ class PlaceMapController extends AdminBaseController
                     foreach ($data as $onePoint)
                     {
                         $res[]=[
+                            'count'=>$onePoint->price,
                             'uid'=>$onePoint->belong,
                             'name'=>$onePoint->name,
                             'price'=>$onePoint->price,
@@ -65,6 +68,7 @@ class PlaceMapController extends AdminBaseController
                     foreach ($data as $onePoint)
                     {
                         $res[]=[
+                            'count'=>$onePoint->price,
                             'uid'=>$onePoint->belong,
                             'name'=>$onePoint->name,
                             'price'=>$onePoint->price,
@@ -80,7 +84,31 @@ class PlaceMapController extends AdminBaseController
                     return ['resCode'=>200,'data'=>$res,'count'=>$count];
                 }
 
-                return ['resCode'=>500,'data'=>[],'count'=>0];
+                //查单个格子
+                $data=GridModel::where('name',$uid)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
+
+                if (empty($data->toArray())) return ['resCode'=>202,'data'=>[],'count'=>0];
+
+                $count=$data->count();
+
+                //整理数组 [{"count":6,"geometry":{"type":"Point","coordinates":["116.395645","39.929986"]}}]
+                foreach ($data as $onePoint)
+                {
+                    $res[]=[
+                        'count'=>$onePoint->price,
+                        'uid'=>$onePoint->belong,
+                        'name'=>$onePoint->name,
+                        'price'=>$onePoint->price,
+                        'totle'=>$onePoint->totle,
+                        'updated_at'=>$onePoint->updated_at!='' ? $onePoint->updated_at->format('Y-m-d H:i:s') : null,
+                        'geometry'=>[
+                            'type'=>'Point',
+                            'coordinates'=>[$onePoint->lng,$onePoint->lat],
+                        ],
+                    ];
+                }
+
+                return ['resCode'=>200,'data'=>$res,'count'=>$count];
 
                 break;
         }

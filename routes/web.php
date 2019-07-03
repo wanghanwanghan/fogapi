@@ -14,6 +14,7 @@ Route::group(['prefix'=>'admin'],function ()
         //管理后台路由
         Route::get('/',function (){
 
+
             $info=\Illuminate\Support\Facades\Redis::connection('default')->get('ServerInfo');
 
             $info=jsonDecode($info);

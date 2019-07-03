@@ -69,10 +69,7 @@ class FogController extends Controller
     {
         $uid=trim($request->uid);
 
-        if (!is_numeric($uid) || $uid <= 0)
-        {
-            return response()->json(['resCode'=>Config::get('resCode.604')]);
-        }
+        if (!is_numeric($uid) || $uid <= 0) return response()->json(['resCode'=>Config::get('resCode.604')]);
 
         $suffix=$this->getDatabaseNoOrTableNo($uid);
 
@@ -85,7 +82,14 @@ class FogController extends Controller
         $limit=5000;
         $offset=($page-1)*$limit;
 
-        $res=FogModel::where('uid',$uid)->orderBy('id')->limit($limit)->offset($offset)->get(['id','lat','lng','unixTime'])->toArray();
+        try
+        {
+            $res=FogModel::where('uid',$uid)->orderBy('id')->limit($limit)->offset($offset)->get(['id','lat as latitude','lng as longitude','geo as geohash','unixTime as timestamp'])->toArray();
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.624')]);
+        }
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'thisTotle'=>count($res),'data'=>$res]);
     }
