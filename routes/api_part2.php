@@ -39,6 +39,57 @@ Route::group(['middleware'=>['PVandUV']],function ()
         return false;
     });
 
+    //全部上传迷雾弹窗限流
+    Route::match(['get','post'],'TodayShowUploadFogBoxLimit',function (\Illuminate\Http\Request $request){
+
+        $uid=(int)$request->uid;
+
+        if ($uid <= 0) return response()->json(['resCode'=>601]);
+
+        //当天最大人数
+        $limit=50;
+
+        //当天已经上传的人数
+        $todayPeople='TodayPeople_'.\Carbon\Carbon::now()->format('Ymd');
+
+        //当天的成员
+        $todaySismember='TodaySismember_'.\Carbon\Carbon::now()->format('Ymd');
+
+        //===========================================================================================================
+        if ($request->isMethod('get'))
+        {
+            $sismember=\Illuminate\Support\Facades\Redis::connection('TssjFog')->sismember($todaySismember,$uid);
+
+            //在当天的成员里，说明传过了
+            if ((int)$sismember) return response()->json(['resCode'=>200,'allow'=>0]);
+
+            $count=\Illuminate\Support\Facades\Redis::connection('TssjFog')->get($todayPeople);
+
+            //当天上传人数到达限制
+            if ((int)$count >= $limit) return response()->json(['resCode'=>200,'allow'=>0]);
+
+            return response()->json(['resCode'=>200,'allow'=>1]);
+        }
+        //===========================================================================================================
+        if ($request->isMethod('post'))
+        {
+            //把uid添加到集合成员
+            \Illuminate\Support\Facades\Redis::connection('TssjFog')->sadd($todaySismember,$uid);
+            //设置过期时间
+            \Illuminate\Support\Facades\Redis::connection('TssjFog')->expire($todaySismember,86400);
+
+            //当天上传limit加1
+            \Illuminate\Support\Facades\Redis::connection('TssjFog')->incr($todayPeople);
+            //设置过期时间
+            \Illuminate\Support\Facades\Redis::connection('TssjFog')->expire($todayPeople,86400);
+
+            return response()->json(['resCode'=>200]);
+        }
+        //===========================================================================================================
+
+        return false;
+    });
+
     //迷雾上传
     Route::match(['get','post'],'FogUpload','TanSuoShiJie\\FogController@fogUpload');
 

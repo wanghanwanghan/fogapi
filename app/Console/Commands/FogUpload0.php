@@ -109,7 +109,7 @@ class FogUpload0 extends Command
                     $geohash=$Geo->encode($lat,$lng,'8');
 
                     //如果插入过了，就下一条
-                    if ($this->checkGeoInRedis($uid,$geohash)) continue;
+                    //if ($this->checkGeoInRedis($uid,$geohash)) continue;
 
                     $thisDotUnix=time();
 

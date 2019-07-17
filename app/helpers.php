@@ -742,6 +742,12 @@ function storeFile($content,$uid,$grid,$type)
     }
 }
 
+//贮存准备source的sql文件
+function storeReadyToSourceSqlFile($DB_target,$Table_target)
+{
+
+}
+
 //多少小时前，多少分钟前
 function formatDate($timestamp)
 {

@@ -16,7 +16,7 @@ class FogController extends Controller
     //分10个库，每个库500个表，每个表存5000万个点，一共可存2500亿个点
 
     //打开几个工作队列 1-10
-    public $workList=5;
+    public $workList=7;
 
     //是否开启处理迷雾点任务 1开启，0不开启
     public $runWork=0;
