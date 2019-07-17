@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\TanSuoShiJie\FogController;
-use App\Model\Tssj\FogModel;
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 
@@ -39,7 +39,7 @@ class FogUpload7 extends Command
                 $table->string('geo','10')->comment('geohash');
                 $table->integer('unixTime')->unsigned()->comment('unix时间戳')->index();
                 $table->timestamps();
-                $table->index(['uid','geo']);
+                $table->unique(['uid','geo']);//insert ignore要用到
                 $table->engine='InnoDB';
             });
         }
@@ -47,16 +47,19 @@ class FogUpload7 extends Command
         return true;
     }
 
-    public function checkGeoInRedis($uid,$geo,$lat,$lng)
+    public function checkGeoInRedis($uid,$geo)
     {
         //含有geo就返回true，不含有返回false
 
-        $res=Redis::connection('TssjFog')->hget('UserGeo_'.$uid,$geo);
+        //查看是否在集合中含有成员$geo，含有返回1，不含有返回0
+        $res=Redis::connection('TssjFog')->sismember('UserGeo_'.$uid,$geo);
 
+        //含有
         if ($res) return true;
 
         //不含有
-        Redis::connection('TssjFog')->hset('UserGeo_'.$uid,$geo,jsonEncode(['lat'=>$lat,'lng'=>$lng]));
+        Redis::connection('TssjFog')->sadd('UserGeo_'.$uid,$geo);
+        Redis::connection('TssjFog')->expire('UserGeo_'.$uid,86400);
 
         return false;
     }
@@ -65,8 +68,11 @@ class FogUpload7 extends Command
     {
         $Geo=new \Geohash\GeoHash();
 
+        if (!$this->fogControllerObj->runWork) return true;
+
         while(true)
         {
+            //$one是5000个坐标点组成的json串
             $one=Redis::connection('TssjFog')->rpop('FogUploadList_'.$this->myTarget);
 
             //没东西就退出
@@ -83,6 +89,10 @@ class FogUpload7 extends Command
 
             $uid=$res['uid'];
 
+            //准备执行的insert ignore或者on duplicate key update语句
+            $targetObj=[];
+
+            //循环这5000个数组
             foreach ($res['data'] as $oneData)
             {
                 //经纬度不存在
@@ -99,7 +109,7 @@ class FogUpload7 extends Command
                     $geohash=$Geo->encode($lat,$lng,'8');
 
                     //如果插入过了，就下一条
-                    if ($this->checkGeoInRedis($uid,$geohash,$lat,$lng)) continue;
+                    if ($this->checkGeoInRedis($uid,$geohash)) continue;
 
                     $thisDotUnix=time();
 
@@ -126,23 +136,39 @@ class FogUpload7 extends Command
                     continue;
                 }
 
+                //一条一条插，改成批量
+                $targetObj[]=['uid'=>$uid,'geo'=>$geohash,'lat'=>$lat,'lng'=>$lng,'unixTime'=>(int)$thisDotUnix];
+            }
+
+            //是否有可以插入的坐标
+            if (!empty($targetObj))
+            {
                 //生成后缀
                 $suffix=$this->fogControllerObj->getDatabaseNoOrTableNo($uid);
 
                 //创建表
                 $this->createTable($suffix);
 
+                //整理sql
+                $sql="insert ignore into user_fog_{$suffix['table']} values ";
+
+                $time=date('Y-m-d H:i:s',time());
+
+                foreach ($targetObj as $oneTarget)
+                {
+                    $sql.="(null,{$oneTarget['uid']},'{$oneTarget['lat']}','{$oneTarget['lng']}','{$oneTarget['geo']}',{$oneTarget['unixTime']},'{$time}','{$time}'),";
+                }
+
+                $sql=rtrim($sql,',');
+
                 //插入数据
                 try
                 {
-                    FogModel::databaseSuffix($suffix['db']);
-                    FogModel::tableSuffix($suffix['table']);
-
-                    FogModel::updateOrCreate(['uid'=>$uid,'geo'=>$geohash],['lat'=>$lat,'lng'=>$lng,'unixTime'=>$thisDotUnix]);
+                    DB::connection("TssjFog{$suffix['db']}")->insert($sql);
 
                 }catch (\Exception $e)
                 {
-                    continue;
+                    //todo
                 }
             }
         }

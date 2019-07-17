@@ -1,3 +1,17 @@
+根据uid上传手机经纬度
+
+get post
+http://newfogapi.wodeluapp.com/api/AccordingToUidUploadLatLng
+
+get是获取需要监控的uid
+post是上传一个uid的经纬度
+
+参数
+int    uid=17469        用户主键
+int    lat=80.2333      经纬度
+int    lng=136.2333     经纬度
+int    time=15384736    时间戳
+=================================================================
 迷雾下载
 
 post

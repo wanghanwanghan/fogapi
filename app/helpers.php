@@ -904,6 +904,9 @@ function getSlowlySql($s)
 
             $sql=str_replace(["\n","\r\n"],'',$sql);
 
+            //如果是处理迷雾数据，不记录到慢sql
+            if (strpos($sql,'user_fog_')!==false) return true;
+
             $md5Sql=md5($sql);
 
             $res=DB::connection('masterDB')->table('slow_sql')->where('uuid',$md5Sql)->first();
@@ -945,8 +948,6 @@ function getSlowlySql($s)
 
     return true;
 }
-
-
 
 
 

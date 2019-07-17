@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\TestEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Redis;
 
 class Test2
 {
@@ -26,6 +27,6 @@ class Test2
      */
     public function handle(TestEvent $event)
     {
-        dump('event test2');
+        Redis::connection('TssjFog')->set('testEvent2','test event 2');
     }
 }

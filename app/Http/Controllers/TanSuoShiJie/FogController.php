@@ -12,11 +12,14 @@ use Illuminate\Support\Facades\Redis;
 class FogController extends Controller
 {
     //要完成的目标
-    //10万用户，每人100万个点，一共1000亿个点的数据存储
-    //分10个库，每个库200个表，每个表存5000万个点，一共可存1000亿个点
+    //20万用户，每人100万个点，一共2000亿个点的数据存储
+    //分10个库，每个库500个表，每个表存5000万个点，一共可存2500亿个点
 
     //打开几个工作队列 1-10
     public $workList=5;
+
+    //是否开启处理迷雾点任务 1开启，0不开启
+    public $runWork=0;
 
     //分库分表规则
     public function getDatabaseNoOrTableNo($uid)
@@ -27,8 +30,8 @@ class FogController extends Controller
         //先%10，得到数据库后缀
         $db=$uid%10;
 
-        //再%200，得到表后缀
-        $table=$uid%200;
+        //再%500，得到表后缀
+        $table=$uid%500;
 
         return ['db'=>$db,'table'=>$table];
     }
@@ -36,6 +39,8 @@ class FogController extends Controller
     //迷雾上传
     public function fogUpload(Request $request)
     {
+        if (!$this->runWork) return response()->json(['resCode'=>Config::get('resCode.200')]);
+
         $uid=trim($request->uid);
 
         if (!is_numeric($uid) || $uid <= 0 || $request->data=='')
@@ -48,7 +53,7 @@ class FogController extends Controller
         $readyToHandle['uid']=$uid;
         $readyToHandle['data']=$data;
 
-        //通过uid分成10个队列处理数据
+        //通过uid分成最多10个队列处理数据
         $suffix=$uid%$this->workList;
 
         try

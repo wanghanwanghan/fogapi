@@ -14,7 +14,7 @@ class TestEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    //只有new这个类，test1和test2中的handle都会执行
+    //只要new这个类，event(new class)，test1和test2中的handle都会执行
 
     public function __construct()
     {
