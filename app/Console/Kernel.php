@@ -57,16 +57,16 @@ class Kernel extends ConsoleKernel
 
 
         //处理探索世界迷雾
-        $schedule->command('Tssj:FogUpload0')->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command('Tssj:FogUpload1')->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command('Tssj:FogUpload2')->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command('Tssj:FogUpload3')->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command('Tssj:FogUpload4')->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command('Tssj:FogUpload5')->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command('Tssj:FogUpload6')->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command('Tssj:FogUpload7')->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command('Tssj:FogUpload8')->everyFiveMinutes()->withoutOverlapping();
-        $schedule->command('Tssj:FogUpload9')->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload0')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload1')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload2')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload3')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload4')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload5')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload6')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload7')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload8')->everyMinute()->withoutOverlapping();
+        $schedule->command('Tssj:FogUpload9')->everyMinute()->withoutOverlapping();
 
 
 
