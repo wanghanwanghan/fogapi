@@ -955,5 +955,3 @@ function getSlowlySql($s)
     return true;
 }
 
-
-

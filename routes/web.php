@@ -22,6 +22,12 @@ Route::group(['prefix'=>'admin'],function ()
 
         })->name('main');
 
+        //数据查询相关
+        Route::match(['get','post'],'/show/data/userData1','admin\\AdminUserController@userData1')->name('userData1');
+        Route::match(['get','post'],'/show/data/gridData1','admin\\AdminGridController@gridData1')->name('gridData1');
+
+
+
         //系统公告
         Route::match(['get','post'],'/sys/create/grid','admin\\AdminSysController@sysCreateForGrid')->name('sysCreateForGrid');
         Route::match(['get','post'],'/sys/create/msg/grid','admin\\AdminSysController@sysCreateMsgForGrid')->name('sysCreateMsgForGrid');

@@ -235,7 +235,7 @@
         <div class="row">
 
             {{--bar--}}
-            <div class="col-xl-8 col-lg-7">
+            <div class="col-xl-12 col-lg-7">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">格子保有量，当前有 <span id="userTotle" style="color: red"></span> 名用户拥有格子</h6>

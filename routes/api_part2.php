@@ -46,8 +46,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
         if ($uid <= 0) return response()->json(['resCode'=>601]);
 
-        //当天最大人数
-        $limit=50;
+        //当天最大人数，做成动态的吧
+        $limit=1000;
 
         //当天已经上传的人数
         $todayPeople='TodayPeople_'.\Carbon\Carbon::now()->format('Ymd');
@@ -67,6 +67,17 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
             //当天上传人数到达限制
             if ((int)$count >= $limit) return response()->json(['resCode'=>200,'allow'=>0]);
+
+            //控制量
+            $num=0;
+
+            for ($i=0;$i<=9;$i++)
+            {
+                $num += (int)\Illuminate\Support\Facades\Redis::connection('TssjFog')->llen('FogUploadList_'.$i);
+            }
+
+            //当前要处理的迷雾点太多了，不能上传了
+            if ($num * 5000 > 50000000) return response()->json(['resCode'=>200,'allow'=>0]);
 
             return response()->json(['resCode'=>200,'allow'=>1]);
         }

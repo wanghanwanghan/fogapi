@@ -69,6 +69,25 @@
           <span>格子位置展示</span></a>
       </li>
 
+      <hr class="sidebar-divider">
+
+      <div class="sidebar-heading">
+        数据查询相关
+      </div>
+
+      <li class="nav-item">
+        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <i class="fas fa-fw fa-table"></i>
+          <span>选择类别</span>
+        </a>
+        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionSidebar" style="">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <a class="collapse-item" href="{{route('userData1')}}">用户数据列表</a>
+            <a class="collapse-item" href="{{route('gridData1')}}">格子数据列表</a>
+          </div>
+        </div>
+      </li>
+
       <!-- Divider -->
       <hr class="sidebar-divider">
 
@@ -82,7 +101,7 @@
           <i class="fas fa-fw fa-table"></i>
           <span>发布公告</span>
         </a>
-        <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar" style="">
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar" style="">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header" style="color: red">要发布哪种公告？</h6>
             <a class="collapse-item" href="{{route('sysCreateForUser')}}">公告-对人</a>
@@ -142,7 +161,7 @@
 
       <!-- Heading -->
       <div class="sidebar-heading">
-        微信支付相关
+        支付相关
       </div>
 
       <li class="nav-item">

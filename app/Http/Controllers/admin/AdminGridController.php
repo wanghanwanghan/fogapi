@@ -6,6 +6,7 @@ use App\Model\GridInfoModel;
 use App\Model\PicCheckModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Intervention\Image\Facades\Image;
 
 class AdminGridController extends AdminBaseController
@@ -14,6 +15,13 @@ class AdminGridController extends AdminBaseController
     public function index(Request $request)
     {
         return true;
+    }
+
+    public function gridData1()
+    {
+        $res=jsonDecode(Redis::connection('default')->get('gridData1'));
+
+        return view('admin.showdata.show_grid_data_1')->with(['res'=>$res]);
     }
 
     //ajax

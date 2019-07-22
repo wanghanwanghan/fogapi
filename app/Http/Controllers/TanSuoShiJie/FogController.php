@@ -4,9 +4,9 @@ namespace App\Http\Controllers\TanSuoShiJie;
 
 use App\Console\Commands\FogUpload0;
 use App\Http\Controllers\Controller;
-use App\Model\Tssj\FogModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 class FogController extends Controller
@@ -16,7 +16,7 @@ class FogController extends Controller
     //分10个库，每个库500个表，每个表存5000万个点，一共可存2500亿个点
 
     //打开几个工作队列 1-10
-    public $workList=5;
+    public $workList=10;
 
     //是否开启处理迷雾点任务 1开启，0不开启
     public $runWork=0;
@@ -80,16 +80,17 @@ class FogController extends Controller
 
         (new FogUpload0())->createTable($suffix);
 
-        FogModel::databaseSuffix($suffix['db']);
-        FogModel::tableSuffix($suffix['table']);
-
         $page=trim($request->page);
         $limit=5000;
         $offset=($page-1)*$limit;
 
         try
         {
-            $res=FogModel::where('uid',$uid)->orderBy('id')->limit($limit)->offset($offset)->get(['id','lat as latitude','lng as longitude','geo as geohash','unixTime as timestamp'])->toArray();
+            $res=DB::connection("TssjFog{$suffix['db']}")->table("user_fog_{$suffix['table']}")
+                ->where('uid',$uid)
+                ->orderBy('unixTime')
+                ->limit($limit)->offset($offset)
+                ->get(['lat as latitude','lng as longitude','geo as geohash','unixTime as timestamp']);
 
         }catch (\Exception $e)
         {
