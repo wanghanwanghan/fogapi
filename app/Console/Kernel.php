@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //* * * * * /usr/local/php/bin/php /root/project/api.com/artisan schedule:run >> /dev/null 2>&1
+        //* * * * * /usr/bin/php /your/projectPath/artisan schedule:run >> /dev/null 2>&1
 
         //买格子后的日志，记录到数据库
         $schedule->command('Grid:TradeInfo')->everyMinute()->withoutOverlapping();
@@ -48,7 +48,7 @@ class Kernel extends ConsoleKernel
 
 
         //后台admin的控制面板，计算cpu，内存，硬盘占用
-        $schedule->command('Admin:ServerInfo')->everyMinute()->withoutOverlapping();
+        $schedule->command('Admin:ServerInfoNew')->everyMinute()->withoutOverlapping();
 
         //后台admin的控制面板，统计用户分布情况
         $schedule->command('Admin:UserDistribution')->daily()->withoutOverlapping();

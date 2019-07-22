@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Redis;
 
 class ServerInfo extends Command
 {
-    protected $signature = 'Admin:ServerInfo';
+    protected $signature = 'Admin:ServerInfoNew';
 
     protected $description = '后台admin的控制面板，计算cpu，内存，硬盘占用';
 

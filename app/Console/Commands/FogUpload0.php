@@ -32,7 +32,6 @@ class FogUpload0 extends Command
         {
             Schema::connection('TssjFog'.$suffix['db'])->create('user_fog_'.$suffix['table'], function (Blueprint $table)
             {
-                $table->increments('id')->unsigned()->comment('主键');
                 $table->integer('uid')->unsigned()->comment('用户主键');
                 $table->string('lat','15')->comment('纬度');
                 $table->string('lng','15')->comment('精度');
@@ -156,7 +155,7 @@ class FogUpload0 extends Command
 
                 foreach ($targetObj as $oneTarget)
                 {
-                    $sql.="(null,{$oneTarget['uid']},'{$oneTarget['lat']}','{$oneTarget['lng']}','{$oneTarget['geo']}',{$oneTarget['unixTime']},'{$time}','{$time}'),";
+                    $sql.="({$oneTarget['uid']},'{$oneTarget['lat']}','{$oneTarget['lng']}','{$oneTarget['geo']}',{$oneTarget['unixTime']},'{$time}','{$time}'),";
                 }
 
                 $sql=rtrim($sql,',');
