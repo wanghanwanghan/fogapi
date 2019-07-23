@@ -34,7 +34,7 @@ class GridReducePrice extends Command
 
         //降价sql，被修改过价格的格子，update_at改成当天时间
         //格子价格超过100后开始计算，每超过3天没有交易的价格降低10%，格子价格最低不低于100
-        $sql="update grid set price=case when round(price - price * {$this->m}) < {$this->x} then {$this->x} else round(price - price * {$this->m}) end,updated_at = {$daysNow} where updated_at <= {$daysAgo} and price > {$this->x}";
+        $sql="update grid set price=case when round(price - price * {$this->m}) < {$this->x} then {$this->x} else round(price - price * {$this->m}) end,updated_at = '{$daysNow}' where updated_at <= '{$daysAgo}' and price > {$this->x}";
 
         //执行sql
         try

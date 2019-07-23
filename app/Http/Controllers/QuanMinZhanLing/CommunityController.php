@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\QuanMinZhanLing;
 
 use Carbon\Carbon;
+use FFMpeg\Coordinate\TimeCode;
+use FFMpeg\FFMpeg;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,24 +15,31 @@ class CommunityController extends BaseController
     //打开某格子的印象板
     public function openOneGridCommunity(Request $request)
     {
-        $this->createTable();
+        //先试试截取视频
+        $config=[
+            'ffmpeg.binaries'  => '/usr/bin/ffmpeg',
+            'ffprobe.binaries' => '/usr/bin/ffprobe',
+            'timeout'          => 3600,
+            'ffmpeg.threads'   => 12,
+        ];
 
-        $gName=trim($request->gName);
+        $ffmpeg=FFMpeg::create($config);
 
+        $mp4Url='http://vfx.mtime.cn/Video/2019/02/04/mp4/190204084208765161.mp4';
 
+        // $ffmpeg 获取 $url 的视频
+        $video = $ffmpeg->open($mp4Url);
 
-        dd(str_random());
+        // 在视频 1 秒的地方截图
+        $frame = $video->frame(TimeCode::fromSeconds(1));
 
+        // 生成$filename
+        $filename = public_path().'/'.time().'.jpg';
 
+        //保存图片
+        $frame->save($filename);
 
-
-
-
-
-
-
-
-
+        dd('oye');
     }
 
     public function createTable()
