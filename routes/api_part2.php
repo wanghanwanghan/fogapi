@@ -47,7 +47,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
         if ($uid <= 0) return response()->json(['resCode'=>601]);
 
         //当天最大人数，做成动态的吧
-        $limit=1000;
+        $limit=\Illuminate\Support\Facades\Cache::get('myDefine.PeopleLimt');
 
         //当天已经上传的人数
         $todayPeople='TodayPeople_'.\Carbon\Carbon::now()->format('Ymd');
@@ -77,7 +77,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
             }
 
             //当前要处理的迷雾点太多了，不能上传了
-            if ($num * 5000 > 50000000) return response()->json(['resCode'=>200,'allow'=>0]);
+            if ($num * 5000 > \Illuminate\Support\Facades\Cache::get('myDefine.FogLimit')) return response()->json(['resCode'=>200,'allow'=>0]);
 
             return response()->json(['resCode'=>200,'allow'=>1]);
         }
@@ -107,8 +107,10 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //迷雾下载
     Route::match(['get','post'],'FogDownload','TanSuoShiJie\\FogController@fogDownload');
 
-    //打开某格子的印象板
-    Route::match(['get','post'],'OpenOneGridCommunity','QuanMinZhanLing\\CommunityController@openOneGridCommunity');
+
+    //发布一条印象
+    Route::match(['get','post'],'CreateArticle','QuanMinZhanLing\\Community\\CommunityController@createArticle');
+
 
 
 

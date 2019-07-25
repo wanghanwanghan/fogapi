@@ -15,6 +15,23 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">格子展示，共有 <span id="pointCount"> 0 </span> 个格子</h6>
+
+
+
+
+                <div class="custom-control custom-radio">
+                    <input onclick="" type="radio" id="radio1" name="radio1" checked="" class="custom-control-input">
+                    <label class="custom-control-label" for="radio1" onclick="selectMapType('grid')">格子</label>
+                </div>
+                <div class="custom-control custom-radio">
+                    <input onclick="" type="radio" id="radio2" name="radio1" class="custom-control-input">
+                    <label class="custom-control-label" for="radio2" onclick="selectMapType('fog')">迷雾</label>
+                </div>
+
+                <input id="mapType" type="hidden" value="grid">
+
+
+
                 <div class="input-group" style="width: 370px">
                     <input type="text" class="form-control bg-light border-1 small" id="uidInput" placeholder="用户主键，格子编号，不输入查全部">
                     <div class="input-group-append">
@@ -24,15 +41,18 @@
                     </div>
                 </div>
             </div>
-            <div id="allmap" class="card-body" style="height: calc(100vh);"></div>
+            {{--<div id="allmap" class="card-body" style="height: calc(80vh);"></div>--}}
+            <div id="allmap" class="card-body"></div>
         </div>
     </div>
 
     <script>
+        $("#allmap").css('height',window.screen.height*0.7+'px');
+
         var data=[];
         var inmap = new inMap.Map({
             id:"allmap",
-            skin: "",
+            skin: "",//Blueness、WhiteLover
             center: [105.403119, 38.028658],
             zoom: {
                 value: 5,
@@ -41,6 +61,7 @@
                 min: 5
             }
         });
+
         var overlay = new inMap.PointOverlay({
             tooltip: {
                 show: true,
@@ -162,6 +183,7 @@
                 }
             }
         });
+
         inmap.add(overlay);
     </script>
 
@@ -225,6 +247,12 @@
                     $("#searchBtn").append("<i class=\"fas fa-search fa-sm\">搜索</i>");
                 }
             });
+        }
+
+        function selectMapType(str) {
+
+
+
         }
 
     </script>

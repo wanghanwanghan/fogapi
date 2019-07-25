@@ -82,6 +82,7 @@
         </a>
         <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionSidebar" style="">
           <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header" style="color: red">要看哪个？</h6>
             <a class="collapse-item" href="{{route('userData1')}}">用户数据列表</a>
             <a class="collapse-item" href="{{route('gridData1')}}">格子数据列表</a>
           </div>

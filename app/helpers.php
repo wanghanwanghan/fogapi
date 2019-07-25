@@ -912,6 +912,8 @@ function getSlowlySql($s)
 
             //如果是处理迷雾数据，不记录到慢sql
             if (strpos($sql,'user_fog_')!==false) return true;
+            //如果是自动调整格子价值，不记录到慢sql
+            if (strpos($sql,'update grid set price=case when round')!==false) return true;
 
             $md5Sql=md5($sql);
 
@@ -954,4 +956,12 @@ function getSlowlySql($s)
 
     return true;
 }
+
+
+
+
+
+
+
+
 

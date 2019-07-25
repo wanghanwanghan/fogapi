@@ -19,7 +19,7 @@ class FogController extends Controller
     public $workList=10;
 
     //是否开启处理迷雾点任务 1开启，0不开启
-    public $runWork=0;
+    public $runWork=1;
 
     //分库分表规则
     public function getDatabaseNoOrTableNo($uid)

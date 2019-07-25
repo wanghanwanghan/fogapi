@@ -32,7 +32,7 @@ class ContentCheckBase
     {
         if ($content=='' || empty($content)) return response()->json(['resCode' => Config::get('resCode.616')]);
 
-        if (mb_strlen($content) > 8) return response()->json(['resCode' => Config::get('resCode.617')]);
+        if (mb_strlen($content) < 0) return response()->json(['resCode' => Config::get('resCode.617')]);
 
         //缓存25天
         $token=Cache::remember('ContentCheckToken',36000,function ()
