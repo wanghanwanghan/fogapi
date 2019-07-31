@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Server;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\FFMpeg;
 use FFMpeg\FFProbe;
+use FFMpeg\Format\Video\X264;
 use Intervention\Image\Facades\Image;
 
 class StoreVideoBase
@@ -71,6 +72,24 @@ class StoreVideoBase
         }catch (\Exception $e)
         {
             return 'store thum error';
+        }
+
+        return [$pathAndFileName];
+    }
+
+    //转换成MP4
+    public function changeToMp4($file,$pathAndFileName)
+    {
+        try
+        {
+            //最新版本的ffmpeg不支持--enable-libfaac ,所以PHP-FFMpeg默认用的libfaac会导致错误
+            //可以这样new FFMpeg\Format\Video\X264('libmp3lame')
+            //或者使用libfdk_aac
+            $this->ffmpeg->open($file)->save(new X264('libmp3lame'),$pathAndFileName);
+
+        }catch (\Exception $e)
+        {
+            return 'change to mp4 error';
         }
 
         return [$pathAndFileName];

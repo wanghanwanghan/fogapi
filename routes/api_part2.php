@@ -47,7 +47,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
         if ($uid <= 0) return response()->json(['resCode'=>601]);
 
         //当天最大人数，做成动态的吧
-        $limit=\Illuminate\Support\Facades\Cache::get('myDefine.PeopleLimt');
+        $limit=\Illuminate\Support\Facades\Config::get('myDefine.PeopleLimt');
 
         //当天已经上传的人数
         $todayPeople='TodayPeople_'.\Carbon\Carbon::now()->format('Ymd');
@@ -77,7 +77,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
             }
 
             //当前要处理的迷雾点太多了，不能上传了
-            if ($num * 5000 > \Illuminate\Support\Facades\Cache::get('myDefine.FogLimit')) return response()->json(['resCode'=>200,'allow'=>0]);
+            if ($num * 5000 > \Illuminate\Support\Facades\Config::get('myDefine.FogLimit')) return response()->json(['resCode'=>200,'allow'=>0]);
 
             return response()->json(['resCode'=>200,'allow'=>1]);
         }
@@ -111,7 +111,17 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //发布一条印象
     Route::match(['get','post'],'CreateArticle','QuanMinZhanLing\\Community\\CommunityController@createArticle');
 
+    //返回所有官方标签
+    Route::match(['get','post'],'GetTssjLabel','QuanMinZhanLing\\Community\\CommunityController@getTssjLabel');
 
+    //查找标签
+    Route::match(['get','post'],'SelectLabel','QuanMinZhanLing\\Community\\CommunityController@selectLabel');
+
+    //创建新标签
+    Route::match(['get','post'],'CreateLabel','QuanMinZhanLing\\Community\\CommunityController@createLabel');
+
+    //查看一个格子下的印象
+    Route::match(['get','post'],'GetArticleByGridName','QuanMinZhanLing\\Community\\CommunityController@getArticleByGridName');
 
 
 

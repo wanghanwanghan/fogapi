@@ -1,3 +1,52 @@
+获取某个格子下的印象
+
+post
+http://newfogapi.wodeluapp.com/api/GetArticleByGridName
+
+参数
+int    uid=17469         用户主键
+string gName=n2e1        格子名称
+=================================================================
+创建新标签
+
+post
+http://newfogapi.wodeluapp.com/api/CreateLabel
+
+参数
+int    uid=17469             用户主键
+string labelContent=xiaojj   新标签名称，只能是中文，字母，数字
+=================================================================
+查找标签
+
+get
+http://newfogapi.wodeluapp.com/api/SelectLabel
+
+参数
+string cond=黄小超        查找条件
+=================================================================
+获取所有官方创建标签
+
+get
+http://newfogapi.wodeluapp.com/api/GetTssjLabel
+
+没参数
+=================================================================
+发布一条新印象
+
+post
+http://newfogapi.wodeluapp.com/api/CreateArticle
+
+参数
+int    uid=17469          用户主键
+string gName=n2e1         格子编号
+int    myself=0           是否仅自己可见，1自己可见，0全体可见
+string contents=abcdefg   用户的印象文字内容
+string labels=[1,2,3,4]   标签的数组，jsonEncode后的字符串传来
+array  picArr=[base64]    图片的base64编号后内容组成的数组，如果没传图片，不用含有此参数
+file   video1=streams     视频文件，如果没传视频，不用含有此参数
+
+图片限制大小，每张最多100k。视频限制大小，2m
+=================================================================
 全部上传迷雾弹窗限流
 
 get post

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Server;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 
@@ -34,8 +35,9 @@ class ContentCheckBase
 
         if (mb_strlen($content) < 0) return response()->json(['resCode' => Config::get('resCode.617')]);
 
-        //缓存25天
-        $token=Cache::remember('ContentCheckToken',36000,function ()
+        //缓存1天
+        $key='ContentCheckToken_'.Carbon::now()->format('Ymd');
+        $token=Cache::remember($key,3600,function ()
         {
             $res=file_get_contents('https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=EL5edZghypl5rNhZOKriA8eh&client_secret=AYlNbCLlfRt5OYy5QT8mzkN5OXZjzNcY');
 
@@ -48,6 +50,7 @@ class ContentCheckBase
 
         $content=['content'=>$content];
 
+        //这里如果出问题，先ping aip.baidubce.com，然后把ip写到etc.hosts中，重启ubuntu网络
         $res=curlSend($url,$content,true,['Content-Type:application/x-www-form-urlencoded']);
 
         $res=jsonDecode($res['msg'],'json');

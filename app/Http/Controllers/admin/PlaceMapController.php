@@ -111,6 +111,19 @@ class PlaceMapController extends AdminBaseController
                 return ['resCode'=>200,'data'=>$res,'count'=>$count];
 
                 break;
+
+            case 'get_user_fog':
+
+                $uid=trim($request->uid);
+
+                if (!is_numeric($uid)) return ['resCode'=>500];
+
+
+
+
+                return ['resCode'=>500,'data'=>'','count'=>''];
+
+                break;
         }
 
         return ['resCode'=>500];

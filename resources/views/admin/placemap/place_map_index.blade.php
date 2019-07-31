@@ -16,9 +16,6 @@
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">格子展示，共有 <span id="pointCount"> 0 </span> 个格子</h6>
 
-
-
-
                 <div class="custom-control custom-radio">
                     <input onclick="" type="radio" id="radio1" name="radio1" checked="" class="custom-control-input">
                     <label class="custom-control-label" for="radio1" onclick="selectMapType('grid')">格子</label>
@@ -30,30 +27,29 @@
 
                 <input id="mapType" type="hidden" value="grid">
 
-
-
                 <div class="input-group" style="width: 370px">
                     <input type="text" class="form-control bg-light border-1 small" id="uidInput" placeholder="用户主键，格子编号，不输入查全部">
                     <div class="input-group-append">
-                        <button class="btn btn-primary" id="searchBtn" onclick="selectData($('#uidInput').val());" type="button">
+                        <button class="btn btn-primary" id="searchBtn" onclick="selectData($('#uidInput').val(),$('#mapType').val());" type="button">
                             <i class="fas fa-search fa-sm">搜索</i>
                         </button>
                     </div>
                 </div>
             </div>
             {{--<div id="allmap" class="card-body" style="height: calc(80vh);"></div>--}}
-            <div id="allmap" class="card-body"></div>
+            <div id="fogMap" class="card-body" style="display: none"></div>
+            <div id="gridMap" class="card-body" style="display: block"></div>
         </div>
     </div>
 
     <script>
-        $("#allmap").css('height',window.screen.height*0.7+'px');
+        $("#gridMap").css('height',window.screen.height*0.7+'px');
 
-        var data=[];
-        var inmap = new inMap.Map({
-            id:"allmap",
+        var dataForGrid=[];
+        var inmapForGrid = new inMap.Map({
+            id:"gridMap",
             skin: "",//Blueness、WhiteLover
-            center: [105.403119, 38.028658],
+            center: [105.403119,38.028658],
             zoom: {
                 value: 5,
                 show: false,
@@ -62,7 +58,7 @@
             }
         });
 
-        var overlay = new inMap.PointOverlay({
+        var overlayForGrid = new inMap.PointOverlay({
             tooltip: {
                 show: true,
                 formatter: function(params) {
@@ -173,7 +169,7 @@
                     return val + "元";
                 }
             },
-            data: data,
+            data: dataForGrid,
             event: {
                 onMouseClick: function (item,event)
                 {
@@ -184,7 +180,50 @@
             }
         });
 
-        inmap.add(overlay);
+        inmapForGrid.add(overlayForGrid);
+
+        $("#fogMap").css('height',window.screen.height*0.7+'px');
+
+        var dataForFog=[];
+        var inmapForFog = new inMap.Map({
+            id:"fogMap",
+            skin: "Blueness",//Blueness、WhiteLover
+            center: [105.403119,38.028658],
+            zoom: {
+                value: 5,
+                show: false,
+                max: 18,
+                min: 5
+            }
+        });
+
+        var overlayForFog = new inMap.PointOverlay({
+
+            style: {
+                normal: {
+                    backgroundColor: "rgba(200, 200, 50, 1)", // 填充颜色
+                    shadowColor: "rgba(255, 255, 255, 1)", // 投影颜色
+                    shadowBlur: 35, // 投影模糊级数
+                    globalCompositeOperation: "lighter", // 颜色叠加方式
+                    size: 5 // 半径
+                },
+                mouseOver: {
+                    backgroundColor: "rgba(200, 200, 200, 1)",
+                    borderColor: "rgba(255,255,255,1)",
+                    borderWidth: 1
+                },
+                selected: {
+                    borderWidth: 1,
+                    backgroundColor: "rgba(184,0,0,1)",
+                    borderColor: "rgba(255,255,255,1)"
+                }
+            },
+
+            data: dataForFog
+
+        });
+
+        inmapForFog.add(overlayForFog);
     </script>
 
     <script>
@@ -193,65 +232,126 @@
 
             if (event.keyCode=='13')
             {
-                selectData($('#uidInput').val());
+                selectData($('#uidInput').val(),$('#mapType').val());
             }
 
         });
 
-        function selectData(uid) {
+        function selectData(uid,mapType) {
 
-            $.ajax({
-                url:'/admin/place/map/ajax',
-                type:'post',
-                cache:false,
-                async:true,//true为异步，false为同步
-                dataType:'json',
-                data:{
-                    _token:$("input[name=_token]").val(),
-                    type:'get_one_or_all_data',
-                    uid:uid,
-                },
-                success:function(response,textStatus)
-                {
-                    if (response.resCode==500)
+            if (mapType=='grid')
+            {
+                $.ajax({
+                    url:'/admin/place/map/ajax',
+                    type:'post',
+                    cache:false,
+                    async:true,//true为异步，false为同步
+                    dataType:'json',
+                    data:{
+                        _token:$("input[name=_token]").val(),
+                        type:'get_one_or_all_data',
+                        uid:uid,
+                    },
+                    success:function(response,textStatus)
+                    {
+                        if (response.resCode==500)
+                        {
+                            alert('出错了');
+                        }
+
+                        if (response.resCode==201)
+                        {
+                            alert('无数据');
+                        }
+
+                        if (response.resCode==202)
+                        {
+                            alert('格子不存在');
+                        }
+
+                        $("#pointCount").html(response.count);
+                        overlayForGrid.setData(response.data);
+                        overlayForGrid.refresh();
+                    },
+                    error:function(XMLHttpRequest,textStatus,errorThrown)
                     {
                         alert('出错了');
-                    }
-
-                    if (response.resCode==201)
+                    },
+                    beforeSend:function(XMLHttpRequest)
                     {
-                        alert('无数据');
-                    }
-
-                    if (response.resCode==202)
+                        $("#searchBtn").children().remove();
+                        $("#searchBtn").append("<i class=\"fa fa-spinner fa-spin fa-fw margin-bottom\"></i>");
+                    },
+                    complete:function(XMLHttpRequest,textStatus)
                     {
-                        alert('格子不存在');
+                        $("#searchBtn").children().remove();
+                        $("#searchBtn").append("<i class=\"fas fa-search fa-sm\">搜索</i>");
                     }
+                });
+            }
 
-                    $("#pointCount").html(response.count);
-                    overlay.setData(response.data);
-                    overlay.refresh();
-                },
-                error:function(XMLHttpRequest,textStatus,errorThrown)
-                {
-                    alert('出错了');
-                },
-                beforeSend:function(XMLHttpRequest)
-                {
-                    $("#searchBtn").children().remove();
-                    $("#searchBtn").append("<i class=\"fa fa-spinner fa-spin fa-fw margin-bottom\"></i>");
-                },
-                complete:function(XMLHttpRequest,textStatus)
-                {
-                    $("#searchBtn").children().remove();
-                    $("#searchBtn").append("<i class=\"fas fa-search fa-sm\">搜索</i>");
-                }
-            });
+            if (mapType=='fog')
+            {
+                $.ajax({
+                    url:'/admin/place/map/ajax',
+                    type:'post',
+                    cache:false,
+                    async:true,//true为异步，false为同步
+                    dataType:'json',
+                    data:{
+                        _token:$("input[name=_token]").val(),
+                        type:'get_user_fog',
+                        uid:uid,
+                    },
+                    success:function(response,textStatus)
+                    {
+                        if (response.resCode==500)
+                        {
+                            alert('出错了');
+                        }
+
+                        if (response.resCode==201)
+                        {
+                            alert('无数据');
+                        }
+
+                        $("#pointCount").html(response.count);
+                        overlayForFog.setData(response.data);
+                        overlayForFog.refresh();
+                    },
+                    error:function(XMLHttpRequest,textStatus,errorThrown)
+                    {
+                        alert('出错了');
+                    },
+                    beforeSend:function(XMLHttpRequest)
+                    {
+                        $("#searchBtn").children().remove();
+                        $("#searchBtn").append("<i class=\"fa fa-spinner fa-spin fa-fw margin-bottom\"></i>");
+                    },
+                    complete:function(XMLHttpRequest,textStatus)
+                    {
+                        $("#searchBtn").children().remove();
+                        $("#searchBtn").append("<i class=\"fas fa-search fa-sm\">搜索</i>");
+                    }
+                });
+            }
         }
 
         function selectMapType(str) {
 
+            $("#mapType").val(str);
 
+            if (str=='grid')
+            {
+                $("#gridMap").css('display','block');
+                $("#fogMap").css('display','none');
+            }
+
+            if (str=='fog')
+            {
+                $("#gridMap").css('display','none');
+                $("#fogMap").css('display','block');
+            }
 
         }
 

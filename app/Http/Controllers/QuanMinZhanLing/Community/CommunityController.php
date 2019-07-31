@@ -6,11 +6,13 @@ use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\Server\ContentCheckBase;
 use App\Http\Controllers\Server\StoreVideoBase;
 use App\Model\Community\ArticleModel;
+use App\Model\Community\LabelModel;
 use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Intervention\Image\Facades\Image;
 
@@ -73,9 +75,64 @@ class CommunityController extends BaseController
             }
         }
 
+        if ($tableType=='label')
+        {
+            //标签表，如果1个用户创建100个标签，需要100万个用户创建，mysql才会满
+            //所以不分表了
+            $table="community_label";
 
+            if (!Schema::connection($db)->hasTable($table))
+            {
+                //建表
+                $sql=<<<Eof
+CREATE TABLE `{$table}` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `uid` int(10) unsigned DEFAULT NULL COMMENT '用户主键，谁创建的这条标签',
+  `labelContent` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标签内容',
+  `useTotal` int(20) unsigned NOT NULL DEFAULT '0' COMMENT '该标签使用总次数',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `{$table}_uid` (`uid`),
+  KEY `{$table}_useTotal` (`useTotal`),
+  FULLTEXT KEY `{$table}_labelContent` (`labelContent`) with parser ngram
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+Eof;
+                DB::connection($db)->statement($sql);
+            }
+        }
 
+        if ($tableType=='article_label')
+        {
+            //印象-标签的关系表，如果每天1万个印象，每个印象3个标签，一年1000万条记录
+            //所以按照年分表
+            $suffix=$now->year;
 
+            $table="community_article_label_{$suffix}";
+
+            if (!Schema::connection($db)->hasTable($table))
+            {
+                //印象-标签
+                Schema::connection($db)->create($table, function (Blueprint $table)
+                {
+                    $table->string('aid',20)->comment('真正的印象主键，10位的unixTime加上6位随机字符串');
+                    $table->integer('labelId')->unsigned()->comment('标签主键');
+                    $table->string('gName',20)->comment('格子标签');
+                    $table->integer('unixTime')->unsigned()->comment('排序用的时间');
+                    $table->timestamps();
+                    $table->primary(['aid','labelId']);
+                    $table->index('labelId');
+                    $table->index('gName');
+                    $table->index('unixTime');
+                });
+
+                //重建主键
+                //DB::connection($db)->statement("Alter table {$table} drop primary key,add primary key (`id`,`uid`)");
+
+                //添加分区
+                DB::connection($db)->statement("Alter table {$table} partition by linear key(`labelId`) partitions 16");
+            }
+        }
 
 
 
@@ -186,22 +243,23 @@ class CommunityController extends BaseController
         //移动真正的视频
         try
         {
-            $fileExtension=$file->getClientOriginalExtension();
-            $file->move($storePathForOrigin,$filaName.'.'.$fileExtension);
+            //$fileExtension=$file->getClientOriginalExtension();
+            //$file->move($storePathForOrigin,$filaName.'.'.$fileExtension);
+
+            $ffmpeg->changeToMp4($file,$storePathForOrigin.$filaName.'.mp4');
 
         }catch (\Exception $e)
         {
             return 'move video error';
         }
 
-        return [$returnPathForOrigin.$filaName.'.'.$fileExtension];
+        //return [$returnPathForOrigin.$filaName.'.'.$fileExtension];
+        return [$returnPathForOrigin.$filaName.'.mp4'];
     }
 
     //发布一条印象
     public function createArticle(Request $request)
     {
-        $this->createTable('article');
-
         $articlePrimary=$this->getArticlePrimary();
 
         $uid=trim($request->uid);
@@ -226,9 +284,20 @@ class CommunityController extends BaseController
             if ($check!=null) return response()->json(['resCode'=>Config::get('resCode.661')]);
         }
 
+        $labels=jsonDecode($request->labels);
+
+        if (empty($labels)) return response()->json(['resCode'=>Config::get('resCode.665')]);
+        //if (empty($labels)) $labels=[9,4,5,6,2,1,10,11];
+
+        //升序
+        sort($labels);
+
         $includeText=0;
         $includePic=0;
         $includeVideo=0;
+
+        //存储图片或这视频的数组
+        $readyToInsertForPicAndVideo=[];
 
         //每个图片100k或者200k
         if ($request->picArr instanceof UploadedFile)
@@ -238,48 +307,32 @@ class CommunityController extends BaseController
 
             dd('you got it');
 
-        }elseif (is_array($request->picArr))
+        }elseif ($request->picArr!='' && is_array(jsonDecode($request->picArr)))
         {
             //base64的数组，处理图片时候需要base64_decode()
-            $picArr=$request->picArr;
-            foreach ($picArr as $one);
-            {
-                $tmp[]=base64_decode($one);
-            }
-            $picArr=$tmp;
+            $picArr=jsonDecode($request->picArr);
 
-        }else
-        {
-            $picArr=[];
-        }
-
-        //存储图片或这视频的数组
-        $readyToInsertForPicAndVideo=[];
-
-        //有一张图片解析失败，就不让发布这条印象
-        if (is_array($picArr) && !empty($picArr))
-        {
             $num=1;
-            $hasError=false;
+            //有一张图片解析失败，就不让发布这条印象
             foreach ($picArr as $one)
             {
-                $res=$this->storePic($one,$num,$articlePrimary);
+                $res=$this->storePic(base64_decode($one),$num,$articlePrimary);
 
                 if (!is_array($res))
                 {
-                    $hasError=true;
-                    break;
+                    return response()->json(['resCode'=>Config::get('resCode.650')]);
                 }
 
-                $readyToInsertForPicAndVideo["picOrVideo1{$num}"]=current($res);
+                $readyToInsertForPicAndVideo["picOrVideo{$num}"]=current($res);
 
                 $num++;
             }
 
-            //有图片处理出错，印象发布失败
-            if ($hasError) return response()->json(['resCode'=>Config::get('resCode.650')]);
-
             $includePic=1;
+
+        }else
+        {
+            $picArr=[];
         }
 
         //以上，如果不出错，图片是处理完了
@@ -299,6 +352,9 @@ class CommunityController extends BaseController
 
         if ($content!='') $includeText=1;
 
+        //全都是空发什么发，发你麻痹
+        if ($includeText==0 && $includePic==0 && $includeVideo==0) return response()->json(['resCode'=>Config::get('resCode.664')]);
+
         $readyToInsert=[
             'aid'=>$articlePrimary,
             'uid'=>$uid,
@@ -316,23 +372,201 @@ class CommunityController extends BaseController
 
         try
         {
+            DB::connection('communityDB')->beginTransaction();
+
+            //创建印象
             ArticleModel::suffix(Carbon::now()->year);
             ArticleModel::create($readyToInsert);
 
-            return response()->json(['resCode'=>Config::get('resCode.200')]);
+            //插入数据
+            $suffix=Carbon::now()->year;
+
+            $time=time();
+
+            foreach ($labels as $oneLabels)
+            {
+                $data[]=[
+                    'aid'=>$articlePrimary,
+                    'labelId'=>$oneLabels,
+                    'gName'=>$gName,
+                    'unixTime'=>$time,
+                    'created_at'=>date('Y-m-d H:i:s',$time),
+                    'updated_at'=>date('Y-m-d H:i:s',$time),
+                ];
+            }
+
+            DB::connection('communityDB')->table("community_article_label_{$suffix}")->insert($data);
 
         }catch (\Exception $e)
         {
+            DB::connection('communityDB')->rollBack();
+
             return response()->json(['resCode'=>Config::get('resCode.660')]);
         }
+
+        DB::connection('communityDB')->commit();
+
+        return response()->json(['resCode'=>Config::get('resCode.200')]);
+    }
+
+    //返回官方创建的标签
+    public function getTssjLabel(Request $request)
+    {
+        //101以前都是官方预留
+        $res=LabelModel::where('id','<=',101)->where('labelContent','!=','amyYOEPCiph6NQr')->get(['id','labelContent']);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'labels'=>$res]);
+    }
+
+    //查找标签
+    public function selectLabel(Request $request)
+    {
+        $cond=trim($request->cond);
+
+        $num=mb_strlen($cond);
+
+        if ($num===0) return response()->json(['resCode'=>Config::get('resCode.666')]);
+
+        if ($num===1)
+        {
+            //取出最热的10个
+            $res=LabelModel::where('labelContent','like',"{$cond}%")
+                ->where('labelContent','!=','amyYOEPCiph6NQr')
+                ->orderBy('useTotal','desc')
+                ->orderBy('id')
+                ->limit(10)
+                ->get(['id','labelContent'])->toArray();
+
+            //当前搜索标签是不是存在
+            $res=$this->currentLabelIsExistAndExecReturn($cond,$res);
+
+            return response()->json(['resCode'=>Config::get('resCode.200'),'currentSelect'=>$res[0],'labels'=>$res[1]]);
+
+        }elseif ($num>1)
+        {
+            $sql="select id,labelContent from community_label where match(labelContent) against('+{$cond}' in boolean mode) and labelContent <> 'amyYOEPCiph6NQr' order by useTotal desc,id asc limit 10";
+
+            //取出最热的10个
+            $res=DB::connection('communityDB')->select($sql);
+
+            //当前搜索标签是不是存在
+            $res=$this->currentLabelIsExistAndExecReturn($cond,$res);
+
+            return response()->json(['resCode'=>Config::get('resCode.200'),'currentSelect'=>$res[0],'labels'=>$res[1]]);
+
+        }else
+        {
+            return response()->json(['resCode'=>Config::get('resCode.200'),'currentSelect'=>[],'labels'=>[]]);
+        }
+    }
+
+    //查找当前搜索标签是不是存在，并且处理一下返回结果
+    public function currentLabelIsExistAndExecReturn($cond,$res)
+    {
+        $current=LabelModel::where(['labelContent'=>$cond])->where('labelContent','!=','amyYOEPCiph6NQr')->first();
+
+        if ($current==null)
+        {
+            $r[0]=['id'=>null,'allowCreate'=>1,'labelContent'=>$cond];
+
+            $r[1]=$res;
+        }
+
+        if ($current!=null)
+        {
+            $r[0]=['id'=>$current->id,'allowCreate'=>0,'labelContent'=>$current->labelContent];
+
+            $tmp=[];
+
+            if (!empty($res))
+            {
+                foreach ($res as $one)
+                {
+                    if (is_object($one))
+                    {
+                        if ($one->id!=$current->id)
+                        {
+                            $tmp[]=$one;
+                        }
+                    }
+
+                    if (is_numeric($one))
+                    {
+                        if ($one['id']!=$current->id)
+                        {
+                            $tmp[]=$one;
+                        }
+                    }
+                }
+            }
+
+            $r[1]=$tmp;
+        }
+
+        return $r;
+    }
+
+    //创建标签
+    public function createLabel(Request $request)
+    {
+        $uid=trim($request->uid);
+
+        if (!is_numeric($uid) || $uid <= 0) return response()->json(['resCode'=>Config::get('resCode.601')]);
+
+        $labelContent=trim($request->labelContent);
+
+        //$labelName最多15个字节
+        if (strlen($labelContent) > 15) return response()->json(['resCode'=>Config::get('resCode.668')]);
+
+        //$labelName只能是中文，字母，数字
+        if (!preg_match_all('/^[\x{4e00}-\x{9fa5}A-Za-z0-9]{1,}$/u',$labelContent,$match)) return response()->json(['resCode'=>Config::get('resCode.667')]);
+
+        try
+        {
+            $res=LabelModel::where(['labelContent'=>$labelContent])->first();
+
+            //存在的不能插入
+            if ($res!=null) return response()->json(['resCode'=>Config::get('resCode.669')]);
+
+            $check=(new ContentCheckBase())->check($labelContent);
+
+            if ($check!=null) return response()->json(['resCode'=>Config::get('resCode.670')]);
+
+            $res=LabelModel::create(['uid'=>$uid,'labelContent'=>$labelContent]);
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.631')]);
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'labelPrimaryKey'=>$res->id,'labelContent'=>$res->labelContent]);
+    }
+
+    //查看一个格子下的印象
+    public function getArticleByGridName(Request $request)
+    {
+        $uid=trim($request->uid);
+
+        if (!is_numeric($uid) || $uid <= 0) return response()->json(['resCode'=>Config::get('resCode.601')]);
+
+        $gName=trim($request->gName);
+
+        $gridInfo=DB::connection('masterDB')->table('grid')->where('name',$gName)->first();
+
+        //格子不存在
+        if (!$gridInfo) return response()->json(['resCode'=>Config::get('resCode.605')]);
+
+        $this->createTable('article');
+        $this->createTable('label');
+        $this->createTable('article_label');
+
+
 
 
 
 
 
     }
-
-
 
 
 
