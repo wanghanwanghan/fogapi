@@ -6,6 +6,7 @@ http://newfogapi.wodeluapp.com/api/GetArticleByGridName
 参数
 int    uid=17469         用户主键
 string gName=n2e1        格子名称
+int    page=1            第几页数据
 =================================================================
 创建新标签
 

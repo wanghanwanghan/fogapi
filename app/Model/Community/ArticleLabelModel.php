@@ -2,23 +2,25 @@
 
 namespace App\Model\Community;
 
+use App\Http\Traits\CompositePrimaryKey;
 use App\Http\Traits\TableSuffix;
 use Illuminate\Database\Eloquent\Model;
 
-class ArticleModel extends Model
+class ArticleLabelModel extends Model
 {
+    use CompositePrimaryKey;
     use TableSuffix;
 
     public $incrementing=false;
 
     //protected $keyType='string';
 
-    protected $primaryKey='aid';
+    protected $primaryKey=['aid','labelId'];
 
     protected $connection='communityDB';
 
-    //后缀是当年，比如2019
-    protected $table='community_article_';
+    protected $table='community_article_label_';
 
     protected $guarded=[];
+
 }

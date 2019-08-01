@@ -413,8 +413,8 @@ return [
             'database' => 0,
         ],
 
-        //集团相关
-        'GroupInfo' => [
+        //社区相关
+        'CommunityInfo' => [
             'host' => '183.136.232.236',
             'password' => 'wanghan123',
             'port' => '6379',

@@ -18,13 +18,14 @@ use Intervention\Image\Facades\Image;
 
 class CommunityController extends BaseController
 {
+    public $db='communityDB';
+
     //建表
     public function createTable($tableType)
     {
-        $db='communityDB';
-        $now=Carbon::now();
+        $db=$this->db;
 
-        //$suffix=$now->quarter;
+        $now=Carbon::now();
 
         if ($tableType=='article')
         {
@@ -32,7 +33,7 @@ class CommunityController extends BaseController
             //所以按照年分表
             $suffix=$now->year;
 
-            $table="community_article_{$suffix}";
+            $table="community_{$tableType}_{$suffix}";
 
             if (!Schema::connection($db)->hasTable($table))
             {
@@ -45,6 +46,8 @@ class CommunityController extends BaseController
                     $table->text('content')->nullable()->comment('内容');
                     $table->tinyInteger('isShow')->unsigned()->default(0)->comment('是否可以显示，1是可以，0是不可以');
                     $table->tinyInteger('myself')->unsigned()->default(0)->comment('是否可以显示，1是仅自己，0是全部用户');
+                    $table->smallInteger('isTop')->unsigned()->default(0)->comment('置顶程度，0是没置顶，置顶每挡10分');
+                    $table->smallInteger('theBest')->unsigned()->default(0)->comment('加精程度，0是没加精，加精每挡10分');
                     $table->tinyInteger('includeText')->unsigned()->default(0)->comment('是否有文字，1是有，0是没有');
                     $table->tinyInteger('includePic')->unsigned()->default(0)->comment('是否有图片，1是有，0是没有');
                     $table->tinyInteger('includeVideo')->unsigned()->default(0)->comment('是否有视频，1是有，0是没有');
@@ -79,7 +82,7 @@ class CommunityController extends BaseController
         {
             //标签表，如果1个用户创建100个标签，需要100万个用户创建，mysql才会满
             //所以不分表了
-            $table="community_label";
+            $table="community_{$tableType}";
 
             if (!Schema::connection($db)->hasTable($table))
             {
@@ -108,7 +111,7 @@ Eof;
             //所以按照年分表
             $suffix=$now->year;
 
-            $table="community_article_label_{$suffix}";
+            $table="community_{$tableType}_{$suffix}";
 
             if (!Schema::connection($db)->hasTable($table))
             {
@@ -134,12 +137,57 @@ Eof;
             }
         }
 
+        if ($tableType=='article_like')
+        {
+            //印象-获赞的关系表，如果每天1万个印象，每个印象200个赞，一年7亿3千万条记录，每季度1亿8千万条记录
+            //所以按季度分表
+            $suffix=$now->year.'_'.$now->quarter;
 
+            $table="community_{$tableType}_{$suffix}";
 
+            if (!Schema::connection($db)->hasTable($table))
+            {
+                //印象-获赞
+                Schema::connection($db)->create($table, function (Blueprint $table)
+                {
+                    $table->string('aid',20)->comment('真正的印象主键，10位的unixTime加上6位随机字符串');
+                    $table->integer('uid')->unsigned()->comment('用户主键，谁给这条印象点赞了');
+                    $table->tinyInteger('isLike')->unsigned()->comment('是否点赞，1是点赞了，0是没点赞');
+                    $table->integer('unixTime')->unsigned()->comment('排序用的时间');
+                    $table->timestamps();
+                    $table->primary('aid');
+                    $table->index('uid');
+                });
+            }
+        }
 
+        if ($tableType=='article_comment')
+        {
+            //印象-评论的关系表，如果每天1万个印象，每个印象200个评论，一年7亿3千万条记录，每季度1亿8千万条记录
+            //所以按季度分表
+            $suffix=$now->year.'_'.$now->quarter;
 
+            $table="community_{$tableType}_{$suffix}";
 
-
+            if (!Schema::connection($db)->hasTable($table))
+            {
+                //印象-评论
+                Schema::connection($db)->create($table, function (Blueprint $table)
+                {
+                    $table->string('aid',20)->comment('真正的印象主键，10位的unixTime加上6位随机字符串');
+                    $table->integer('uid')->unsigned()->comment('用户主键，谁给这条印象评论了');
+                    $table->integer('tid')->unsigned()->comment('用户主键，这条评论是给谁的');
+                    $table->tinyInteger('isShow')->unsigned()->default(1)->comment('是否可以显示，1是可以，0是不可以');
+                    $table->tinyInteger('isRead')->unsigned()->default(0)->comment('目标用户是否已读，1是已读，0是未读');
+                    $table->text('comment')->nullable()->comment('评论内容');
+                    $table->integer('unixTime')->unsigned()->comment('排序用的时间');
+                    $table->timestamps();
+                    $table->primary('aid');
+                    $table->index('uid');
+                    $table->index('tid');
+                });
+            }
+        }
 
         return true;
     }
@@ -187,9 +235,16 @@ Eof;
         }
 
         //pic info
-        $picInfo=getimagesize($storePathForOrigin.$fileName);
-        $width=$height=null;
-        $picInfo[0] > $picInfo[1] ? $height=200 : $width=200;
+        try
+        {
+            $picInfo=getimagesize($storePathForOrigin.$fileName);
+            $width=$height=null;
+            $picInfo[0] > $picInfo[1] ? $height=200 : $width=200;
+
+        }catch (\Exception $e)
+        {
+            return 'get pic info error';
+        }
 
         //存thum
         try
@@ -284,7 +339,7 @@ Eof;
             if ($check!=null) return response()->json(['resCode'=>Config::get('resCode.661')]);
         }
 
-        $labels=jsonDecode($request->labels);
+        $labels=array_flatten(jsonDecode($request->labels));
 
         if (empty($labels)) return response()->json(['resCode'=>Config::get('resCode.665')]);
         //if (empty($labels)) $labels=[9,4,5,6,2,1,10,11];
@@ -378,7 +433,7 @@ Eof;
             ArticleModel::suffix(Carbon::now()->year);
             ArticleModel::create($readyToInsert);
 
-            //插入数据
+            //创建印象和标签的关系
             $suffix=Carbon::now()->year;
 
             $time=time();
@@ -396,6 +451,13 @@ Eof;
             }
 
             DB::connection('communityDB')->table("community_article_label_{$suffix}")->insert($data);
+
+            //更新标签使用次数
+            $labels=implode(',',$labels);
+
+            $sql="update community_label set useTotal=useTotal+1 where id in ({$labels})";
+
+            DB::connection('communityDB')->update($sql);
 
         }catch (\Exception $e)
         {
@@ -421,7 +483,13 @@ Eof;
     //查找标签
     public function selectLabel(Request $request)
     {
-        $cond=trim($request->cond);
+        $cond=filter4(trim($request->cond));
+
+        //$labelName最多15个字节
+        if (strlen($cond) > 15) return response()->json(['resCode'=>Config::get('resCode.668')]);
+
+        //$labelName只能是中文，字母，数字
+        if (!preg_match_all('/^[\x{4e00}-\x{9fa5}A-Za-z0-9]{1,}$/u',$cond,$match)) return response()->json(['resCode'=>Config::get('resCode.667')]);
 
         $num=mb_strlen($cond);
 
@@ -513,7 +581,7 @@ Eof;
 
         if (!is_numeric($uid) || $uid <= 0) return response()->json(['resCode'=>Config::get('resCode.601')]);
 
-        $labelContent=trim($request->labelContent);
+        $labelContent=filter4(trim($request->labelContent));
 
         //$labelName最多15个字节
         if (strlen($labelContent) > 15) return response()->json(['resCode'=>Config::get('resCode.668')]);
@@ -545,6 +613,10 @@ Eof;
     //查看一个格子下的印象
     public function getArticleByGridName(Request $request)
     {
+        $page=(int)trim($request->page);
+
+        $page < 1 ? $page=1 : null;
+
         $uid=trim($request->uid);
 
         if (!is_numeric($uid) || $uid <= 0) return response()->json(['resCode'=>Config::get('resCode.601')]);
@@ -556,22 +628,203 @@ Eof;
         //格子不存在
         if (!$gridInfo) return response()->json(['resCode'=>Config::get('resCode.605')]);
 
+        //建表
         $this->createTable('article');
-        $this->createTable('label');
+        //$this->createTable('label');
         $this->createTable('article_label');
+        $this->createTable('article_like');
+        $this->createTable('article_comment');
+
+        //该格子下今年的最热标签，取前4，在印象-标签关系表中
+        $now=Carbon::now();
+
+        $sql="select labelId,labelContent,count(1) as useTotal from community_article_label_{$now->year} as t1 left join community_label as t2 on t1.labelId=t2.id where gName='{$gName}' group by labelId order by useTotal desc limit 4;";
+
+        //可以直接返回
+        $hotLabels=DB::connection($this->db)->select($sql);
+
+        //取出该格子置顶的，格子主人最后一条，加精的印象
+
+        //只有第一页才组合这三个
+        if ($page===1)
+        {
+            //置顶
+            $onTop=$this->getOnTopArticle($gName);
+
+            //格子主人最后一条
+            $gridOwners=$this->getGridOwnersLastArticle($gName,$uid);
+
+            //加精
+            $theBest=$this->getTheBestArticle($gName);
+        }
+
+        //其他数据
+        $suffix=$now->year;
+        $commData=[];
+
+        for ()
+        $commData=$this->getArticleByPaginate($suffix,$gName,$uid,$page);
+
+
+        dd($commData);
 
 
 
+
+
+        dd($hotLabels,$onTop,$gridOwners,$theBest);
 
 
 
 
     }
 
+    //返回一个格子下的所有置顶印象
+    public function getOnTopArticle($gName)
+    {
+        $res=[];
+        $aid=[];
 
+        $now=Carbon::now();
 
+        for ($i=0;$i<=100;$i++)
+        {
+            $suffix=$now->year - $i;
 
+            $table="community_article_{$suffix}";
 
+            //找不到表，说明没数据了
+            if (!Schema::connection($this->db)->hasTable($table)) break;
+
+            //找到表了
+            ArticleModel::suffix($suffix);
+
+            $art=ArticleModel::where(['gName'=>$gName,'isShow'=>1])->where('isTop','>',0)->get()->toArray();
+
+            if (empty($art)) continue;
+
+            foreach ($art as $one)
+            {
+                $res[]=$one;
+                $aid[]=$one['aid'];
+            }
+
+            $aid=array_flatten($aid);
+        }
+
+        return [$res,$aid];
+    }
+
+    //返回一个格子的格子主人最后一条印象
+    public function getGridOwnersLastArticle($gName,$uid)
+    {
+        $res=[];
+        $aid=[];
+
+        $now=Carbon::now();
+
+        $gridOwnersUid=(int)DB::connection('masterDB')->table('grid')->where('name',$gName)->first()->belong;
+
+        for ($i=0;$i<=100;$i++)
+        {
+            $suffix=$now->year - $i;
+
+            $table="community_article_{$suffix}";
+
+            //找不到表，说明没数据了
+            if (!Schema::connection($this->db)->hasTable($table)) break;
+
+            //找到表了
+            ArticleModel::suffix($suffix);
+
+            if ($uid==$gridOwnersUid)
+            {
+                $res=ArticleModel::where(['gName'=>$gName,'uid'=>$gridOwnersUid])->orderBy('unixTime','desc')->limit(1)->get()->toArray();
+
+            }else
+            {
+                $res=ArticleModel::where(['gName'=>$gName,'uid'=>$gridOwnersUid,'isShow'=>1])->orderBy('unixTime','desc')->limit(1)->get()->toArray();
+            }
+
+            //找到数据就跳出
+            if (!empty($res)) break;
+        }
+
+        foreach ($res as $one)
+        {
+            $aid[]=$one['aid'];
+        }
+
+        $aid=array_flatten($aid);
+
+        return [$res,$aid];
+    }
+
+    //返回一个格子下的所有加精印象
+    public function getTheBestArticle($gName)
+    {
+        $res=[];
+        $aid=[];
+
+        $now=Carbon::now();
+
+        for ($i=0;$i<=100;$i++)
+        {
+            $suffix=$now->year - $i;
+
+            $table="community_article_{$suffix}";
+
+            //找不到表，说明没数据了
+            if (!Schema::connection($this->db)->hasTable($table)) break;
+
+            //找到表了
+            ArticleModel::suffix($suffix);
+
+            $art=ArticleModel::where(['gName'=>$gName,'isShow'=>1])->where('theBest','>',0)->get()->toArray();
+
+            if (empty($art)) continue;
+
+            foreach ($art as $one)
+            {
+                $res[]=$one;
+                $aid[]=$one['aid'];
+            }
+
+            $aid=array_flatten($aid);
+        }
+
+        return [$res,$aid];
+    }
+
+    //分页返回一个格子下的印象
+    public function getArticleByPaginate($suffix,$gName,$uid,$page,$paginate=3)
+    {
+        $res=[];
+
+        $offset=($page-1)*$paginate;
+
+        $table="community_article_{$suffix}";
+
+        //找不到表，说明没数据了
+        if (!Schema::connection($this->db)->hasTable($table)) return [$res,'tryNextYear'=>0];
+
+        //找到表了
+        ArticleModel::suffix($suffix);
+
+        //查询
+        $res=ArticleModel::where(['gName'=>$gName,'isShow'=>1])
+            ->orWhere(function ($query) use ($gName,$uid)
+            {
+                //查询者自己可以看到自己未审核通过的印象
+                $query->where(['uid'=>$uid,'gName'=>$gName,'isShow'=>0]);
+            })
+            ->orderBy('unixTime','desc')
+            ->limit($paginate)
+            ->offset($offset)
+            ->get()->toArray();
+
+        return [$res,'tryNextYear'=>1];
+    }
 
 
 
