@@ -1000,7 +1000,7 @@ Eof;
 
             $one['likes']['theLast']=array_slice(arraySort1($one['likes']['theLast'],['desc','unixTime']),0,7);
 
-            //取出头像
+            //取出头像和用户名
             foreach ($one['likes']['theLast'] as &$oneTarget)
             {
                 $avatarStr=Redis::connection('UserInfo')->hget($oneTarget['uid'],'avatar');
@@ -1013,6 +1013,9 @@ Eof;
                 {
                     $oneTarget['avatar']='/imgModel/systemAvtar.png';
                 }
+
+                $oneTarget['uidName']=(string)Redis::connection('UserInfo')->hget($oneTarget['uid'],'name');
+                $oneTarget['tidName']=(string)Redis::connection('UserInfo')->hget($oneTarget['tid'],'name');
             }
             unset($oneTarget);
         }
