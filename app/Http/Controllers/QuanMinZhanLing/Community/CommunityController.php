@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 use Intervention\Image\Facades\Image;
 
@@ -140,8 +141,8 @@ Eof;
         if ($tableType=='article_like')
         {
             //印象-获赞的关系表，如果每天1万个印象，每个印象200个赞，一年7亿3千万条记录，每季度1亿8千万条记录
-            //所以按季度分表
-            $suffix=$now->year.'_'.$now->quarter;
+            //所以按年分表
+            $suffix=$now->year;
 
             $table="community_{$tableType}_{$suffix}";
 
@@ -152,11 +153,14 @@ Eof;
                 {
                     $table->string('aid',20)->comment('真正的印象主键，10位的unixTime加上6位随机字符串');
                     $table->integer('uid')->unsigned()->comment('用户主键，谁给这条印象点赞了');
+                    $table->integer('tid')->unsigned()->comment('用户主键，这条评论是给谁的');
                     $table->tinyInteger('isLike')->unsigned()->comment('是否点赞，1是点赞了，0是没点赞');
+                    $table->tinyInteger('isRead')->unsigned()->default(0)->comment('目标用户是否已读，1是已读，0是未读');
                     $table->integer('unixTime')->unsigned()->comment('排序用的时间');
                     $table->timestamps();
-                    $table->primary('aid');
+                    $table->primary(['aid','uid']);
                     $table->index('uid');
+                    $table->index('tid');
                 });
             }
         }
@@ -164,8 +168,8 @@ Eof;
         if ($tableType=='article_comment')
         {
             //印象-评论的关系表，如果每天1万个印象，每个印象200个评论，一年7亿3千万条记录，每季度1亿8千万条记录
-            //所以按季度分表
-            $suffix=$now->year.'_'.$now->quarter;
+            //所以按年分表
+            $suffix=$now->year;
 
             $table="community_{$tableType}_{$suffix}";
 
@@ -174,15 +178,17 @@ Eof;
                 //印象-评论
                 Schema::connection($db)->create($table, function (Blueprint $table)
                 {
+                    $table->increments('id')->unsigned()->comment('主键');
                     $table->string('aid',20)->comment('真正的印象主键，10位的unixTime加上6位随机字符串');
                     $table->integer('uid')->unsigned()->comment('用户主键，谁给这条印象评论了');
                     $table->integer('tid')->unsigned()->comment('用户主键，这条评论是给谁的');
                     $table->tinyInteger('isShow')->unsigned()->default(1)->comment('是否可以显示，1是可以，0是不可以');
+                    $table->tinyInteger('isShowTargetName')->unsigned()->default(0)->comment('是否显示目标用户姓名，1是显示，0是不显示');
                     $table->tinyInteger('isRead')->unsigned()->default(0)->comment('目标用户是否已读，1是已读，0是未读');
                     $table->text('comment')->nullable()->comment('评论内容');
                     $table->integer('unixTime')->unsigned()->comment('排序用的时间');
                     $table->timestamps();
-                    $table->primary('aid');
+                    $table->index('aid');
                     $table->index('uid');
                     $table->index('tid');
                 });
@@ -558,7 +564,7 @@ Eof;
                         }
                     }
 
-                    if (is_numeric($one))
+                    if (is_array($one))
                     {
                         if ($one['id']!=$current->id)
                         {
@@ -635,13 +641,8 @@ Eof;
         $this->createTable('article_like');
         $this->createTable('article_comment');
 
-        //该格子下今年的最热标签，取前4，在印象-标签关系表中
-        $now=Carbon::now();
-
-        $sql="select labelId,labelContent,count(1) as useTotal from community_article_label_{$now->year} as t1 left join community_label as t2 on t1.labelId=t2.id where gName='{$gName}' group by labelId order by useTotal desc limit 4;";
-
-        //可以直接返回
-        $hotLabels=DB::connection($this->db)->select($sql);
+        //取出4个最热标签
+        $hotLabels=$this->getHotLabels($gName,4);
 
         //取出该格子置顶的，格子主人最后一条，加精的印象
 
@@ -658,25 +659,77 @@ Eof;
             $theBest=$this->getTheBestArticle($gName);
         }
 
-        //其他数据
-        $suffix=$now->year;
-        $commData=[];
+        //分页取出除去置顶加精格主最后一条的印象
+        $commData=$this->getArticleByPaginate($gName,$uid,$page);
 
-        for ()
-        $commData=$this->getArticleByPaginate($suffix,$gName,$uid,$page);
+        //给所有印象加赞和评论
+        if (isset($onTop))
+        {
+            $onTop=$this->addLikesToArticle($onTop);
+            $onTop=$this->addCommentsToArticle($onTop);
 
+            //排序
+            $onTop=$this->sortArticle($onTop);
 
-        dd($commData);
+        }else
+        {
+            $onTop=[[],[]];
+        }
+        if (isset($gridOwners))
+        {
+            $gridOwners=$this->addLikesToArticle($gridOwners);
+            $gridOwners=$this->addCommentsToArticle($gridOwners);
 
+            //排序
+            $gridOwners=$this->sortArticle($gridOwners);
 
+        }else
+        {
+            $gridOwners=[[],[]];
+        }
+        if (isset($theBest))
+        {
+            $theBest=$this->addLikesToArticle($theBest);
+            $theBest=$this->addCommentsToArticle($theBest);
 
+            //排序
+            $theBest=$this->sortArticle($theBest);
 
+        }else
+        {
+            $theBest=[[],[]];
+        }
+        if (isset($commData))
+        {
+            $commData=$this->addLikesToArticle($commData);
+            $commData=$this->addCommentsToArticle($commData);
 
-        dd($hotLabels,$onTop,$gridOwners,$theBest);
+            //排序
+            $commData=$this->sortArticle($commData);
 
+        }else
+        {
+            $commData=[[],[]];
+        }
 
+        return response()->json([
+            'resCode'=>Config::get('resCode.200'),'hotLabels'=>$hotLabels,
+            'onTop'=>$onTop[0],
+            'theBest'=>$theBest[0],
+            'gridOwners'=>$gridOwners[0],
+            'commData'=>$commData[0]
+        ]);
+    }
 
+    //返回最热标签
+    public function getHotLabels($gName,$num)
+    {
+        //该格子下今年的最热标签，取前4，在印象-标签关系表中
+        $now=Carbon::now();
 
+        $sql="select labelId,labelContent,count(1) as useTotal from community_article_label_{$now->year} as t1 left join community_label as t2 on t1.labelId=t2.id where gName='{$gName}' group by labelId order by useTotal desc limit {$num};";
+
+        return jsonDecode(jsonEncode(DB::connection($this->db)->select($sql)));
     }
 
     //返回一个格子下的所有置顶印象
@@ -708,11 +761,9 @@ Eof;
                 $res[]=$one;
                 $aid[]=$one['aid'];
             }
-
-            $aid=array_flatten($aid);
         }
 
-        return [$res,$aid];
+        return [$res,array_flatten($aid)];
     }
 
     //返回一个格子的格子主人最后一条印象
@@ -755,9 +806,7 @@ Eof;
             $aid[]=$one['aid'];
         }
 
-        $aid=array_flatten($aid);
-
-        return [$res,$aid];
+        return [$res,array_flatten($aid)];
     }
 
     //返回一个格子下的所有加精印象
@@ -789,45 +838,198 @@ Eof;
                 $res[]=$one;
                 $aid[]=$one['aid'];
             }
-
-            $aid=array_flatten($aid);
         }
 
-        return [$res,$aid];
+        return [$res,array_flatten($aid)];
     }
 
     //分页返回一个格子下的印象
-    public function getArticleByPaginate($suffix,$gName,$uid,$page,$paginate=3)
+    public function getArticleByPaginate($gName,$uid,$page,$paginate=3)
     {
         $res=[];
+        $aid=[];
+
+        $now=Carbon::now();
 
         $offset=($page-1)*$paginate;
 
-        $table="community_article_{$suffix}";
+        $tableTarget=[];
+        //只取得最近4年的？此处留坑
+        for ($i=0;$i<4;$i++)
+        {
+            $suffix=$now->year - $i;
 
-        //找不到表，说明没数据了
-        if (!Schema::connection($this->db)->hasTable($table)) return [$res,'tryNextYear'=>0];
+            $table="community_article_{$suffix}";
 
-        //找到表了
-        ArticleModel::suffix($suffix);
+            if (!Schema::connection($this->db)->hasTable($table)) continue;
 
-        //查询
-        $res=ArticleModel::where(['gName'=>$gName,'isShow'=>1])
-            ->orWhere(function ($query) use ($gName,$uid)
-            {
-                //查询者自己可以看到自己未审核通过的印象
-                $query->where(['uid'=>$uid,'gName'=>$gName,'isShow'=>0]);
-            })
-            ->orderBy('unixTime','desc')
-            ->limit($paginate)
-            ->offset($offset)
-            ->get()->toArray();
+            $tableTarget[]=$table;
+        }
 
-        return [$res,'tryNextYear'=>1];
+        //整理sql
+        if (empty($tableTarget)) return [$res,$aid];
+
+        $sql='';
+        foreach ($tableTarget as $oneTable)
+        {
+            $sql.=" union select * from {$oneTable}";
+        }
+
+        $sql=trim(ltrim(trim($sql),'union'));
+
+        //union出来的临时表没有索引
+        $reslSql="select * from ({$sql}) as tmp where gName='{$gName}' and isTop=0 and theBest=0 and ((isShow=1) or (isShow=0 and uid={$uid})) order by unixTime desc limit {$offset},{$paginate}";
+
+        $res=DB::connection($this->db)->select($reslSql);
+
+        if (empty($res)) return [jsonDecode(jsonEncode($res)),$aid];
+
+        //除去格子主人最后一条
+        $gridOwnersLastArticle=$this->getGridOwnersLastArticle($gName,$uid);
+
+        //取出aid
+        foreach ($res as $val)
+        {
+            $aid[]=$val->aid;
+        }
+
+        if (empty($gridOwnersLastArticle[1])) return [jsonDecode(jsonEncode($res)),array_flatten($aid)];
+
+        $tmp=[];
+        foreach ($res as $oneArticle)
+        {
+            if ($oneArticle->aid==current($gridOwnersLastArticle[1])) continue;
+
+            $tmp[]=$oneArticle;
+        }
+
+        //取出aid
+        foreach ($tmp as $val)
+        {
+            $aid[]=$val->aid;
+        }
+
+        return [jsonDecode(jsonEncode($tmp)),array_flatten($aid)];
     }
 
+    //返回每条印象的赞
+    public function addLikesToArticle($articleArr)
+    {
+        //目标印象全部数据
+        $targetAllData=$articleArr[0];
 
+        //目标印象id数组
+        $targetId=$articleArr[1];
 
+        foreach ($targetId as $oneId)
+        {
+            //取出日期
+            //确定是哪张表
+            $year=date('Y',substr($oneId,0,10));
+
+            //从对应的表中拿出赞
+            $res=DB::connection($this->db)->table("community_article_like_{$year}")->where([
+                'aid'=>$oneId,
+                'isLike'=>1,
+            ])->orderBy('unixTime','desc')->get()->toArray();
+
+            foreach ($targetAllData as &$one)
+            {
+                if ($one['aid']!=$oneId) continue;
+
+                $one['likes']['theLast']=jsonDecode(jsonEncode($res));
+                $one['likes']['total']=count(jsonDecode(jsonEncode($res)));
+            }
+            unset($one);
+        }
+
+        return [$targetAllData,$targetId];
+    }
+
+    //返回每条印象的回复
+    public function addCommentsToArticle($articleArr)
+    {
+        //目标印象全部数据
+        $targetAllData=$articleArr[0];
+
+        //目标印象id数组
+        $targetId=$articleArr[1];
+
+        foreach ($targetId as $oneId)
+        {
+            //取出日期
+            //确定是哪张表
+            $year=date('Y',substr($oneId,0,10));
+
+            //从对应的表中拿出回复
+            $res=DB::connection($this->db)->table("community_article_comment_{$year}")->where([
+                'aid'=>$oneId,
+                'isShow'=>1,
+            ])->orderBy('unixTime','desc')->get()->toArray();
+
+            foreach ($targetAllData as &$one)
+            {
+                if ($one['aid']!=$oneId) continue;
+
+                $one['comments']['theLast']=jsonDecode(jsonEncode($res));
+                $one['comments']['total']=count(jsonDecode(jsonEncode($res)));
+            }
+            unset($one);
+        }
+
+        return [$targetAllData,$targetId];
+    }
+
+    //排序
+    public function sortArticle($articleArr)
+    {
+        //印象的赞取最新7个
+        //印象的评论取最新5个
+
+        //目标印象全部数据
+        $targetAllData=$articleArr[0];
+
+        //目标印象id数组
+        $targetId=$articleArr[1];
+
+        if (empty($targetId)) return [$targetAllData,$targetId];
+
+        foreach ($targetAllData as &$one)
+        {
+            if (empty($one['likes']['theLast'])) continue;
+
+            $one['likes']['theLast']=array_slice(arraySort1($one['likes']['theLast'],['desc','unixTime']),0,7);
+
+            //取出头像
+            foreach ($one['likes']['theLast'] as &$oneTarget)
+            {
+                $avatarStr=Redis::connection('UserInfo')->hget($oneTarget['uid'],'avatar');
+
+                if ($avatarStr)
+                {
+                    $oneTarget['avatar']=$avatarStr;
+
+                }else
+                {
+                    $oneTarget['avatar']='/imgModel/systemAvtar.png';
+                }
+            }
+            unset($oneTarget);
+        }
+        unset($one);
+
+        foreach ($targetAllData as &$one)
+        {
+            if (empty($one['comments']['theLast'])) continue;
+
+            $one['comments']['theLast']=array_slice(arraySort1($one['comments']['theLast'],['desc','unixTime']),0,5);
+        }
+        unset($one);
+
+        $targetAllData=arraySort1($targetAllData,['desc','unixTime']);
+
+        return [$targetAllData,$targetId];
+    }
 
 
 
