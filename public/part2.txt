@@ -1,3 +1,36 @@
+获取印象的所有点赞人
+
+post
+http://newfogapi.wodeluapp.com/api/GetArticleAllLike
+
+参数
+string aid=1564628351GOUUeA  印象主键
+int    uid=17469             用户主键
+
+备注
+返回参数relation的用法
+0：双方都没关注对方
+1：我关注他，他没关注我
+2：他关注我，我没关注他
+3：相互关注
+=================================================================
+点赞或取消赞
+
+post
+http://newfogapi.wodeluapp.com/api/LikeAndDontLike
+
+参数
+string aid=1564628351GOUUeA  印象主键
+int    uid=17469             点赞人的主键
+int    tid=61727             印象发布者的主键
+=================================================================
+获取最热的40个非官方标签
+
+get
+http://newfogapi.wodeluapp.com/api/GetHotLabelsLimit40
+
+没参数
+=================================================================
 获取某个格子下的印象
 
 post

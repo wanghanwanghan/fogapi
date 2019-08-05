@@ -7,6 +7,7 @@ use App\Http\Controllers\Server\ContentCheckBase;
 use App\Http\Controllers\Server\StoreVideoBase;
 use App\Model\Community\ArticleModel;
 use App\Model\Community\LabelModel;
+use App\Model\Community\LikesModel;
 use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
@@ -433,7 +434,7 @@ Eof;
 
         try
         {
-            DB::connection('communityDB')->beginTransaction();
+            DB::connection($this->db)->beginTransaction();
 
             //创建印象
             ArticleModel::suffix(Carbon::now()->year);
@@ -456,23 +457,23 @@ Eof;
                 ];
             }
 
-            DB::connection('communityDB')->table("community_article_label_{$suffix}")->insert($data);
+            DB::connection($this->db)->table("community_article_label_{$suffix}")->insert($data);
 
             //更新标签使用次数
             $labels=implode(',',$labels);
 
             $sql="update community_label set useTotal=useTotal+1 where id in ({$labels})";
 
-            DB::connection('communityDB')->update($sql);
+            DB::connection($this->db)->update($sql);
 
         }catch (\Exception $e)
         {
-            DB::connection('communityDB')->rollBack();
+            DB::connection($this->db)->rollBack();
 
             return response()->json(['resCode'=>Config::get('resCode.660')]);
         }
 
-        DB::connection('communityDB')->commit();
+        DB::connection($this->db)->commit();
 
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
@@ -521,7 +522,7 @@ Eof;
             $sql="select id,labelContent from community_label where match(labelContent) against('+{$cond}' in boolean mode) and labelContent <> 'amyYOEPCiph6NQr' order by useTotal desc,id asc limit 10";
 
             //取出最热的10个
-            $res=DB::connection('communityDB')->select($sql);
+            $res=DB::connection($this->db)->select($sql);
 
             //当前搜索标签是不是存在
             $res=$this->currentLabelIsExistAndExecReturn($cond,$res);
@@ -597,15 +598,17 @@ Eof;
 
         try
         {
-            $res=LabelModel::where(['labelContent'=>$labelContent])->first();
-
-            //存在的不能插入
-            if ($res!=null) return response()->json(['resCode'=>Config::get('resCode.669')]);
-
+            //内容安全检查
             $check=(new ContentCheckBase())->check($labelContent);
 
             if ($check!=null) return response()->json(['resCode'=>Config::get('resCode.670')]);
 
+            //存在的不能插入
+            $res=LabelModel::where(['labelContent'=>$labelContent])->first();
+
+            if ($res!=null) return response()->json(['resCode'=>Config::get('resCode.669')]);
+
+            //创建新标签
             $res=LabelModel::create(['uid'=>$uid,'labelContent'=>$labelContent]);
 
         }catch (\Exception $e)
@@ -642,13 +645,16 @@ Eof;
         $this->createTable('article_comment');
 
         //取出4个最热标签
-        $hotLabels=$this->getHotLabels($gName,4);
+        $hotLabels=[];
 
         //取出该格子置顶的，格子主人最后一条，加精的印象
 
         //只有第一页才组合这三个
         if ($page===1)
         {
+            //取出4个最热标签
+            $hotLabels=$this->getHotLabels($gName,4);
+
             //置顶
             $onTop=$this->getOnTopArticle($gName);
 
@@ -713,7 +719,8 @@ Eof;
         }
 
         return response()->json([
-            'resCode'=>Config::get('resCode.200'),'hotLabels'=>$hotLabels,
+            'resCode'=>Config::get('resCode.200'),
+            'hotLabels'=>$hotLabels,
             'onTop'=>$onTop[0],
             'theBest'=>$theBest[0],
             'gridOwners'=>$gridOwners[0],
@@ -729,7 +736,38 @@ Eof;
 
         $sql="select labelId,labelContent,count(1) as useTotal from community_article_label_{$now->year} as t1 left join community_label as t2 on t1.labelId=t2.id where gName='{$gName}' group by labelId order by useTotal desc limit {$num};";
 
-        return jsonDecode(jsonEncode(DB::connection($this->db)->select($sql)));
+        $res=jsonDecode(jsonEncode(DB::connection($this->db)->select($sql)));
+
+        //不够4个，取去年的
+        if (count($res) < $num)
+        {
+            $year=$now->year - 1;
+
+            //只有当去年的表存在，才取去年的
+            if (Schema::connection($this->db)->hasTable("community_article_label_{$year}"))
+            {
+                $sql="select labelId,labelContent,count(1) as useTotal from community_article_label_{$year} as t1 left join community_label as t2 on t1.labelId=t2.id where gName='{$gName}' group by labelId order by useTotal desc limit {$num};";
+
+                $res=jsonDecode(jsonEncode(DB::connection($this->db)->select($sql)));
+            }
+        }
+
+        return $res;
+    }
+
+    //返回最热40个标签
+    public function getHotLabelsLimit40(Request $request)
+    {
+        //其实就返回最近两年链表后的前40个就行，等2020年改一下代码
+        $limit=40;
+
+        $now=Carbon::now();
+
+        $sql="select labelId,labelContent,count(1) as useTotal from community_article_label_{$now->year} as t1 left join community_label as t2 on t1.labelId=t2.id where labelId>101 group by labelId order by useTotal desc limit {$limit}";
+
+        $res=jsonDecode(jsonEncode(DB::connection($this->db)->select($sql)));
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'labels'=>$res]);
     }
 
     //返回一个格子下的所有置顶印象
@@ -994,6 +1032,15 @@ Eof;
 
         if (empty($targetId)) return [$targetAllData,$targetId];
 
+        //给印象加发布者头像和名字
+        foreach ($targetAllData as &$one)
+        {
+            $one['uName']=(string)Redis::connection('UserInfo')->hget($one['uid'],'name');
+            $one['uAvatar']=(string)Redis::connection('UserInfo')->hget($one['uid'],'avatar');
+        }
+        unset($one);
+
+        //处理赞
         foreach ($targetAllData as &$one)
         {
             if (empty($one['likes']['theLast'])) continue;
@@ -1021,6 +1068,7 @@ Eof;
         }
         unset($one);
 
+        //处理评论
         foreach ($targetAllData as &$one)
         {
             if (empty($one['comments']['theLast'])) continue;
@@ -1031,8 +1079,188 @@ Eof;
 
         $targetAllData=arraySort1($targetAllData,['desc','unixTime']);
 
+        //unixTime变成多少分钟前
+        foreach ($targetAllData as &$one)
+        {
+            $one['dateTime']=formatDate($one['unixTime']);
+        }
+        unset($one);
+
+        //处理标签
+        foreach ($targetAllData as &$one)
+        {
+            $one['labels']=$this->addLabelsToArticle($one['aid']);
+        }
+        unset($one);
+
         return [$targetAllData,$targetId];
     }
+
+    //返回印象中标签的中文名
+    public function addLabelsToArticle($articleId)
+    {
+        //取出时间
+        $suffix=date('Y',substr($articleId,0,10));
+
+        $sql="select id,labelContent from community_label where id in (select labelId from community_article_label_{$suffix} where aid='{$articleId}') order by id";
+
+        $res=DB::connection($this->db)->select($sql);
+
+        return $res;
+    }
+
+    //给印象点赞或取消赞
+    public function likeAndDontLike(Request $request)
+    {
+        //印象id
+        $aid=trim($request->aid);
+
+        //点赞人的id
+        $uid=trim($request->uid);
+
+        //印象发布者的id
+        $tid=trim($request->tid);
+
+        if ($aid=='' || empty($aid)) return response()->json(['resCode'=>Config::get('resCode.604')]);
+        if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
+        if (!is_numeric($tid) || $tid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        //取出时间
+        $suffix=date('Y',substr($aid,0,10));
+
+        LikesModel::suffix($suffix);
+
+        $res=LikesModel::firstOrNew(['aid'=>$aid,'uid'=>$uid]);
+
+        if ($res->isLike===1)
+        {
+            //取消赞
+            $res->isLike=0;
+            $res->isRead=0;
+
+        }elseif ($res->isLike===0)
+        {
+            //恢复点赞
+            $res->isLike=1;
+            $res->isRead=0;
+
+        }else
+        {
+            //第一次点赞
+            $res->isLike=1;
+            $res->tid=$tid;
+        }
+
+        try
+        {
+            $res->unixTime=time();
+            $res->save();
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.671')]);
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200')]);
+    }
+
+    //获取印象的所有点赞人
+    public function getArticleAllLike(Request $request)
+    {
+        $aid=trim($request->aid);
+        $uid=trim($request->uid);
+
+        if ($aid=='' || empty($aid)) return response()->json(['resCode'=>Config::get('resCode.604')]);
+        if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        //获取当前印象的所有点赞者
+        $suffix=date('Y',substr($aid,0,10));
+
+        LikesModel::suffix($suffix);
+
+        $res=LikesModel::where(['aid'=>$aid,'isLike'=>1])->get(['uid','unixTime'])->toArray();
+
+        //是空就直接返回
+        if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>[]]);
+
+        //从redis中获取粉丝关系，当前印象的点赞者与uid的关系
+        //0：双方都没关注对方
+        //1：我关注他，他没关注我
+        //2：他关注我，我没关注他
+        //3：相互关注
+
+        $data=[];
+
+        foreach ($res as $oneUid)
+        {
+            $tid=$oneUid['uid'];
+            $unixTime=$oneUid['unixTime'];
+
+            //不包括自己
+            if ($tid==$uid) continue;
+
+            //我关注他没
+            if (Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$tid)!=null)
+            {
+                //我关注他了
+                $followerNum=1;
+
+            }else
+            {
+                //我没关注他
+                $followerNum=0;
+            }
+
+            //他关注我没
+            if (Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$tid)!=null)
+            {
+                //他关注我了
+                $fansNum=2;
+
+            }else
+            {
+                //他没关注我
+                $fansNum=0;
+            }
+
+            //获取头像和用户名
+            $avatarStr=Redis::connection('UserInfo')->hget($tid,'avatar');
+
+            if ($avatarStr)
+            {
+                $avatar=$avatarStr;
+
+            }else
+            {
+                $avatar='/imgModel/systemAvtar.png';
+            }
+
+            $name=(string)Redis::connection('UserInfo')->hget($tid,'name');
+
+            $data[]=['uid'=>$tid,'avatar'=>$avatar,'name'=>$name,'relation'=>$followerNum+$fansNum,'unixTime'=>$unixTime,'dateTime'=>formatDate($unixTime)];
+        }
+
+        $data=arraySort1($data,['desc','unixTime']);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
