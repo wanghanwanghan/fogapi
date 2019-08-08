@@ -132,6 +132,11 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //获取印象的所有点赞人
     Route::match(['get','post'],'GetArticleAllLike','QuanMinZhanLing\\Community\\CommunityController@getArticleAllLike');
 
+    //获取印象的所有评论
+    Route::match(['get','post'],'GetArticleAllComment','QuanMinZhanLing\\Community\\CommunityController@getArticleAllComment');
+
+    //发表评论
+    Route::match(['get','post'],'CreateComment','QuanMinZhanLing\\Community\\CommunityController@createComment');
 
 
 

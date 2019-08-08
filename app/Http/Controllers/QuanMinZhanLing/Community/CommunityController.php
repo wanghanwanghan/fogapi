@@ -6,6 +6,7 @@ use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\Server\ContentCheckBase;
 use App\Http\Controllers\Server\StoreVideoBase;
 use App\Model\Community\ArticleModel;
+use App\Model\Community\CommentsModel;
 use App\Model\Community\LabelModel;
 use App\Model\Community\LikesModel;
 use Carbon\Carbon;
@@ -186,6 +187,7 @@ Eof;
                     $table->tinyInteger('isShow')->unsigned()->default(1)->comment('是否可以显示，1是可以，0是不可以');
                     $table->tinyInteger('isShowTargetName')->unsigned()->default(0)->comment('是否显示目标用户姓名，1是显示，0是不显示');
                     $table->tinyInteger('isRead')->unsigned()->default(0)->comment('目标用户是否已读，1是已读，0是未读');
+                    $table->tinyInteger('isOwnersRead')->unsigned()->default(0)->comment('印象发布者是否已读，1是已读，0是未读');
                     $table->text('comment')->nullable()->comment('评论内容');
                     $table->integer('unixTime')->unsigned()->comment('排序用的时间');
                     $table->timestamps();
@@ -378,12 +380,14 @@ Eof;
             //有一张图片解析失败，就不让发布这条印象
             foreach ($picArr as $one)
             {
+                //图片内容安全检测
+                $res=(new ContentCheckBase())->checkPic(base64_decode($one));
+
+                if (!$res) return response()->json(['resCode'=>Config::get('resCode.662')]);
+
                 $res=$this->storePic(base64_decode($one),$num,$articlePrimary);
 
-                if (!is_array($res))
-                {
-                    return response()->json(['resCode'=>Config::get('resCode.650')]);
-                }
+                if (!is_array($res)) return response()->json(['resCode'=>Config::get('resCode.650')]);
 
                 $readyToInsertForPicAndVideo["picOrVideo{$num}"]=current($res);
 
@@ -1037,6 +1041,15 @@ Eof;
         {
             $one['uName']=(string)Redis::connection('UserInfo')->hget($one['uid'],'name');
             $one['uAvatar']=(string)Redis::connection('UserInfo')->hget($one['uid'],'avatar');
+
+            if ($one['uName']=='')
+            {
+                $one['uName']='网友'.str_random(6);
+            }
+            if ($one['uAvatar']=='')
+            {
+                $one['uAvatar']='/imgModel/systemAvtar.png';
+            }
         }
         unset($one);
 
@@ -1245,7 +1258,121 @@ Eof;
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
     }
 
+    //获取印象的所有评论
+    public function getArticleAllComment(Request $request)
+    {
+        $aid=trim($request->aid);
+        $uid=trim($request->uid);
+        $page=trim($request->page);
 
+        if ($aid=='' || empty($aid)) return response()->json(['resCode'=>Config::get('resCode.604')]);
+        if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
+        if (!is_numeric($page) || $page < 1) $page=1;
+
+        //每次取10条
+        $limit=10;
+
+        $offset=($page-1)*$limit;
+
+        //获取当前印象的所有点赞者
+        $suffix=date('Y',substr($aid,0,10));
+
+        CommentsModel::suffix($suffix);
+
+        //分页取评论，自己未过审的可以看见
+        $res=CommentsModel::where(['aid'=>$aid,'isShow'=>1])->orWhere(function ($query) use ($aid,$uid) {
+            $query->where(['aid'=>$aid,'uid'=>$uid,'isShow'=>0]);
+        })->limit($limit)->offset($offset)->orderBy('id','desc')->get([
+            'aid','uid','tid','isShowTargetName','comment','unixTime',
+        ])->toArray();
+
+        //是空就直接返回
+        if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
+
+        //整理数组
+        foreach ($res as &$oneComment)
+        {
+            //$b=$a??$c;相当于$b=isset($a)?$a:$c;
+            //$b=$a?$a:$c则是$b=!empty($a)?$a:$c;
+
+            //用户名
+            $oneComment['uName']=(string)Redis::connection('UserInfo')->hget($oneComment['uid'],'name');
+            $oneComment['tName']=(string)Redis::connection('UserInfo')->hget($oneComment['tid'],'name');
+
+            $oneComment['uName']=$oneComment['uName']?$oneComment['uName']:'网友'.str_random(6);
+            $oneComment['tName']=$oneComment['tName']?$oneComment['tName']:'网友'.str_random(6);
+
+            //头像
+            $oneComment['uAvatar']=(string)Redis::connection('UserInfo')->hget($oneComment['uid'],'avatar');
+            $oneComment['tAvatar']=(string)Redis::connection('UserInfo')->hget($oneComment['tid'],'avatar');
+
+            $oneComment['uAvatar']=$oneComment['uAvatar']?$oneComment['uAvatar']:'/imgModel/systemAvtar.png';
+            $oneComment['tAvatar']=$oneComment['tAvatar']?$oneComment['tAvatar']:'/imgModel/systemAvtar.png';
+
+            //处理时间
+            $oneComment['dateTime']=formatDate($oneComment['unixTime']);
+        }
+        unset($oneComment);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
+    }
+
+    //发表评论
+    public function createComment(Request $request)
+    {
+        $aid=trim($request->aid);
+        $uid=trim($request->uid);
+        $tid=trim($request->tid);
+        $comment=trim($request->comment);
+        $isShowTargetName=1;
+
+        //从印象id中取得评论表后缀
+        $suffix=date('Y',substr($aid,0,10));
+
+        //印象id不能是空
+        if ($aid=='' || empty($aid)) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        //发布评论人id不能是空
+        if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
+        if (!is_numeric($tid) || $tid < 1)
+        {
+            $isShowTargetName=0;
+            ArticleModel::suffix($suffix);
+            $tid=ArticleModel::where('aid',$aid)->first()->uid;
+        }
+
+        //评论内容不能是空
+        if ($comment=='') return response()->json(['resCode'=>Config::get('resCode.672')]);
+
+        //内容检测？
+        $check=(new ContentCheckBase())->check($comment);
+
+        //评论内容不合法
+        if ($check!=null) return response()->json(['resCode'=>Config::get('resCode.661')]);
+
+        //以下开始发表评论==============================================================================
+
+        CommentsModel::suffix($suffix);
+
+        try
+        {
+            CommentsModel::create([
+                'aid'=>$aid,
+                'uid'=>$uid,
+                'tid'=>$tid,
+                'isShow'=>1,
+                'isShowTargetName'=>$isShowTargetName,
+                'comment'=>$comment,
+                'unixTime'=>time(),
+            ]);
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.673')]);
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200')]);
+    }
 
 
 

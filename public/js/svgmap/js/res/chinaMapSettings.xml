@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data>
+      <stateData stateName="beijing"   stateInitColor="0" stateHoverColor='feb41c' stateSelectedColor='E32F02'/>
+      <stateData stateName="shanghai"  stateInitColor="0" stateHoverColor='feb41c' stateSelectedColor='E32F02'/>
+      <stateData stateName="guangdong" stateInitColor="0" stateHoverColor='feb41c' stateSelectedColor='E32F02'/>
+      <stateData stateName="guangxi"   stateInitColor="0" stateHoverColor='feb41c' stateSelectedColor='E32F02'/>
+</data>

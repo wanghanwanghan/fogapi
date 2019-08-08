@@ -29,6 +29,7 @@ class ContentCheckBase
         6=>'低质灌水'
     ];
 
+    //纯文字内容检测
     public function check($content)
     {
         if ($content=='' || empty($content)) return response()->json(['resCode' => Config::get('resCode.616')]);
@@ -87,5 +88,17 @@ class ContentCheckBase
         }
 
         return $res;
+    }
+
+    //图片内容检测
+    public function checkPic($base64)
+    {
+        return true;
+    }
+
+    //视频内容检测
+    public function checkVideo($file)
+    {
+        return true;
     }
 }

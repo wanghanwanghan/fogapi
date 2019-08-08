@@ -1,3 +1,24 @@
+发表评论
+
+post
+http://newfogapi.wodeluapp.com/api/CreateComment
+
+参数
+string aid=1564628351GOUUeA  印象主键
+int    uid=17469             评论人id
+int    tid=61727             被@人的id，不传此参数说明给印象主人评论
+string comment=17469         评论内容
+=================================================================
+获取印象的所有评论
+
+post
+http://newfogapi.wodeluapp.com/api/GetArticleAllComment
+
+参数
+string aid=1564628351GOUUeA  印象主键
+int    uid=17469             用户主键
+int    page=1                第几页
+=================================================================
 获取印象的所有点赞人
 
 post
