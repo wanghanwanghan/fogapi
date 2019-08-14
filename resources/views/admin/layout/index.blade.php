@@ -120,6 +120,12 @@
       </div>
 
       <li class="nav-item">
+        <a class="nav-link" href="{{route('checkCommunity')}}">
+          <i class="fas fa-fw fa-images"></i>
+          <span>审核印象</span></a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link" href="{{route('gridImg2')}}">
           <i class="fas fa-fw fa-images"></i>
           <span>排行榜格子图片</span></a>

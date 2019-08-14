@@ -1,3 +1,88 @@
+查看用户消息（点赞，评论）
+
+post
+http://newfogapi.wodeluapp.com/api/GetUserMessage
+
+参数
+int    uid=17469            用户主键，发送者
+int    type=0               类型，0代表刚进入页面，1代表首页翻页，2代表“我的评论”，3代表“我的点赞”
+int    page=1               页码
+=================================================================
+获取私信
+
+post
+http://newfogapi.wodeluapp.com/api/GetPrivateMail
+
+参数
+int    uid=17469            用户主键，发送者
+int    tid=18426            用户主键，接收者
+int    page=1               页码
+=================================================================
+发送私信
+
+post
+http://newfogapi.wodeluapp.com/api/SetPrivateMail
+
+参数
+int    uid=17469            用户主键，发送者
+int    tid=18426            用户主键，接收者
+string contents=abc123      私信内容
+=================================================================
+删除印象
+
+post
+http://newfogapi.wodeluapp.com/api/DeleteArticle
+
+参数
+int    uid=17469            用户主键
+int    aid=1563748962dixyz  印象主键
+=================================================================
+关注和取消关注
+
+post
+http://newfogapi.wodeluapp.com/api/FollowerAndUnfollower
+
+参数
+int    uid=17469            用户主键，发起关注者
+int    tid=18426            标签主键，被动者
+=================================================================
+给用户写印象标签
+
+post
+http://newfogapi.wodeluapp.com/api/SetUserLabel
+
+参数
+int    uid=17469                      用户主键
+int    label=数组jsonEncode后的字符串  标签主键
+=================================================================
+展示所有可以写给用户的印象标签
+
+get
+http://newfogapi.wodeluapp.com/api/GetUserLabel
+
+无参数
+=================================================================
+获取用户个人页面
+
+post
+http://newfogapi.wodeluapp.com/api/GetUserPage
+
+参数
+int    uid=17469             用户主键，查看发起者
+int    tid=18426             用户主键，查看目标
+int    page=1                第几页
+=================================================================
+举报印象
+
+post
+http://newfogapi.wodeluapp.com/api/Rubbish
+
+参数
+string aid=1564628351GOUUeA  印象主键
+int    uid=17469             举报人id
+int    tid=61727             举报对象id
+int    type=1                举报类型，1是举报印象，2是...3是...
+=================================================================
 发表评论
 
 post
@@ -60,6 +145,7 @@ http://newfogapi.wodeluapp.com/api/GetArticleByGridName
 参数
 int    uid=17469         用户主键
 string gName=n2e1        格子名称
+int    label=0           标签id，0代表不筛选标签
 int    page=1            第几页数据
 =================================================================
 创建新标签

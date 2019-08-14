@@ -59,6 +59,13 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['post'],'/user/ajax','admin\\AdminUserAvatarController@userAjax');
         Route::match(['post'],'/grid/ajax','admin\\AdminGridController@gridAjax');
 
+        //印象
+        Route::match(['get','post'],'/community/check/community','admin\\AdminCommunityController@checkCommunity')->name('checkCommunity');
+
+
+
+
+
         //用户反馈
         Route::match(['get'],'/user/feedback','admin\\AdminUserFeedbackController@index')->name('feedback');
         Route::match(['get'],'/user/feedback/detail/{id}','admin\\AdminUserFeedbackController@feedbackDetail')->name('feedbackDetail');

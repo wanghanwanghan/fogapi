@@ -138,6 +138,35 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //发表评论
     Route::match(['get','post'],'CreateComment','QuanMinZhanLing\\Community\\CommunityController@createComment');
 
+    //举报
+    Route::match(['get','post'],'Rubbish','QuanMinZhanLing\\Community\\CommunityController@rubbish');
+
+    //查看用户页面
+    Route::match(['get','post'],'GetUserPage','QuanMinZhanLing\\Community\\CommunityController@getUserPage');
+
+    //写对人的印象
+    Route::match(['get','post'],'SetUserLabel','QuanMinZhanLing\\Community\\CommunityController@setUserLabel');
+
+    //查看所有对人的印象
+    Route::match(['get','post'],'GetUserLabel','QuanMinZhanLing\\Community\\CommunityController@getUserLabel');
+
+    //关注和取消关注
+    Route::match(['get','post'],'FollowerAndUnfollower','QuanMinZhanLing\\Community\\CommunityController@followerAndUnfollower');
+
+    //删除印象
+    Route::match(['get','post'],'DeleteArticle','QuanMinZhanLing\\Community\\CommunityController@deleteArticle');
+
+    //发送私信
+    Route::match(['get','post'],'SetPrivateMail','QuanMinZhanLing\\Community\\CommunityController@setPrivateMail');
+
+    //查看私信
+    Route::match(['get','post'],'GetPrivateMail','QuanMinZhanLing\\Community\\CommunityController@getPrivateMail');
+
+    //查看用户消息（点赞，评论）
+    Route::match(['get','post'],'GetUserMessage','QuanMinZhanLing\\Community\\CommunityController@getUserMessage');
+
+
+
 
 
 });

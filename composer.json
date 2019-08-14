@@ -19,6 +19,7 @@
         "naux/sendcloud": "^1.1",
         "overtrue/easy-sms": "^1.1",
         "overtrue/laravel-wechat": "~4.0",
+        "overtrue/pinyin": "~4.0",
         "peinhu/aetherupload-laravel": "~2.0",
         "php-ffmpeg/php-ffmpeg": "^0.14.0",
         "predis/predis": "^1.1",
