@@ -2279,19 +2279,167 @@ Eof;
 
             case 1:
 
+                $data=[];
 
-                dd($this->getReadComment($uid,$page));
+                $like=$this->getReadLike($uid,$page);
+                $comment=$this->getReadComment($uid,$page);
 
+                //整理数组
+                if (!empty($like))
+                {
+                    foreach ($like as &$one)
+                    {
+                        $uInfo=$this->getUserNameAndAvatar($one['uid']);
 
+                        $one['uName']=$uInfo[0];
+                        $one['uAvatar']=$uInfo[1];
 
+                        $one['dateTime']=formatDate($one['unixTime']);
+
+                        //然后取出pic或视频或一点内容
+                        $suffix=date('Y',substr($one['aid'],0,10));
+
+                        ArticleModel::suffix($suffix);
+
+                        $aInfo=ArticleModel::where('aid',$one['aid'])->first();
+
+                        $one['picOrVideo']=(string)$aInfo->picOrVideo1;
+                        $one['content']=mb_substr($aInfo->content,0,8);
+
+                        $data[]=$one;
+                    }
+                    unset($one);
+                }
+                if (!empty($comment))
+                {
+                    foreach ($comment as &$one)
+                    {
+                        $uInfo=$this->getUserNameAndAvatar($one['uid']);
+                        $tInfo=$this->getUserNameAndAvatar($one['tid']);
+
+                        $one['uName']=$uInfo[0];
+                        $one['uAvatar']=$uInfo[1];
+                        $one['tName']=$tInfo[0];
+                        $one['tAvatar']=$tInfo[1];
+
+                        $one['dateTime']=formatDate($one['unixTime']);
+
+                        //然后取出pic或视频或一点内容
+                        $suffix=date('Y',substr($one['aid'],0,10));
+
+                        ArticleModel::suffix($suffix);
+
+                        $aInfo=ArticleModel::where('aid',$one['aid'])->first();
+
+                        $one['picOrVideo']=(string)$aInfo->picOrVideo1;
+                        $one['content']=mb_substr($aInfo->content,0,8);
+
+                        $data[]=$one;
+                    }
+                    unset($one);
+                }
+
+                if (!empty($data)) $data=arraySort1($data,['desc','unixTime']);
+
+                return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
 
                 break;
 
             case 2:
 
+                //我的评论
+                $comment=$this->getReadComment($uid,$page);
+
+                if (empty($comment)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$comment]);
+
+                $comment=arraySort1($comment,['desc','unixTime']);
+
+                foreach ($comment as &$one)
+                {
+                    $uInfo=$this->getUserNameAndAvatar($one['uid']);
+                    $tInfo=$this->getUserNameAndAvatar($one['tid']);
+
+                    $one['uName']=$uInfo[0];
+                    $one['uAvatar']=$uInfo[1];
+                    $one['tName']=$tInfo[0];
+                    $one['tAvatar']=$tInfo[1];
+
+                    $one['dateTime']=formatDate($one['unixTime']);
+
+                    //然后取出pic或视频或一点内容
+                    $suffix=date('Y',substr($one['aid'],0,10));
+
+                    ArticleModel::suffix($suffix);
+
+                    $aInfo=ArticleModel::where('aid',$one['aid'])->first();
+
+                    $one['picOrVideo']=(string)$aInfo->picOrVideo1;
+                    $one['content']=$aInfo->content;
+                    $one['gName']=$aInfo->gName;
+
+                    LikesModel::suffix($suffix);
+                    CommentsModel::suffix($suffix);
+                    $one['likeTotal']=LikesModel::where('aid',$one['aid'])->count();
+                    $one['commentTotal']=CommentsModel::where('aid',$one['aid'])->count();
+                }
+                unset($one);
+
+                return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$comment]);
+
                 break;
 
             case 3:
+
+                //我的点赞
+                $like=$this->getReadLike($uid,$page);
+
+                if (empty($like)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$like]);
+
+                $like=arraySort1($like,['desc','unixTime']);
+
+                foreach ($like as &$one)
+                {
+                    $uInfo=$this->getUserNameAndAvatar($one['uid']);
+                    $tInfo=$this->getUserNameAndAvatar($one['tid']);
+
+                    $one['uName']=$uInfo[0];
+                    $one['uAvatar']=$uInfo[1];
+                    $one['tName']=$tInfo[0];
+                    $one['tAvatar']=$tInfo[1];
+
+                    $one['dateTime']=formatDate($one['unixTime']);
+
+                    //然后取出pic或视频或一点内容
+                    $suffix=date('Y',substr($one['aid'],0,10));
+
+                    ArticleModel::suffix($suffix);
+
+                    $aInfo=ArticleModel::where('aid',$one['aid'])->first();
+
+                    $one['includeText']=$aInfo->includeText;
+                    $one['includePic']=$aInfo->includePic;
+                    $one['includeVideo']=$aInfo->includeVideo;
+
+                    $picOrVideo=[];
+                    for ($i=1;$i<=9;$i++)
+                    {
+                        $t="picOrVideo$i";
+                        $picOrVideo[]=(string)$aInfo->$t;
+                    }
+
+                    $one['picOrVideo']=array_filter($picOrVideo);
+                    $one['content']=$aInfo->content;
+                    $one['gName']=$aInfo->gName;
+                    $one['labels']=$this->addLabelsToArticle($aInfo->aid);
+
+                    LikesModel::suffix($suffix);
+                    CommentsModel::suffix($suffix);
+                    $one['likeTotal']=LikesModel::where('aid',$one['aid'])->count();
+                    $one['commentTotal']=CommentsModel::where('aid',$one['aid'])->count();
+                }
+                unset($one);
+
+                return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$like]);
 
                 break;
 
@@ -2301,20 +2449,6 @@ Eof;
 
                 break;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2403,8 +2537,6 @@ Eof;
 
         $now=Carbon::now();
 
-        $arr=[];
-
         //此处留坑
         for ($i=0;$i<3;$i++)
         {
@@ -2430,12 +2562,7 @@ Eof;
 
         $tmp=jsonDecode(jsonEncode($tmp));
 
-        foreach ($tmp as $one)
-        {
-            $arr[]=$one;
-        }
-
-        return $arr;
+        return $tmp;
     }
 
     //未读评论
@@ -2514,10 +2641,6 @@ Eof;
 
         $now=Carbon::now();
 
-        $arr1=[];
-        $arr2=[];
-
-        //我发的印象
         //此处留坑
         for ($i=0;$i<3;$i++)
         {
@@ -2537,42 +2660,11 @@ Eof;
         }
         $sql=trim(ltrim(trim($sql),'union'));
 
-        $reslSql="select id,aid,uid,tid,comment,unixTime from ({$sql}) as tmp where oid={$uid} order by unixTime desc limit {$offset},{$limit}";
+        $reslSql="select id,aid,uid,tid,comment,unixTime from ({$sql}) as tmp where (oid={$uid}) or (oid!={$uid} and tid={$uid}) order by unixTime desc limit {$offset},{$limit}";
 
         $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
 
-        dd(123321);
-
-
-
-
-
-
-
-
-
-
-        //别的评论
-        for ($i=0;$i<100;$i++)
-        {
-            $suffix=$now->year - $i;
-
-            $table="community_article_comment_{$suffix}";
-
-            if (!Schema::connection($this->db)->hasTable($table)) break;
-
-            //别的评论
-            $sql="select t2.id,t2.aid,t2.uid,t2.tid,t2.comment,t2.unixTime from community_article_{$suffix} as t1 left join community_article_comment_{$suffix} as t2 on t1.aid=t2.aid where t2.tid={$uid} and t2.isRead=0";
-
-            $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($sql)));
-
-            foreach ($tmp as $one)
-            {
-                $arr2[]=$one;
-            }
-
-        }
-        return [$arr1,$arr2];
+        return jsonDecode(jsonEncode($tmp));
     }
 
     //获取用户名和头像
