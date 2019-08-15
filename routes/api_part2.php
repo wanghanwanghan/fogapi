@@ -147,6 +147,9 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //写对人的印象
     Route::match(['get','post'],'SetUserLabel','QuanMinZhanLing\\Community\\CommunityController@setUserLabel');
 
+    //选择对人的印象
+    Route::match(['get','post'],'SelectUserLabel','QuanMinZhanLing\\Community\\CommunityController@selectUserLabel');
+
     //查看所有对人的印象
     Route::match(['get','post'],'GetUserLabel','QuanMinZhanLing\\Community\\CommunityController@getUserLabel');
 

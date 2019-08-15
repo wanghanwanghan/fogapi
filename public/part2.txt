@@ -46,6 +46,21 @@ http://newfogapi.wodeluapp.com/api/FollowerAndUnfollower
 int    uid=17469            用户主键，发起关注者
 int    tid=18426            标签主键，被动者
 =================================================================
+用户选择自己的印象标签
+
+get是查看哪些可以选择
+http://newfogapi.wodeluapp.com/api/SelectUserLabel
+
+参数
+int    uid=17469                      用户主键
+
+post是用户选择了哪些作为自己的印象标签
+http://newfogapi.wodeluapp.com/api/SelectUserLabel
+
+参数
+int    uid=17469                      用户主键
+int    labels=jsonEncode后的字符串     用户标签
+=================================================================
 给用户写印象标签
 
 post

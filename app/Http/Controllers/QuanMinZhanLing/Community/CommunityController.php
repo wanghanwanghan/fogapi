@@ -1652,7 +1652,7 @@ Eof;
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
 
-    //获取描述用户的的标签
+    //获取描述用户的的标签，也就是用户有哪些标签
     public function getPeopleLabels($uid)
     {
         $res=PeopleLabelModel::with('peopleLabelName')->where('uid',$uid)->get(['uid','labelId'])->toArray();
@@ -1883,7 +1883,6 @@ Eof;
         $uName=Redis::connection('UserInfo')->hget($uid,'name');
         $uAvatar=Redis::connection('UserInfo')->hget($uid,'avatar');
 
-
         if ($uName==null) $uName='网友'.str_random(6);
         if ($uAvatar==null) $uAvatar='/imgModel/systemAvtar.png';
 
@@ -1891,7 +1890,7 @@ Eof;
         $userInfo['avatar']=$uAvatar;
         $userInfo['likeTotal']=$this->getPeopleLikes($uid);
 
-        $peopleLabel=$this->getPeopleLabels($uid);
+        $peopleLabel=jsonDecode(jsonEncode(Redis::connection('UserInfo')->hget($uid,'PeopleLabels')));
 
         $article=$this->getArticleByUid($uid,0,$page);
         $userInfo['communityTotal']=$article[2];
@@ -1965,6 +1964,32 @@ Eof;
         $res=LabelForPeopleModel::where('labelContent','!=','amyYOEPCiph6NQr')->get()->toArray();
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'labelContent'=>$res]);
+    }
+
+    //选择对人的印象
+    public function selectUserLabel(Request $request)
+    {
+        //哪些可以选择
+        if ($request->isMethod('get'))
+        {
+            $res=$this->getPeopleLabels($request->uid);
+
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>jsonDecode(jsonEncode($res))]);
+        }
+
+        //用户选择了哪些展示
+        if ($request->isMethod('post'))
+        {
+            $uid=$request->uid;
+
+            $labelsArr=jsonDecode(jsonEncode($request->labels));
+
+            Redis::connection('UserInfo')->hset($uid,'PeopleLabels',jsonEncode($labelsArr));
+
+            return response()->json(['resCode'=>Config::get('resCode.200')]);
+        }
+
+        return true;
     }
 
     //关注和取消关注
