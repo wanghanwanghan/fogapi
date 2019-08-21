@@ -1409,11 +1409,17 @@ Eof;
             $res->isLike=1;
             $res->isRead=0;
 
+            //给印象加分
+            $this->setCommunityScore('like',$uid,$aid);
+
         }else
         {
             //第一次点赞
             $res->isLike=1;
             $res->tid=$tid;
+
+            //给印象加分
+            $this->setCommunityScore('like',$uid,$aid);
         }
 
         try
@@ -1603,7 +1609,7 @@ Eof;
         if ($check!=null) return response()->json(['resCode'=>Config::get('resCode.661')]);
 
         //以下开始发表评论==============================================================================
-
+        ArticleModel::suffix($suffix);
         CommentsModel::suffix($suffix);
 
         try
@@ -1618,6 +1624,9 @@ Eof;
                 'comment'=>$comment,
                 'unixTime'=>time(),
             ]);
+
+            //给印象加分
+            $this->setCommunityScore('comment',$uid,$aid);
 
         }catch (\Exception $e)
         {
@@ -1647,7 +1656,7 @@ Eof;
 
         $this->createTable('rubbish');
 
-        RubbishModel::create(['aid'=>$aid,'uid'=>$uid,'tid'=>$tid,'type'=>$type]);
+        RubbishModel::create(['aid'=>$aid,'uid'=>$uid,'tid'=>$tid,'type'=>$type,'unixTime'=>time()]);
 
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
@@ -1890,7 +1899,7 @@ Eof;
         $userInfo['avatar']=$uAvatar;
         $userInfo['likeTotal']=$this->getPeopleLikes($uid);
 
-        $peopleLabel=jsonDecode(jsonEncode(Redis::connection('UserInfo')->hget($uid,'PeopleLabels')));
+        $peopleLabel=jsonDecode(Redis::connection('UserInfo')->hget($uid,'PeopleLabels')) == null ? [] : jsonDecode(Redis::connection('UserInfo')->hget($uid,'PeopleLabels'));
 
         $article=$this->getArticleByUid($uid,0,$page);
         $userInfo['communityTotal']=$article[2];
@@ -1901,7 +1910,7 @@ Eof;
         $followerFans=$this->getPeopleFollowerFansAndDetail($uid);
 
         //俩人关系
-        if (Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$tid)!=null)
+        if (Redis::connection('CommunityInfo')->zscore('follower_'.$tid,$uid)!=null)
         {
             //我关注他了
             $foll=1;
@@ -1909,7 +1918,7 @@ Eof;
         {
             $foll=0;
         }
-        if (Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$tid)!=null)
+        if (Redis::connection('CommunityInfo')->zscore('fans_'.$tid,$uid)!=null)
         {
             //他关注我了
             $fans=2;
@@ -2070,6 +2079,9 @@ Eof;
         }
 
         DB::connection($this->db)->commit();
+
+        //记录一下这个用户一共发布了几条印象
+        Redis::connection('UserInfo')->hincrby('ZzZzZzZzZzZzZzZz','CommunityArticleTotal',-1);
 
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
@@ -2591,7 +2603,7 @@ Eof;
     }
 
     //未读评论
-    public function getAllNoReadComment($uid)
+    public function getAllNoReadComment($uid,$needUpdate=true)
     {
         $now=Carbon::now();
 
@@ -2620,7 +2632,7 @@ Eof;
                 $cond[]=$one['aid'];
             }
 
-            if (!empty($tmp))
+            if (!empty($tmp) && $needUpdate)
             {
                 CommentsModel::suffix($suffix);
                 CommentsModel::whereIn('aid',array_flatten($cond))->update(['isOwnersRead'=>1]);
@@ -2649,12 +2661,13 @@ Eof;
                 $cond[]=$one['aid'];
             }
 
-            if (!empty($tmp))
+            if (!empty($tmp) && $needUpdate)
             {
                 CommentsModel::suffix($suffix);
                 CommentsModel::whereIn('aid',array_flatten($cond))->update(['isRead'=>1]);
             }
         }
+
         return [$arr1,$arr2];
     }
 
@@ -2710,7 +2723,308 @@ Eof;
         return [$uName,$uAvatar];
     }
 
+    //印象分数，广场页面用
+    public function setCommunityScore($type,$uid,$articleId)
+    {
+        //$type是comment或这like，comment是5分，like是1分，精华是20分
 
+        //记录5天内哪些印象被点赞和被评论
+
+        //该条印象有哪些标签
+        $suffix=date('Y',substr($articleId,0,10));
+        ArticleLabelModel::suffix($suffix);
+
+        $labelsArr=array_flatten(ArticleLabelModel::where('aid',$articleId)->get(['labelId'])->toArray());
+
+        array_push($labelsArr,0);
+
+        foreach ($labelsArr as $oneLabel)
+        {
+            if ($type=='like')
+            {
+                $today=Carbon::now()->format('Ymd');
+
+                $expire=86400 * 5;
+
+                //加入当天点赞集合
+                if (Redis::connection('HotArticleInfo')->hget("Like_{$uid}_{$oneLabel}_{$today}",$articleId)==1)
+                {
+                    //今天已经点过赞了
+
+                }else
+                {
+                    //今天没有点赞
+                    Redis::connection('HotArticleInfo')->hset("Like_{$uid}_{$oneLabel}_{$today}",$articleId,1);
+
+                    //当天分数加1
+                    Redis::connection('HotArticleInfo')->zincrby("Score_{$oneLabel}_{$today}",1,$articleId);
+                }
+
+                Redis::connection('HotArticleInfo')->expire("Like_{$uid}_{$oneLabel}_{$today}",$expire);
+                Redis::connection('HotArticleInfo')->expire("Score_{$oneLabel}_{$today}",$expire);
+            }
+
+            if ($type=='comment')
+            {
+                $today=Carbon::now()->format('Ymd');
+
+                $expire=86400 * 5;
+
+                //加入当天评论集合
+                if (Redis::connection('HotArticleInfo')->hget("Comment_{$uid}_{$oneLabel}_{$today}",$articleId)==1)
+                {
+                    //今天已经评论过了
+
+                }else
+                {
+                    //今天没有评论
+                    Redis::connection('HotArticleInfo')->hset("Comment_{$uid}_{$oneLabel}_{$today}",$articleId,1);
+
+                    //当天分数加1还是加5
+                    //查看之前4天是否已经评论过了
+                    $tmp=$today-1;
+                    $day1=Redis::connection('HotArticleInfo')->hget("Comment_{$uid}_{$oneLabel}_{$tmp}",$articleId);
+                    $tmp=$today-2;
+                    $day2=Redis::connection('HotArticleInfo')->hget("Comment_{$uid}_{$oneLabel}_{$tmp}",$articleId);
+                    $tmp=$today-3;
+                    $day3=Redis::connection('HotArticleInfo')->hget("Comment_{$uid}_{$oneLabel}_{$tmp}",$articleId);
+                    $tmp=$today-4;
+                    $day4=Redis::connection('HotArticleInfo')->hget("Comment_{$uid}_{$oneLabel}_{$tmp}",$articleId);
+
+                    if ($day1==1 || $day2==1 || $day3==1 || $day4==1)
+                    {
+                        Redis::connection('HotArticleInfo')->zincrby("Score_{$oneLabel}_{$today}",1,$articleId);
+                    }else
+                    {
+                        Redis::connection('HotArticleInfo')->zincrby("Score_{$oneLabel}_{$today}",5,$articleId);
+                    }
+                }
+
+                Redis::connection('HotArticleInfo')->expire("Comment_{$uid}_{$oneLabel}_{$today}",$expire);
+                Redis::connection('HotArticleInfo')->expire("Score_{$oneLabel}_{$today}",$expire);
+            }
+        }
+
+        return true;
+    }
+
+    //从redis中取广场热门页的aid
+    public function getHotArticleFromRedis($label,$limit,$page)
+    {
+        //取最近3天的热门
+        $today=Carbon::now();
+
+        //3分钟过期
+        $minute=3;
+
+        //生成大集合
+        $res=Cache::remember("func_getHotArticleFromRedis_cache_label_{$label}",$minute,function () use ($today,$minute,$label) {
+
+            $tmpKey1="Score_{$label}_{$today->subDays(1)->format('Ymd')}";
+            $tmpKey2="Score_{$label}_{$today->subDays(2)->format('Ymd')}";
+            $tmpKey3="Score_{$label}_{$today->subDays(3)->format('Ymd')}";
+
+            //取并集后的大集合
+            $key="Destination_{$label}_{$today->format('Ymd')}";
+
+            //TheBestArticle是所有加精的aid集合
+            Redis::connection('HotArticleInfo')->zunionstore($key,4,$tmpKey1,$tmpKey2,$tmpKey3,"TheBestArticle_{$label}");
+
+            Redis::connection('HotArticleInfo')->expire($key,$minute*60*2);
+
+            //返回所有
+            $res=Redis::connection('HotArticleInfo')->zrevrange($key,0,-1,'withscores');
+
+            //降序排序，从高到低
+            if (!empty($res))
+            {
+                rsort($res);
+
+                foreach ($res as $k=>$v)
+                {
+                    $tmp[]=[$k=>$v];
+                }
+
+                $data=$tmp;
+                $aid=array_keys($res);
+
+            }else
+            {
+                $aid=$data=[];
+            }
+
+            return [$data,$aid];
+        });
+
+        dd($res);
+
+        //先从这个数组里取，取没有了再从数据表中取
+        //return response()->json(['resCode'=>Config::get('resCode.625')]);
+        if (!empty($res[0]))
+        {
+            //从热门里取
+            $aidArr=paginateByMyself($res[0],$page,$limit);
+
+            //取到有热度的aid了
+            if (!empty($aidArr)) return $aidArr;
+
+            //如果取不到了，就要从mysql中取得，page需要重新算一下
+            //计算如下：
+            //res0里有23条数据，limit是5，用户page是1取0-4，2取5-9，3取10-14，4取15-19，5取20-24，6取不到
+            //res0里有28条数据，limit是5，用户page是1取0-4，2取5-9，3取10-14，4取15-19，5取20-24，6取25-29，7取不到
+            //res0里有19条数据，limit是5，用户page是1取0-4，2取5-9，3取10-14，4取15-19，5取不到
+            //res0里有07条数据，limit是5，用户page是1取0-4，2取5-9，3取不到
+
+            //例子1当page传入6的时候就应该从mysql中取了，但是这时候的offset应该是0
+            //需要减去的值
+            $needSub=(int)ceil(count($res[0])/$limit)+1;
+
+            $offset=($page-$needSub)*$limit;
+
+            $coldInMysql=$this->getColdArticleFromMysql($label,$offset,$limit,$page);
+
+
+
+
+
+
+
+
+
+        }else
+        {
+            //从数据库中取得
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+    //取得没有热度的aid
+    public function getColdArticleFromMysql($label,$offset,$limit,$page)
+    {
+        $data=[];
+
+        return $data;
+    }
+
+    //广场页面
+    public function getPublicSquarePage(Request $request)
+    {
+        $now=Carbon::now();
+
+        //取uid有多少未读消息
+        $uid=(int)$request->uid;
+
+        $countLike=0;
+
+        for ($i=0;$i<100;$i++)
+        {
+            $suffix=$now->year - $i;
+
+            $table="community_article_like_{$suffix}";
+
+            if (!Schema::connection($this->db)->hasTable($table)) break;
+
+            LikesModel::suffix($suffix);
+
+            $countLike+=LikesModel::where(['tid'=>$uid,'isLike'=>1,'isRead'=>0])->count();
+        }
+
+        $data=[];
+
+        $noReadComment=$this->getAllNoReadComment($uid,false);
+
+        //整理数组
+        if (!empty($noReadComment[1]))
+        {
+            //如果别人评论了我的评论，会收到两条信息，去掉上面那个循环里的信息
+            $condTarget=[];
+
+            foreach ($noReadComment[1] as $one)
+            {
+                $condTarget[]=$one['id'];
+
+                $data[]=$one;
+            }
+        }
+        if (!empty($noReadComment[0]))
+        {
+            foreach ($noReadComment[0] as $one)
+            {
+                //如果别人评论了我的评论，会收到两条信息，去掉上面那个循环里的信息
+                if (isset($condTarget) && in_array($one['id'],$condTarget)) continue;
+
+                $data[]=$one;
+            }
+        }
+
+        $countComment=count($data);
+
+        //小红点
+        $littleRedDot=$countLike+$countComment;
+        //========================================================================================================================
+
+        $limit=10;
+        $offset=($request->page-1)*$limit;
+
+        //0是热门，1是关注，2是最新
+        $type=(int)$request->type;
+
+        $label=(int)$request->label;
+
+        $page=(int)$request->page;
+
+        switch ($type)
+        {
+            case 0:
+
+                //热门
+
+                //首先返回47个标签
+                $hotLabels=LabelModel::where('labelContent','<>','amyYOEPCiph6NQr')->orderBy('useTotal','desc')->orderBy('id')->limit(47)->get(['id','labelContent','useTotal'])->toArray();
+
+                $this->getHotArticleFromRedis($label,$limit,$page);
+
+
+
+
+
+
+
+
+                break;
+
+            case 1:
+
+                //关注
+
+                break;
+
+            case 2:
+
+                //最新
+
+                break;
+
+            default:
+
+                return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+                break;
+        }
+    }
 
 
 

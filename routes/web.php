@@ -14,6 +14,32 @@ Route::group(['prefix'=>'admin'],function ()
         //管理后台路由
         Route::get('/',function (){
 
+
+
+            $limit=5;
+
+            $totle=7;
+
+            //可以取几次，并且向上取整后+1
+            $box1=(int)ceil($totle/$limit)+1;
+
+            $page=6;
+
+            $offset=($page-$box1)*$limit;
+
+            dd($offset);
+
+
+
+
+
+
+
+
+
+
+
+
             $info=\Illuminate\Support\Facades\Redis::connection('default')->get('ServerInfo');
 
             $info=jsonDecode($info);

@@ -413,6 +413,14 @@ return [
             'database' => 0,
         ],
 
+        //计算广场热门选择卡
+        'HotArticleInfo' => [
+            'host' => '183.136.232.236',
+            'password' => 'wanghan123',
+            'port' => '6379',
+            'database' => 9,
+        ],
+
         //社区相关
         'CommunityInfo' => [
             'host' => '183.136.232.236',

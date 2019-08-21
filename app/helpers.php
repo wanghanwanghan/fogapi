@@ -957,7 +957,22 @@ function getSlowlySql($s)
     return true;
 }
 
+//自制分页
+function paginateByMyself($res,$page,$limit)
+{
+    $offset=($page-1)*$limit;
 
+    $data=[];
+
+    for ($i=$offset;$i<=$limit*$page-1;$i++)
+    {
+        if (!isset($res[$i])) break;
+
+        $data[]=$res[$i];
+    }
+
+    return $data;
+}
 
 
 

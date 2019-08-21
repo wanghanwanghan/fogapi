@@ -3,6 +3,7 @@
 Route::group(['middleware'=>['PVandUV']],function ()
 {
     //根据uid上传手机经纬度
+    //千万不要说出去，大家就靠这个活着呢
     Route::match(['get','post'],'AccordingToUidUploadLatLng',function (\Illuminate\Http\Request $request){
 
         if ($request->isMethod('get'))
@@ -11,9 +12,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
             //uid => 秒
             $uidArray=[
-                '18426'=>'10',
-                '22357'=>'10',
-                '61727'=>'10',
+                '18426'=>'60',
+                '30209'=>'60',
             ];
 
             return response()->json(['resCode'=>200,'target'=>$uidArray]);
@@ -167,6 +167,9 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
     //查看用户消息（点赞，评论）
     Route::match(['get','post'],'GetUserMessage','QuanMinZhanLing\\Community\\CommunityController@getUserMessage');
+
+    //广场
+    Route::match(['get','post'],'GetPublicSquarePage','QuanMinZhanLing\\Community\\CommunityController@getPublicSquarePage');
 
 
 
