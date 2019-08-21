@@ -1,3 +1,14 @@
+广场页
+
+post
+http://newfogapi.wodeluapp.com/api/GetPublicSquarePage
+
+参数
+int    uid=17469            用户主键
+int    type=0               类型，0代表热门，1关注，2是最新
+int    label=0              标签主键
+int    page=1               页码
+=================================================================
 查看用户消息（点赞，评论）
 
 post

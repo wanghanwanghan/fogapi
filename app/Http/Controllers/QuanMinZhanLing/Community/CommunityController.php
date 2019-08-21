@@ -2820,9 +2820,9 @@ Eof;
         //生成大集合
         $res=Cache::remember("func_getHotArticleFromRedis_cache_label_{$label}",$minute,function () use ($today,$minute,$label) {
 
-            $tmpKey1="Score_{$label}_{$today->subDays(1)->format('Ymd')}";
-            $tmpKey2="Score_{$label}_{$today->subDays(2)->format('Ymd')}";
-            $tmpKey3="Score_{$label}_{$today->subDays(3)->format('Ymd')}";
+            $tmpKey1="Score_{$label}_{$today->format('Ymd')}";
+            $tmpKey2="Score_{$label}_{$today->subDays(1)->format('Ymd')}";
+            $tmpKey3="Score_{$label}_{$today->subDays(2)->format('Ymd')}";
 
             //取并集后的大集合
             $key="Destination_{$label}_{$today->format('Ymd')}";
@@ -2838,8 +2838,6 @@ Eof;
             //降序排序，从高到低
             if (!empty($res))
             {
-                rsort($res);
-
                 foreach ($res as $k=>$v)
                 {
                     $tmp[]=[$k=>$v];
@@ -2856,17 +2854,15 @@ Eof;
             return [$data,$aid];
         });
 
-        dd($res);
-
         //先从这个数组里取，取没有了再从数据表中取
         //return response()->json(['resCode'=>Config::get('resCode.625')]);
         if (!empty($res[0]))
         {
             //从热门里取
-            $aidArr=paginateByMyself($res[0],$page,$limit);
+            $hotInRedis=paginateByMyself($res[0],$page,$limit);
 
             //取到有热度的aid了
-            if (!empty($aidArr)) return $aidArr;
+            if (!empty($hotInRedis)) return $hotInRedis;
 
             //如果取不到了，就要从mysql中取得，page需要重新算一下
             //计算如下：
@@ -2881,42 +2877,101 @@ Eof;
 
             $offset=($page-$needSub)*$limit;
 
-            $coldInMysql=$this->getColdArticleFromMysql($label,$offset,$limit,$page);
+            $coldInMysql=$this->getColdArticleFromMysql($label,$offset,$limit,$res[1]);
 
-
-
-
-
-
-
-
+            return $coldInMysql;
 
         }else
         {
             //从数据库中取得
+            $offset=($page-1)*$limit;
+
+            $coldInMysql=$this->getColdArticleFromMysql($label,$offset,$limit);
+
+            return $coldInMysql;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
     //取得没有热度的aid
-    public function getColdArticleFromMysql($label,$offset,$limit,$page)
+    public function getColdArticleFromMysql($label,$offset,$limit,$except=[])
     {
-        $data=[];
+        $minute=3;
 
-        return $data;
+        $res=Cache::remember("func_getColdArticleFromMysql_cache_label_{$label}_offset_{$offset}",$minute,function () use ($label,$offset,$limit,$except) {
+
+            //union最近3年的印象，从印象标签关系表中
+            $now=Carbon::now();
+
+            //此处留坑
+            for ($i=0;$i<3;$i++)
+            {
+                $suffix=$now->year - $i;
+
+                $table="community_article_label_{$suffix}";
+
+                if (!Schema::connection($this->db)->hasTable($table)) break;
+
+                $tableTarget[]=$table;
+            }
+
+            $sql='';
+            foreach ($tableTarget as $oneTable)
+            {
+                $sql.=" union select * from {$oneTable}";
+            }
+            $sql=trim(ltrim(trim($sql),'union'));
+
+            //按不按照label筛选
+            if ($label==0)
+            {
+                $reslSql="select distinct aid from ({$sql}) as tmp ABCDEFG order by unixTime desc limit {$offset},{$limit}";
+
+                if (empty($except))
+                {
+                    $reslSql=str_replace('ABCDEFG','',$reslSql);
+                }else
+                {
+                    $str='';
+                    foreach ($except as $oneAid)
+                    {
+                        $str.=',\''.$oneAid.'\'';
+                    }
+                    $str=ltrim($str,',');
+
+                    $str='where aid not in ('.$str.')';
+
+                    $reslSql=str_replace('ABCDEFG',$str,$reslSql);
+                }
+
+            }else
+            {
+                $reslSql="select distinct aid from ({$sql}) as tmp where labelId={$label} ABCDEFG order by unixTime desc limit {$offset},{$limit}";
+
+                if (empty($except))
+                {
+                    $reslSql=str_replace('ABCDEFG','',$reslSql);
+                }else
+                {
+                    $str='';
+                    foreach ($except as $oneAid)
+                    {
+                        $str.=',\''.$oneAid.'\'';
+                    }
+                    $str=ltrim($str,',');
+
+                    $str='and aid not in ('.$str.')';
+
+                    $reslSql=str_replace('ABCDEFG',$str,$reslSql);
+                }
+            }
+
+            $tmp=DB::connection($this->db)->select($reslSql);
+
+            return jsonDecode(jsonEncode($tmp));
+
+        });
+
+        return $res;
     }
 
     //广场页面
@@ -2977,7 +3032,6 @@ Eof;
         //========================================================================================================================
 
         $limit=10;
-        $offset=($request->page-1)*$limit;
 
         //0是热门，1是关注，2是最新
         $type=(int)$request->type;
@@ -2995,26 +3049,146 @@ Eof;
                 //首先返回47个标签
                 $hotLabels=LabelModel::where('labelContent','<>','amyYOEPCiph6NQr')->orderBy('useTotal','desc')->orderBy('id')->limit(47)->get(['id','labelContent','useTotal'])->toArray();
 
-                $this->getHotArticleFromRedis($label,$limit,$page);
+                $res=$this->getHotArticleFromRedis($label,$limit,$page);
 
+                if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.625'),'littleRedDot'=>$littleRedDot,'hotLabels'=>$hotLabels,'data'=>$res]);
 
+                //不为空就整理数组给前端返回
+                $info=[];
+                $aid=[];
+                foreach ($res as $one)
+                {
+                    if (strlen(current($one))===16)
+                    {
+                        $thisAid=current($one);
+                    }else
+                    {
+                        $thisAid=current(array_flip($one));
+                    }
 
+                    //取出印象详情
+                    $suffix=date('Y',substr($thisAid,0,10));
 
+                    ArticleModel::suffix($suffix);
 
+                    $obj=ArticleModel::where(['aid'=>$thisAid,'isShow'=>1])->first();
 
+                    if ($obj==null) continue;
 
+                    $info[]=$obj->toArray();
+                    $aid[]=$obj->aid;
+                }
+
+                $data=[$info,$aid];
+
+                $data=$this->addLikesToArticle($data);
+                $data=$this->addCommentsToArticle($data);
+                $data=$this->sortArticle($data,$uid);
+
+                return response()->json(['resCode'=>Config::get('resCode.200'),'littleRedDot'=>$littleRedDot,'hotLabels'=>$hotLabels,'data'=>$data]);
 
                 break;
 
             case 1:
 
                 //关注
+                $follower=array_keys(Redis::connection('CommunityInfo')->zrevrange('follower_'.$uid,0,-1,'withscores'));
+
+                if (empty($follower)) return response()->json(['resCode'=>Config::get('resCode.676')]);
+
+                $now=Carbon::now();
+
+                //此处留坑
+                for ($i=0;$i<3;$i++)
+                {
+                    $suffix=$now->year - $i;
+
+                    $table="community_article_{$suffix}";
+
+                    if (!Schema::connection($this->db)->hasTable($table)) break;
+
+                    $tableTarget[]=$table;
+                }
+
+                $sql='';
+                foreach ($tableTarget as $oneTable)
+                {
+                    $sql.=" union select * from {$oneTable}";
+                }
+                $sql=trim(ltrim(trim($sql),'union'));
+
+                $offset=($page-1)*$limit;
+
+                $uidStr='';
+                foreach ($follower as $one)
+                {
+                    $uidStr.=','.$one;
+                }
+                $uidStr=ltrim($uidStr,',');
+
+                $reslSql="select * from ({$sql}) as tmp where uid in ({$uidStr}) order by unixTime desc limit {$offset},{$limit}";
+
+                $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
+
+                if (empty($tmp)) return response()->json(['resCode'=>Config::get('resCode.625'),'data'=>$tmp]);
+
+                foreach ($tmp as $one)
+                {
+                    $aidArr[]=$one['aid'];
+                }
+
+                $data=[$tmp,$aidArr];
+
+                $data=$this->addLikesToArticle($data);
+                $data=$this->addCommentsToArticle($data);
+                $data=$this->sortArticle($data,$uid);
+
+                return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
 
                 break;
 
             case 2:
 
                 //最新
+                //此处留坑
+                for ($i=0;$i<3;$i++)
+                {
+                    $suffix=$now->year - $i;
+
+                    $table="community_article_{$suffix}";
+
+                    if (!Schema::connection($this->db)->hasTable($table)) break;
+
+                    $tableTarget[]=$table;
+                }
+
+                $sql='';
+                foreach ($tableTarget as $oneTable)
+                {
+                    $sql.=" union select * from {$oneTable}";
+                }
+                $sql=trim(ltrim(trim($sql),'union'));
+
+                $offset=($page-1)*$limit;
+
+                $reslSql="select * from ({$sql}) as tmp order by unixTime desc limit {$offset},{$limit}";
+
+                $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
+
+                if (empty($tmp)) return response()->json(['resCode'=>Config::get('resCode.625'),'data'=>$tmp]);
+
+                foreach ($tmp as $one)
+                {
+                    $aidArr[]=$one['aid'];
+                }
+
+                $data=[$tmp,$aidArr];
+
+                $data=$this->addLikesToArticle($data);
+                $data=$this->addCommentsToArticle($data);
+                $data=$this->sortArticle($data,$uid);
+
+                return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
 
                 break;
 
