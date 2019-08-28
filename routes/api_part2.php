@@ -171,8 +171,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //广场
     Route::match(['get','post'],'GetPublicSquarePage','QuanMinZhanLing\\Community\\CommunityController@getPublicSquarePage');
 
-
-
+    //印象详情
+    Route::match(['get','post'],'ArticleDetail','QuanMinZhanLing\\Community\\CommunityController@articleDetail');
 
 
 });

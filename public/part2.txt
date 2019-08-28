@@ -1,3 +1,12 @@
+通过aid查询印象详情
+
+post
+http://newfogapi.wodeluapp.com/api/ArticleDetail
+
+参数
+int    uid=17469               用户主键
+string aid=15647311100sjDEM    印象主键
+=================================================================
 广场页
 
 post

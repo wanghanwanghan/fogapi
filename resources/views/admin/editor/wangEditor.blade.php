@@ -129,7 +129,7 @@
                     <div>
                         <label><a href="#">添加你的缩略图</a> 最多4张</label>
                         <div id="readyInsertThumb">
-                            <img src="https://iocaffcdn.phphub.org/uploads/communities/WtC3cPLHzMbKRSZnagU9.png" alt="..." class="margin">
+                            <img src="https://qcdn.xueyuanjun.com/wp-content/uploads/2017/09/logo.png" alt="..." class="margin">
                             <img src="//www.baidu.com/img/bd_logo1.png" alt="..." class="margin">
                             <img src="http://placehold.it/150x100" alt="..." class="margin">
                             <img src="http://placehold.it/150x100" alt="..." class="margin">

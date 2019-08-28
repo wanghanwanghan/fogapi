@@ -98,6 +98,7 @@ class UserController extends BaseController
         //加系数
         $x=0;
 
+        //Config::get('myDefine.WalletLimit')是200
         $areaMoney + $timeMoney > Config::get('myDefine.WalletLimit') + $x ? $money = Config::get('myDefine.WalletLimit') + $x : $money = $areaMoney + $timeMoney;
 
         if ($request->isMethod('post'))

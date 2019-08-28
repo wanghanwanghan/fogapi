@@ -1091,9 +1091,10 @@ Eof;
 
                 ArticleModel::suffix($suffix);
 
-                $w=ArticleModel::where(['aid'=>$oneAid->aid,'isTop'=>0,'theBest'=>0])->where(function ($query) use ($uid) {
-                    $query->where('isShow',1)->orWhere(['isShow'=>0,'uid'=>$uid]);
-                })->first();
+                $w=ArticleModel::where(['aid'=>$oneAid->aid,'isTop'=>0,'theBest'=>0,'isShow'=>1])
+                    ->orWhere(function ($query) use ($oneAid,$uid) {
+                        $query->where(['aid'=>$oneAid->aid,'isTop'=>0,'theBest'=>0,'isShow'=>0,'uid'=>$uid]);
+                    })->first();
 
                 if (empty($w))
                 {
@@ -1901,6 +1902,19 @@ Eof;
 
         $peopleLabel=jsonDecode(Redis::connection('UserInfo')->hget($uid,'PeopleLabels')) == null ? [] : jsonDecode(Redis::connection('UserInfo')->hget($uid,'PeopleLabels'));
 
+        if (!empty($peopleLabel))
+        {
+            foreach ($peopleLabel as &$oneLabel)
+            {
+                $id=$oneLabel;
+
+                $labelContent=LabelForPeopleModel::find($oneLabel)->labelContent;
+
+                $oneLabel=['id'=>$id,'oneLabel'=>$labelContent];
+            }
+            unset($oneLabel);
+        }
+
         $article=$this->getArticleByUid($uid,0,$page);
         $userInfo['communityTotal']=$article[2];
         $article=$this->addLikesToArticle($article);
@@ -1991,7 +2005,7 @@ Eof;
         {
             $uid=$request->uid;
 
-            $labelsArr=jsonDecode(jsonEncode($request->labels));
+            $labelsArr=jsonDecode($request->labels);
 
             Redis::connection('UserInfo')->hset($uid,'PeopleLabels',jsonEncode($labelsArr));
 
@@ -2129,8 +2143,8 @@ Eof;
 
         $suffix=($uid+$tid)%5;
 
-        //30%机率清理一下数据表
-        if ($page===1 && random_int(1,10) > 7) $this->clearUpPrivateMailTable($uid,$tid,$suffix);
+        //10%机率清理一下数据表
+        if ($page===1 && random_int(1,10) > 9) $this->clearUpPrivateMailTable($uid,$tid,$suffix);
 
         $limit=10;
         $offset=($page-1)*$limit;
@@ -2417,6 +2431,7 @@ Eof;
                     LikesModel::suffix($suffix);
                     CommentsModel::suffix($suffix);
                     $one['likeTotal']=LikesModel::where('aid',$one['aid'])->count();
+                    LikesModel::where(['aid'=>$one['aid'],'uid'=>$uid])->first() == null ? $one['iLike']=0 : $one['iLike']=1;
                     $one['commentTotal']=CommentsModel::where('aid',$one['aid'])->count();
                 }
                 unset($one);
@@ -3051,7 +3066,7 @@ Eof;
 
                 $res=$this->getHotArticleFromRedis($label,$limit,$page);
 
-                if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.625'),'littleRedDot'=>$littleRedDot,'hotLabels'=>$hotLabels,'data'=>$res]);
+                if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'littleRedDot'=>$littleRedDot,'hotLabels'=>$hotLabels,'data'=>$res]);
 
                 //不为空就整理数组给前端返回
                 $info=[];
@@ -3083,7 +3098,7 @@ Eof;
 
                 $data=$this->addLikesToArticle($data);
                 $data=$this->addCommentsToArticle($data);
-                $data=$this->sortArticle($data,$uid);
+                $data=current($this->sortArticle($data,$uid));
 
                 return response()->json(['resCode'=>Config::get('resCode.200'),'littleRedDot'=>$littleRedDot,'hotLabels'=>$hotLabels,'data'=>$data]);
 
@@ -3130,7 +3145,7 @@ Eof;
 
                 $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
 
-                if (empty($tmp)) return response()->json(['resCode'=>Config::get('resCode.625'),'data'=>$tmp]);
+                if (empty($tmp)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$tmp]);
 
                 foreach ($tmp as $one)
                 {
@@ -3141,7 +3156,7 @@ Eof;
 
                 $data=$this->addLikesToArticle($data);
                 $data=$this->addCommentsToArticle($data);
-                $data=$this->sortArticle($data,$uid);
+                $data=current($this->sortArticle($data,$uid));
 
                 return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
 
@@ -3175,7 +3190,7 @@ Eof;
 
                 $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
 
-                if (empty($tmp)) return response()->json(['resCode'=>Config::get('resCode.625'),'data'=>$tmp]);
+                if (empty($tmp)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$tmp]);
 
                 foreach ($tmp as $one)
                 {
@@ -3186,7 +3201,7 @@ Eof;
 
                 $data=$this->addLikesToArticle($data);
                 $data=$this->addCommentsToArticle($data);
-                $data=$this->sortArticle($data,$uid);
+                $data=current($this->sortArticle($data,$uid));
 
                 return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
 
@@ -3200,7 +3215,33 @@ Eof;
         }
     }
 
+    public function articleDetail(Request $request)
+    {
+        $uid=(int)$request->uid;
+        $aid=(string)$request->aid;
 
+        $data=[];
+
+        $suffix=date('Y',substr($aid,0,10));
+
+        ArticleModel::suffix($suffix);
+
+        $res=ArticleModel::where(['aid'=>$aid,'isShow'=>1])->orWhere(function ($query) use ($aid,$uid) {
+            $query->where(['aid'=>$aid,'isShow'=>0,'uid'=>$uid]);
+        })->first();
+
+        if ($res==null) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
+
+        $tmp=[[$res->toArray()],[$res->aid]];
+
+        $tmp=$this->addLikesToArticle($tmp);
+        $tmp=$this->addCommentsToArticle($tmp);
+        $tmp=$this->sortArticle($tmp,$uid);
+
+        $data=$tmp;
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
+    }
 
 
 
