@@ -2409,11 +2409,14 @@ Eof;
                 {
                     $uInfo=$this->getUserNameAndAvatar($one['uid']);
                     $tInfo=$this->getUserNameAndAvatar($one['tid']);
+                    $oInfo=$this->getUserNameAndAvatar($one['oid']);
 
                     $one['uName']=$uInfo[0];
                     $one['uAvatar']=$uInfo[1];
                     $one['tName']=$tInfo[0];
                     $one['tAvatar']=$tInfo[1];
+                    $one['oName']=$oInfo[0];
+                    $one['oAvatar']=$oInfo[1];
 
                     $one['dateTime']=formatDate($one['unixTime']);
 
@@ -2431,7 +2434,7 @@ Eof;
                     LikesModel::suffix($suffix);
                     CommentsModel::suffix($suffix);
                     $one['likeTotal']=LikesModel::where('aid',$one['aid'])->count();
-                    LikesModel::where(['aid'=>$one['aid'],'uid'=>$uid])->first() == null ? $one['iLike']=0 : $one['iLike']=1;
+                    LikesModel::where(['aid'=>$one['aid'],'uid'=>$uid,'isLike'=>1])->first() == null ? $one['iLike']=0 : $one['iLike']=1;
                     $one['commentTotal']=CommentsModel::where('aid',$one['aid'])->count();
                 }
                 unset($one);
@@ -2713,7 +2716,7 @@ Eof;
         }
         $sql=trim(ltrim(trim($sql),'union'));
 
-        $reslSql="select id,aid,uid,tid,comment,unixTime from ({$sql}) as tmp where (oid={$uid}) or (oid!={$uid} and tid={$uid}) order by unixTime desc limit {$offset},{$limit}";
+        $reslSql="select id,aid,uid,tid,oid,comment,unixTime from ({$sql}) as tmp where (oid={$uid}) or (oid!={$uid} and tid={$uid}) order by unixTime desc limit {$offset},{$limit}";
 
         $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
 
@@ -3238,7 +3241,7 @@ Eof;
         $tmp=$this->addCommentsToArticle($tmp);
         $tmp=$this->sortArticle($tmp,$uid);
 
-        $data=$tmp;
+        $data=current($tmp);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
     }

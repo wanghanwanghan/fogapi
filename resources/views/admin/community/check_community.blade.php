@@ -15,21 +15,84 @@
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">未审核：<span id="noPassTotle" style="color: red">0</span></h6>
+                <h6 class="m-0 font-weight-bold text-primary">未审核：<span style="color: red">{{ $waitToCheck }}</span></h6>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-bordered text-center" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                         <tr>
-                            <th>格子主键</th>
-                            <th>用户主键</th>
-                            <th>格子编号</th>
-                            <th>格子图片</th>
-                            <th>审核操作</th>
+                            <th style='vertical-align: middle'>操作</th>
+                            <th style='vertical-align: middle'>用户主键</th>
+                            <th style='vertical-align: middle'>格子编号</th>
+                            <th style='vertical-align: middle'>图片视频</th>
+                            <th style='vertical-align: middle'>图片视频</th>
+                            <th style='vertical-align: middle'>图片视频</th>
+                            <th style='vertical-align: middle'>图片视频</th>
+                            <th style='vertical-align: middle'>图片视频</th>
+                            <th style='vertical-align: middle'>图片视频</th>
+                            <th style='vertical-align: middle'>图片视频</th>
+                            <th style='vertical-align: middle'>图片视频</th>
+                            <th style='vertical-align: middle'>图片视频</th>
+                            <th style='vertical-align: middle'>发布时间</th>
                         </tr>
                         </thead>
-                        <tbody id="img_tbody">
+                        <tbody>
+                        @foreach($info as $one)
+
+                            <tr>
+                                <td style='vertical-align: middle'><a href='javascript:void(0)' id='{{ $one->aid }}' onclick=picPass($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a></td>
+                                <td style='vertical-align: middle'>{{ $one->uid }}</td>
+                                <td style='vertical-align: middle'>{{ $one->gName }}</td>
+                                @if($one->picOrVideo1!=null)
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo1 }}' onclick=showpic($(this).attr('src'))></td>
+                                @else
+                                    <td style='vertical-align: middle'></td>
+                                @endif
+                                @if($one->picOrVideo2!=null)
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo2 }}' onclick=showpic($(this).attr('src'))></td>
+                                @else
+                                    <td style='vertical-align: middle'></td>
+                                @endif
+                                @if($one->picOrVideo3!=null)
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo3 }}' onclick=showpic($(this).attr('src'))></td>
+                                @else
+                                    <td style='vertical-align: middle'></td>
+                                @endif
+                                @if($one->picOrVideo4!=null)
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo4 }}' onclick=showpic($(this).attr('src'))></td>
+                                @else
+                                    <td style='vertical-align: middle'></td>
+                                @endif
+                                @if($one->picOrVideo5!=null)
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo5 }}' onclick=showpic($(this).attr('src'))></td>
+                                @else
+                                    <td style='vertical-align: middle'></td>
+                                @endif
+                                @if($one->picOrVideo6!=null)
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo6 }}' onclick=showpic($(this).attr('src'))></td>
+                                @else
+                                    <td style='vertical-align: middle'></td>
+                                @endif
+                                @if($one->picOrVideo7!=null)
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo7 }}' onclick=showpic($(this).attr('src'))></td>
+                                @else
+                                    <td style='vertical-align: middle'></td>
+                                @endif
+                                @if($one->picOrVideo8!=null)
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo8 }}' onclick=showpic($(this).attr('src'))></td>
+                                @else
+                                    <td style='vertical-align: middle'></td>
+                                @endif
+                                @if($one->picOrVideo9!=null)
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo9 }}' onclick=showpic($(this).attr('src'))></td>
+                                @else
+                                    <td style='vertical-align: middle'></td>
+                                @endif
+                                <td style='vertical-align: middle'>{{ $one->created_at }}</td>
+                            </tr>
+
+                        @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -54,31 +117,33 @@
     <script>
 
         //展示大图
-        function showpic(imgUrl) {
+        function showpic(url) {
+
+            //var baseUrl='http://newfogapi.wodeluapp.com'+url;
+            var baseUrl=url;
 
             $("#img_content").children().remove();
 
-            var data=
-                {
-                    _token:$("input[name=_token]").val(),
-                    imgUrl:imgUrl,
-                    type  :'get_img_size',
-                };
+            if (baseUrl.search(/video/i)>0)
+            {
+                //是视频
+                baseUrl=baseUrl.replace('thum','origin');
+                baseUrl=baseUrl.replace('jpg','mp4');
 
-            $.post('/admin/grid/ajax',data,function (response) {
+                $('#img_content').append("<video autoplay loop><source src='"+baseUrl+"' type='video/mp4'>您的浏览器不支持 HTML5 video 标签。</video>");
+            }else
+            {
+                //是图片
+                baseUrl=baseUrl.replace('thum','origin');
+                $('#img_content').append("<img src="+baseUrl+">");
+            }
 
-                //填上图片
-                $('#img_content').append("<img width="+response.width+"px; height="+response.width+"px; src="+imgUrl+">");
-
-                //弹出图片
-                $('#img_div').modal('show');
-
-            },'json');
-
+            //弹出
+            $('#img_div').modal('show');
         }
 
         //通过审核
-        function picPass(stringId)
+        function picPass(aid)
         {
             swal("纪申你要考虑清楚", {
                 title: "通过审核，还是删除不合格图片？",
@@ -98,19 +163,27 @@
                         case "pass":
 
                             //====================================================
-                            var url ='/admin/grid/ajax';
+                            var url ='/admin/community/ajax';
 
                             var data=
                                 {
                                     _token   : $("input[name=_token]").val(),
-                                    type     : 'picPass',
-                                    stringId : stringId,
-                                    whitchPic:1,
+                                    type     : 'pass',
+                                    aid      : aid
                                 };
 
-                            $.post(url,data,function () {},'json');
+                            $.post(url,data,function (response) {
 
-                            swal("通过审核", "app上已经可以显示了", "success");
+                                if (response.resCode==200)
+                                {
+                                    swal("通过审核", "app上已经可以显示了", "success");
+
+                                }else
+                                {
+                                    alert('error');return;
+                                }
+
+                            },'json');
 
                             //====================================================
 
@@ -119,19 +192,28 @@
                         case "nopass":
 
                             //====================================================
-                            var url ='/admin/grid/ajax';
+                            var url ='/admin/community/ajax';
 
                             var data=
                                 {
                                     _token   : $("input[name=_token]").val(),
-                                    type     : 'picNoPass',
-                                    stringId : stringId,
-                                    whitchPic:1,
+                                    type     : 'nopass',
+                                    aid      : aid
                                 };
 
-                            $.post(url,data,function () {},'json');
+                            $.post(url,data,function (response) {
 
-                            swal("删除成功", "图片已经没有了，不能恢复了", "success");
+                                if (response.resCode==200)
+                                {
+                                    swal("删除成功", "印象已经没有了，不能恢复了", "success");
+
+                                }else
+                                {
+                                    alert('error');return;
+                                }
+
+                            },'json');
+
                             //====================================================
 
                             break;
@@ -144,49 +226,6 @@
                     location.reload();
                 });
         }
-
-        $(function () {
-
-            //获取未审核格子数据
-            var url ='/admin/grid/ajax';
-
-            var data=
-                {
-                    _token:$("input[name=_token]").val(),
-                    type  :'get_grid_img'
-                };
-
-            $.post(url,data,function (response)
-            {
-                $.each(response.data,function(key,value)
-                {
-                    //创建一行
-                    var newTr=$("<tr></tr>");
-
-                    //添加gid
-                    newTr.append("<td style='vertical-align: middle'>"+value.gid+"</td>");
-
-                    //添加uid
-                    newTr.append("<td style='vertical-align: middle'>"+value.uid+"</td>");
-
-                    //格子编号
-                    newTr.append("<td style='vertical-align: middle'>"+value.name+"</td>");
-
-                    //图片
-                    newTr.append("<td style='vertical-align: middle'><img src="+value.picUrl+" onclick=showpic('"+value.picUrl+"'); width='80px;' height='50px;'></td>");
-
-                    //按钮
-                    newTr.append("<td style='vertical-align: middle'><a href='#' id="+value.uid+","+value.gid+" onclick=picPass($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a></td>");
-
-                    $("#img_tbody").append(newTr);
-
-                });
-
-                $("#noPassTotle").html(response.count);
-
-            },'json');
-
-        })
 
     </script>
 

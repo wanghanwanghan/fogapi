@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ee963e8ead95cb77516229d3d95bf7ba",
+    "content-hash": "32e8c918d93ba473e1646e903b1a72d1",
     "packages": [
         {
             "name": "alchemy/binary-driver",
@@ -2393,6 +2393,58 @@
             ],
             "description": "The easiest way to send short message.",
             "time": "2019-04-26T08:24:28+00:00"
+        },
+        {
+            "name": "overtrue/laravel-socialite",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/overtrue/laravel-socialite.git",
+                "reference": "dd24ad6ae71cd5f5f5a52bba72930c26e9d6de6a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/overtrue/laravel-socialite/zipball/dd24ad6ae71cd5f5f5a52bba72930c26e9d6de6a",
+                "reference": "dd24ad6ae71cd5f5f5a52bba72930c26e9d6de6a",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "overtrue/socialite": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Overtrue\\LaravelSocialite\\ServiceProvider"
+                    ],
+                    "aliases": {
+                        "Socialite": "Overtrue\\LaravelSocialite\\Socialite"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Overtrue\\LaravelSocialite\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "overtrue",
+                    "email": "anzhengchao@gmail.com"
+                }
+            ],
+            "description": "Social OAuth authentication for Laravel 5.",
+            "time": "2017-12-14T05:34:22+00:00"
         },
         {
             "name": "overtrue/laravel-wechat",

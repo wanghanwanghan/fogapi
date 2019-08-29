@@ -35,4 +35,18 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    //facebook, github, google, linkedin, outlook, weibo, taobao, qq, wechat, douyin, and douban.
+
+    'wechat' => [
+        'client_id'     => 'your-app-id',
+        'client_secret' => 'your-app-secret',
+        'redirect'      => 'http://localhost/socialite/callback.php',
+    ],
+
+    'github' => [
+        'client_id'     => 'ab38f215ea4f7bbafce4',
+        'client_secret' => '35886c6a008155014603432a7eb0e7c93b2eb15e',
+        'redirect'      => 'http://n2.iissbbs.com',
+    ],
+
 ];
