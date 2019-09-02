@@ -174,6 +174,9 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //印象详情
     Route::match(['get','post'],'ArticleDetail','QuanMinZhanLing\\Community\\CommunityController@articleDetail');
 
+    //selectCorrectUid
+    Route::match(['get','post'],'SelectCorrectUid','TanSuoShiJie\\AboutUserController@selectCorrectUid');
+
 
 });
 

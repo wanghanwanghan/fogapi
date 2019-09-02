@@ -45,47 +45,47 @@
                                 <td style='vertical-align: middle'>{{ $one->uid }}</td>
                                 <td style='vertical-align: middle'>{{ $one->gName }}</td>
                                 @if($one->picOrVideo1!=null)
-                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo1 }}' onclick=showpic($(this).attr('src'))></td>
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo1 }}' width="70px" height="70px" onclick=showpic($(this).attr('src'))></td>
                                 @else
                                     <td style='vertical-align: middle'></td>
                                 @endif
                                 @if($one->picOrVideo2!=null)
-                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo2 }}' onclick=showpic($(this).attr('src'))></td>
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo2 }}' width="70px" height="70px" onclick=showpic($(this).attr('src'))></td>
                                 @else
                                     <td style='vertical-align: middle'></td>
                                 @endif
                                 @if($one->picOrVideo3!=null)
-                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo3 }}' onclick=showpic($(this).attr('src'))></td>
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo3 }}' width="70px" height="70px" onclick=showpic($(this).attr('src'))></td>
                                 @else
                                     <td style='vertical-align: middle'></td>
                                 @endif
                                 @if($one->picOrVideo4!=null)
-                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo4 }}' onclick=showpic($(this).attr('src'))></td>
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo4 }}' width="70px" height="70px" onclick=showpic($(this).attr('src'))></td>
                                 @else
                                     <td style='vertical-align: middle'></td>
                                 @endif
                                 @if($one->picOrVideo5!=null)
-                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo5 }}' onclick=showpic($(this).attr('src'))></td>
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo5 }}' width="70px" height="70px" onclick=showpic($(this).attr('src'))></td>
                                 @else
                                     <td style='vertical-align: middle'></td>
                                 @endif
                                 @if($one->picOrVideo6!=null)
-                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo6 }}' onclick=showpic($(this).attr('src'))></td>
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo6 }}' width="70px" height="70px" onclick=showpic($(this).attr('src'))></td>
                                 @else
                                     <td style='vertical-align: middle'></td>
                                 @endif
                                 @if($one->picOrVideo7!=null)
-                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo7 }}' onclick=showpic($(this).attr('src'))></td>
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo7 }}' width="70px" height="70px" onclick=showpic($(this).attr('src'))></td>
                                 @else
                                     <td style='vertical-align: middle'></td>
                                 @endif
                                 @if($one->picOrVideo8!=null)
-                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo8 }}' onclick=showpic($(this).attr('src'))></td>
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo8 }}' width="70px" height="70px" onclick=showpic($(this).attr('src'))></td>
                                 @else
                                     <td style='vertical-align: middle'></td>
                                 @endif
                                 @if($one->picOrVideo9!=null)
-                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo9 }}' onclick=showpic($(this).attr('src'))></td>
+                                    <td style='vertical-align: middle'><img src='{{ $one->picOrVideo9 }}' width="70px" height="70px" onclick=showpic($(this).attr('src'))></td>
                                 @else
                                     <td style='vertical-align: middle'></td>
                                 @endif

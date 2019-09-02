@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Model\Community\ArticleLabelModel;
 use App\Model\Community\ArticleModel;
+use App\Model\Community\CommentsModel;
+use App\Model\Community\LikesModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,19 +46,36 @@ class AdminCommunityController extends AdminBaseController
 
                 $res=ArticleModel::where('aid',$aid)->first();
 
+                if ($res==null) return ['resCode'=>200];
+
                 //视频有源文件和缩略图
-
-
-
-
-
-
-
                 //图片有源文件和缩略图
+                for ($i=1;$i<=9;$i++)
+                {
+                    $t="picOrVideo{$i}";
 
+                    if ($res->$t==null || $res->$t=='') continue;
 
+                    @unlink(public_path().$res->$t);
+                }
 
+                //删标签
+                ArticleLabelModel::suffix($suffix);
+                ArticleLabelModel::where('aid',$res->aid)->delete();
 
+                //删赞
+                LikesModel::suffix($suffix);
+                LikesModel::where('aid',$res->aid)->delete();
+
+                //删评论
+                CommentsModel::suffix($suffix);
+                CommentsModel::where('aid',$res->aid)->delete();
+
+                //最后记录一下这人发了几次黄图了
+                $uid=$res->uid;
+
+                //删印象主体
+                $res->delete();
 
                 return ['resCode'=>200];
 

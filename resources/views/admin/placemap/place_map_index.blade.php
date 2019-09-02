@@ -157,10 +157,10 @@
                     }
                 ],
             },
-            //draw: {
+            // draw: {
             //    interval: 400, //间隔时间
             //    splitCount: 5000 //每批绘画的数量
-            //},
+            // },
             legend: {
                 show: true,
                 title: "格子价格",

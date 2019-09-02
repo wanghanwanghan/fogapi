@@ -61,6 +61,21 @@ return [
             'engine' => null,
         ],
 
+        'aboutTssj' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'about_tssj',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+
         'gridTradeInfoDB' => [
             'driver' => 'mysql',
             'host' => '183.136.232.236',
