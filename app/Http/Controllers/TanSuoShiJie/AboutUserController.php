@@ -30,20 +30,20 @@ class AboutUserController extends Controller
                     Schema::connection($this->aboutTssj)->create($tableName, function (Blueprint $table) {
 
                         $table->integer('uid')->unsigned()->comment('用户主键');
-                        $table->bigInteger('phone')->unsigned()->comment('手机号');
+                        $table->bigInteger('phone')->unsigned()->nullable()->comment('手机号');
                         $table->tinyInteger('game')->unsigned()->comment('游戏uid');
                         $table->tinyInteger('fog')->unsigned()->comment('迷雾uid');
-                        $table->string('from',20)->comment('来源');
-                        $table->string('uniqueid',60)->comment('第三方注册唯一标识值');
-                        $table->string('unionid',60)->comment('多应用唯一ID值');
+                        $table->string('from',20)->nullable()->comment('来源');
+                        $table->string('uniqueid',60)->nullable()->comment('第三方注册唯一标识值');
+                        $table->string('unionid',60)->nullable()->comment('多应用唯一ID值');
                         $table->timestamps();
-                        $table->primary(['uid','phone']);
+                        $table->primary('uid');
                         $table->index('phone');
 
                     });
 
                     //添加分区
-                    DB::connection($this->aboutTssj)->statement("Alter table {$tableName} partition by linear key(`phone`) partitions 8");
+                    DB::connection($this->aboutTssj)->statement("Alter table {$tableName} partition by linear key(`uid`) partitions 8");
                 }
 
                 return true;
@@ -55,74 +55,95 @@ class AboutUserController extends Controller
     //返回正确的uid
     public function selectCorrectUid(Request $request)
     {
-        $ym=Carbon::now()->year.Carbon::now()->month;
+        //$y=Carbon::now()->year;
+        //$m=Carbon::now()->month;
 
-        if ($ym==201909 || $ym==20199) $this->createTable('AssociatedAccount');
+        //if ($y==2019 && $m==9) $this->createTable('AssociatedAccount');
 
         $uid=(int)$request->uid;
 
-        //如果已经添加进来了，就不查别的数据库了
-        $new=AssociatedAccountModel::where('uid',$uid)->first();
+        return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>$uid]);
 
-        //找到数据，直接返回
-        if ($new!=null) return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>AssociatedAccountModel::where(['phone'=>$new->phone,'fog'=>1,'game'=>1])->first()->uid]);
+        //先看看在新关联表中是否存在
+        //$checkExist=AssociatedAccountModel::where('uid',$uid)->first();
 
-        //先通过uid拿到手机号码
-        $res=DB::connection($this->tssjold)->table('tssj_member')->where('userid',$uid)->first();
+        //存在的情况
+        //if ($checkExist!=null)
+        //{
+        //    //查主账号uid后返回
+        //    $resUid=AssociatedAccountModel::where(['phone'=>$checkExist->phone,'game'=>1])->first();
 
-        if ($res==null) return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>null]);
+        //    if ($resUid!=null) return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>$resUid->uid]);
 
-        $phone=trim($res->phone);
+        //    //如果为空，说明频繁绑定，绑定乱了
+        //}
 
-        //找不到传入uid所绑定的手机号
-        if ($phone=='') return response()->json(['resCode'=>Config::get('resCode.680'),'uid'=>null]);
+        //不存在的情况
+        //先从旧库看看有没有关联账号，账号都是通过手机号关联的
+        $getPhone=DB::connection($this->tssjold)->table('tssj_member')->where('userid',$uid)->first();
 
-        //如果存在uid，就去旧关联表里找其他的uid
-        $res=DB::connection($this->tssjold)->table('tssj_member_connection')->where('phone',$phone)->get(['userid'])->toArray();
+        //这个uid不存在
+        if ($getPhone==null) return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>null]);
 
-        if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>null]);
+        //得到手机号
+        $phone=trim($getPhone->phone);
+
+        //找不到传入uid所绑定的手机号，第三方账号解绑状态，就是没有手机号
+        if ($phone=='') return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>$getPhone->userid]);
+
+        //取出该手机的所有关联账号
+        $checkAssociatedAccount=DB::connection($this->tssjold)->table('tssj_member')->where('phone',$phone)->get(['userid'])->toArray();
 
         //拿到所有关联的uid，确定一下我这边的主账号
-        foreach ($res as $oneUid)
+        foreach ($checkAssociatedAccount as $oneUid)
         {
-            if ((int)$oneUid->userid <= 0) continue;
+            //$userInfo=DB::connection($this->tssjold)->table('tssj_member')->where('userid',$oneUid->userid)->first();
 
-            $userInfo=DB::connection($this->tssjold)->table('tssj_member')->where('userid',$oneUid->userid)->first();
+            //$userTotleAssets=RankListModel::where('uid',$userInfo->userid)->first();
 
-            $userTotleAssets=RankListModel::where('uid',$userInfo->userid)->first();
+            //$userTotleAssets==null ?
+            //    $tmp[]=['uid'=>$userInfo->userid,'from'=>$userInfo->origin,'uniqueid'=>$userInfo->uniqueid,'unionid'=>$userInfo->unionid,'totleAssets'=>0] :
+            //    $tmp[]=['uid'=>$userInfo->userid,'from'=>$userInfo->origin,'uniqueid'=>$userInfo->uniqueid,'unionid'=>$userInfo->unionid,'totleAssets'=>(int)$userTotleAssets->totleAssets];
+
+            $userTotleAssets=RankListModel::where('uid',$oneUid->userid)->first();
 
             $userTotleAssets==null ?
-                $tmp[]=['uid'=>$userInfo->userid,'from'=>$userInfo->origin,'uniqueid'=>$userInfo->uniqueid,'unionid'=>$userInfo->unionid,'totleAssets'=>0] :
-                $tmp[]=['uid'=>$userInfo->userid,'from'=>$userInfo->origin,'uniqueid'=>$userInfo->uniqueid,'unionid'=>$userInfo->unionid,'totleAssets'=>(int)$userTotleAssets->totleAssets];
+                $tmp[]=['uid'=>$oneUid->userid,'totleAssets'=>0] :
+                $tmp[]=['uid'=>$oneUid->userid,'totleAssets'=>(int)$userTotleAssets->totleAssets];
         }
 
         //拿到uid和总资产，下面添加到新账户关联表中
         $tmp=arraySort1($tmp,['desc','totleAssets']);
 
+        return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>current($tmp)['uid']]);
+
         //第一个作为主账号
-        $master=1;
-        foreach ($tmp as $one)
-        {
-            $master===1 ? $readyInsert=['fog'=>1,'game'=>1] : $readyInsert=['fog'=>0,'game'=>0];
+        //$master=1;
 
-            $readyInsert['uid']=trim($one['uid']);
-            $readyInsert['phone']=$phone;
-            $readyInsert['from']=trim($one['from']);
-            $readyInsert['uniqueid']=trim($one['uniqueid']);
-            $readyInsert['unionid']=trim($one['unionid']);
+        //foreach ($tmp as $one)
+        //{
+        //    $master===1 ? $readyInsert=['fog'=>1,'game'=>1] : $readyInsert=['fog'=>0,'game'=>0];
+        //    $readyInsert['phone']=$phone;
+        //    $readyInsert['from']=trim($one['from']);
+        //    $readyInsert['uniqueid']=trim($one['uniqueid']);
+        //    $readyInsert['unionid']=trim($one['unionid']);
 
-            if (AssociatedAccountModel::where(['uid'=>$readyInsert['uid'],'phone'=>$readyInsert['phone']])->first()==null)
-            {
-                AssociatedAccountModel::create($readyInsert);
-            }
+        //    AssociatedAccountModel::updateOrCreate(['uid'=>trim($one['uid'])],$readyInsert);
 
-            $master++;
-        }
+        //    $master++;
+        //}
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>AssociatedAccountModel::where(['phone'=>$phone,'fog'=>1,'game'=>1])->first()->uid]);
+        //return response()->json(['resCode'=>Config::get('resCode.200'),'uid'=>AssociatedAccountModel::where(['phone'=>$phone,'game'=>1])->first()->uid]);
     }
 
+    //tssj用户修改手机后，修改关联表中的手机号，解绑，绑定
+    public function modifyPhoneNotice(Request $request)
+    {
+        //修改手机的用户
+        $uid=(int)$request->uid;
 
+        return response()->json(['resCode'=>Config::get('resCode.200')]);
+    }
 
 
 }

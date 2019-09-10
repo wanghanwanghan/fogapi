@@ -177,6 +177,9 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //selectCorrectUid
     Route::match(['get','post'],'SelectCorrectUid','TanSuoShiJie\\AboutUserController@selectCorrectUid');
 
+    //modifyPhoneNotice
+    Route::match(['get','post'],'ModifyPhoneNotice','TanSuoShiJie\\AboutUserController@modifyPhoneNotice');
+
 
 });
 

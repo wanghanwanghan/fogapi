@@ -7,6 +7,7 @@ use App\Http\Controllers\QuanMinZhanLing\UserController;
 use App\Model\GridInfoModel;
 use App\Model\GridModel;
 use App\Model\RankListModel;
+use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
@@ -46,6 +47,12 @@ class RankList extends Command
 
             //购买格子纳税榜
             $this->gridTax();
+
+            //迷雾总排行
+            $this->fogTotal();
+
+            //迷雾日排行
+            $this->fogDay();
 
         }catch (\Exception $e)
         {
@@ -218,7 +225,6 @@ class RankList extends Command
         Redis::connection('WriteLog')->set($this->gridRankListKey,jsonEncode($data));
     }
 
-    //===================20190626之后更新的新排行榜===================
     //格子总价榜
     public function gridTotlePrice()
     {
@@ -339,6 +345,17 @@ class RankList extends Command
         return true;
     }
 
+    //迷雾总排行
+    public function fogTotal()
+    {
+
+    }
+
+    //迷雾日排行
+    public function fogDay()
+    {
+
+    }
 
 
 
