@@ -180,6 +180,36 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //modifyPhoneNotice
     Route::match(['get','post'],'ModifyPhoneNotice','TanSuoShiJie\\AboutUserController@modifyPhoneNotice');
 
+    //返回时间信息
+    Route::match(['get','post'],'GetSystemTime',function (){
+
+        $timeObj=\Carbon\Carbon::now();
+
+        return [
+            'resCode'=>\Illuminate\Support\Facades\Config::get('resCode.200'),
+            'timezone'=>$timeObj->timezone,
+            'startOfWeek'=>[
+                'timestamps'=>$timeObj->startOfWeek()->timestamp,
+                'ymd'=>$timeObj->startOfWeek()->format('Y-m-d'),
+                'ymdhis'=>$timeObj->startOfWeek()->format('Y-m-d H:i:s'),
+                'year'=>(int)$timeObj->startOfWeek()->format('Y'),
+                'month'=>(int)$timeObj->startOfWeek()->format('m'),
+                'day'=>(int)$timeObj->startOfWeek()->format('d'),
+                'weekOfYear'=>$timeObj->startOfWeek()->weekOfYear,
+                'weekOfMonth'=>$timeObj->startOfWeek()->weekOfMonth,
+                'dayOfYear'=>$timeObj->startOfWeek()->dayOfYear,
+                'dayOfWeek'=>$timeObj->startOfWeek()->dayOfWeek,
+            ],
+        ];
+
+    });
+
+
+
+
+
+
+
 
 });
 

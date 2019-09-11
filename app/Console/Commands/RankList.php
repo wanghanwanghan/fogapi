@@ -51,8 +51,8 @@ class RankList extends Command
             //迷雾总排行
             $this->fogTotal();
 
-            //迷雾日排行
-            $this->fogDay();
+            //迷雾周排行
+            $this->fogWeek();
 
         }catch (\Exception $e)
         {
@@ -351,8 +351,8 @@ class RankList extends Command
 
     }
 
-    //迷雾日排行
-    public function fogDay()
+    //迷雾周排行
+    public function fogWeek()
     {
 
     }

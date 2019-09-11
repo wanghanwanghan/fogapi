@@ -70,10 +70,10 @@ class RankListController extends BaseController
 
                 break;
 
-            //迷雾日排行
+            //迷雾周排行
             case '7':
 
-                return response()->json($this->getFogDay($uid));
+                return response()->json($this->getFogWeek($uid,$fogArea));
 
                 break;
 
@@ -278,14 +278,57 @@ class RankListController extends BaseController
         return ['resCode'=>Config::get('resCode.200'),'all'=>$all,'my'=>$my];
     }
 
-    //迷雾日排行
-    public function getFogDay($uid)
+    //迷雾周排行
+    public function getFogWeek($uid,$fogArea)
     {
         $this->addFogObj($uid);
 
-        $data=jsonDecode(Redis::connection('WriteLog')->get('GetFogDay'));
+        //有序集合，返回前200和自己的当前排名
 
-        return ['resCode'=>Config::get('resCode.200'),'data'=>$data];
+        //当周开始时间
+        $startOfWeek=Carbon::now()->startOfWeek()->format('Ymd');
+
+        //先更改或添加
+        Redis::connection('WriteLog')->zadd("GetUserFogWeekRank_{$startOfWeek}",$fogArea,$uid);
+
+        //前200
+        $limit200=Redis::connection('WriteLog')->zrevrange("GetUserFogWeekRank_{$startOfWeek}",0,199,'withscores');
+
+        //我的排名
+        $myRank=Redis::connection('WriteLog')->zrevrank("GetUserFogWeekRank_{$startOfWeek}",$uid)+1;
+
+        //整理数组
+        $userObj=new UserController();
+
+        $my['row']=$myRank;
+        $my['fogArea']=$fogArea;
+        $my['uid']=$uid;
+        $userInfo=$userObj->getUserNameAndAvatar($uid);
+        $my['uName']=$userInfo['name'];
+        $my['uAvatar']=$userInfo['avatar'];
+
+        $num=1;
+        $all=[];
+        foreach ($limit200 as $k=>$v)
+        {
+            $one['row']=$num;
+            $one['fogArea']=sprintf("%.2f",$v);
+            $one['uid']=$k;
+
+            $userInfo=$userObj->getUserNameAndAvatar($k);
+
+            $one['uName']=$userInfo['name'];
+            $one['uAvatar']=$userInfo['avatar'];
+
+            $all[]=$one;
+
+            $num++;
+        }
+
+        //设置过期
+        Redis::connection('WriteLog')->expireat("GetUserFogWeekRank_{$startOfWeek}",Carbon::now()->endOfWeek()->timestamp);
+
+        return ['resCode'=>Config::get('resCode.200'),'all'=>$all,'my'=>$my];
     }
 
 
