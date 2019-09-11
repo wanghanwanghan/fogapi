@@ -310,7 +310,9 @@ class RankListController extends BaseController
         $userObj=new UserController();
 
         $my['row']=$myRank;
-        $my['fogArea']=sprintf("%.2f",Redis::connection('WriteLog')->zscore('GetUserFogWeekRank',$uid));
+        $a=sprintf("%.2f",Redis::connection('WriteLog')->zscore('GetUserFogWeekRank',$uid));
+        $a < 0 ? $a = 0 : null;
+        $my['fogArea']=sprintf("%.2f",$a);
         $my['uid']=$uid;
         $userInfo=$userObj->getUserNameAndAvatar($uid);
         $my['uName']=$userInfo['name'];
@@ -321,6 +323,9 @@ class RankListController extends BaseController
         foreach ($limit200 as $k=>$v)
         {
             $one['row']=$num;
+
+            $v < 0 ? $v = 0 : null;
+
             $one['fogArea']=sprintf("%.2f",$v);
             $one['uid']=$k;
 
