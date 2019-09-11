@@ -288,20 +288,29 @@ class RankListController extends BaseController
         //当周开始时间
         $startOfWeek=Carbon::now()->startOfWeek()->format('Ymd');
 
+        if (Redis::connection('WriteLog')->zscore("GetUserFogWeekRank_{$startOfWeek}_first",$uid)===null)
+        {
+            //当周第一次进
+            Redis::connection('WriteLog')->zadd("GetUserFogWeekRank_{$startOfWeek}_first",sprintf("%.2f",0-$fogArea),$uid);
+        }
+
         //先更改或添加
-        Redis::connection('WriteLog')->zadd("GetUserFogWeekRank_{$startOfWeek}",$fogArea,$uid);
+        Redis::connection('WriteLog')->zadd("GetUserFogWeekRank_{$startOfWeek}_more",$fogArea,$uid);
+
+        //求并集，分数相加，组成新key
+        Redis::connection('WriteLog')->zunionstore('GetUserFogWeekRank',2,"GetUserFogWeekRank_{$startOfWeek}_first","GetUserFogWeekRank_{$startOfWeek}_more");
 
         //前200
-        $limit200=Redis::connection('WriteLog')->zrevrange("GetUserFogWeekRank_{$startOfWeek}",0,199,'withscores');
+        $limit200=Redis::connection('WriteLog')->zrevrange('GetUserFogWeekRank',0,199,'withscores');
 
         //我的排名
-        $myRank=Redis::connection('WriteLog')->zrevrank("GetUserFogWeekRank_{$startOfWeek}",$uid)+1;
+        $myRank=Redis::connection('WriteLog')->zrevrank('GetUserFogWeekRank',$uid)+1;
 
         //整理数组
         $userObj=new UserController();
 
         $my['row']=$myRank;
-        $my['fogArea']=$fogArea;
+        $my['fogArea']=sprintf("%.2f",Redis::connection('WriteLog')->zscore('GetUserFogWeekRank',$uid));
         $my['uid']=$uid;
         $userInfo=$userObj->getUserNameAndAvatar($uid);
         $my['uName']=$userInfo['name'];
@@ -326,7 +335,9 @@ class RankListController extends BaseController
         }
 
         //设置过期
-        Redis::connection('WriteLog')->expireat("GetUserFogWeekRank_{$startOfWeek}",Carbon::now()->endOfWeek()->timestamp);
+        Redis::connection('WriteLog')->expireat("GetUserFogWeekRank_{$startOfWeek}_first",Carbon::now()->endOfWeek()->timestamp);
+        Redis::connection('WriteLog')->expireat("GetUserFogWeekRank_{$startOfWeek}_more",Carbon::now()->endOfWeek()->timestamp);
+        Redis::connection('WriteLog')->expireat("GetUserFogWeekRank",Carbon::now()->endOfWeek()->timestamp);
 
         return ['resCode'=>Config::get('resCode.200'),'all'=>$all,'my'=>$my];
     }
