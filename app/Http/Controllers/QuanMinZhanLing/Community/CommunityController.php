@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\QuanMinZhanLing\Community;
 
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
+use App\Http\Controllers\QuanMinZhanLing\UserController;
 use App\Http\Controllers\Server\ContentCheckBase;
 use App\Http\Controllers\Server\StoreVideoBase;
 use App\Http\Controllers\TanSuoShiJie\FogController;
@@ -828,7 +829,7 @@ Eof;
         {
             $theBest=[[],[]];
         }
-        if (isset($commData))
+        if (!empty($commData[0]))
         {
             $commData=$this->addLikesToArticle($commData);
             $commData=$this->addCommentsToArticle($commData);
@@ -1460,6 +1461,7 @@ Eof;
         //1：我关注他，他没关注我
         //2：他关注我，我没关注他
         //3：相互关注
+        //4：自己？
 
         $data=[];
 
@@ -1468,49 +1470,29 @@ Eof;
             $tid=$oneUid['uid'];
             $unixTime=$oneUid['unixTime'];
 
-            //不包括自己
-            if ($tid==$uid) continue;
-
             //我关注他没
-            if (Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$tid)!=null)
-            {
-                //我关注他了
-                $followerNum=1;
-
-            }else
-            {
-                //我没关注他
-                $followerNum=0;
-            }
+            Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$tid)!=null ? $followerNum=1 : $followerNum=0;
 
             //他关注我没
-            if (Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$tid)!=null)
-            {
-                //他关注我了
-                $fansNum=2;
-
-            }else
-            {
-                //他没关注我
-                $fansNum=0;
-            }
+            Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$tid)!=null ? $fansNum=2 : $fansNum=0;
 
             //获取头像和用户名
             $avatarStr=Redis::connection('UserInfo')->hget($tid,'avatar');
 
-            if ($avatarStr)
-            {
-                $avatar=$avatarStr;
-
-            }else
-            {
-                $avatar='/imgModel/systemAvtar.png';
-            }
+            $avatarStr=='' ? $avatar='/imgModel/systemAvtar.png' : $avatar=$avatarStr;
 
             $name=(string)Redis::connection('UserInfo')->hget($tid,'name');
 
-            $data[]=['uid'=>$tid,'avatar'=>$avatar,'name'=>$name,'relation'=>$followerNum+$fansNum,'unixTime'=>$unixTime,'dateTime'=>formatDate($unixTime)];
+            $name=='' ? $name='网友'.str_random(6) : null;
+
+            //自己
+            $tid==$uid ? $relation=4 : $relation=$followerNum + $fansNum;
+
+            $data[]=['uid'=>$tid,'avatar'=>$avatar,'name'=>$name,'relation'=>$relation,'unixTime'=>$unixTime,'dateTime'=>formatDate($unixTime)];
         }
+
+        //$data是空说明没人点赞，或者自己点赞自己的印象
+        if (empty($data)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>[]]);
 
         $data=arraySort1($data,['desc','unixTime']);
 
@@ -3218,6 +3200,7 @@ Eof;
         }
     }
 
+    //通过aid查询印象详情
     public function articleDetail(Request $request)
     {
         $uid=(int)$request->uid;
@@ -3246,7 +3229,100 @@ Eof;
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
     }
 
+    //用户页的关注和粉丝详情
+    public function RelationDetail(Request $request)
+    {
+        $uid=$request->uid;
+        $type=$request->type;
+        $page=$request->page;
 
+        if (!$this->checkInputUserId($uid)) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        $data=[];
+
+        switch ($type)
+        {
+            case 0:
+
+                //关注，实际上就是我自己的关注，因为别人的不能点进来
+                $res=Redis::connection('CommunityInfo')->zrevrange('follower_'.$uid,0,-1,'withscores');
+
+                if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
+
+                $userObj=new UserController();
+
+                //key是uid，value是关注时间
+                foreach ($res as $key=>$value)
+                {
+                    //该uid的用户名和头像
+                    $userInfo=$userObj->getUserNameAndAvatar($key);
+
+                    //该uid的粉丝数
+                    $fansTotal=(int)Redis::connection('CommunityInfo')->zcard('fans_'.$key);
+
+                    //该uid发了多少印象
+                    $communityTotal=(int)Redis::connection('UserInfo')->hget($key,'CommunityArticleTotal');
+
+                    //与我的关系
+                    //我关注他没
+                    Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$key)!=null ? $followerNum=1 : $followerNum=0;
+                    //他关注我没
+                    Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$key)!=null ? $fansNum=2 : $fansNum=0;
+
+                    $data[]=['timestamp'=>$value,'uAvatar'=>$userInfo['avatar'],'uName'=>$userInfo['name'],'fansTotal'=>$fansTotal,'communityTotal'=>$communityTotal,'relation'=>$followerNum+$fansNum];
+                }
+
+                $data=myPage($data,10,$page);
+
+                return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
+
+                break;
+
+            case 1:
+
+                //粉丝，实际上就是我自己的粉丝，因为别人的也不能点进来
+                $res=Redis::connection('CommunityInfo')->zrevrange('fans_'.$uid,0,-1,'withscores');
+
+                if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
+
+                $userObj=new UserController();
+
+                //key是uid，value是关注时间
+                foreach ($res as $key=>$value)
+                {
+                    //该uid的用户名和头像
+                    $userInfo=$userObj->getUserNameAndAvatar($key);
+
+                    //该uid的粉丝数
+                    $fansTotal=(int)Redis::connection('CommunityInfo')->zcard('fans_'.$key);
+
+                    //该uid发了多少印象
+                    $communityTotal=(int)Redis::connection('UserInfo')->hget($key,'CommunityArticleTotal');
+
+                    //与我的关系
+                    //我关注他没
+                    Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$key)!=null ? $followerNum=1 : $followerNum=0;
+                    //他关注我没
+                    Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$key)!=null ? $fansNum=2 : $fansNum=0;
+
+                    $data[]=['timestamp'=>$value,'uAvatar'=>$userInfo['avatar'],'uName'=>$userInfo['name'],'fansTotal'=>$fansTotal,'communityTotal'=>$communityTotal,'relation'=>$followerNum+$fansNum];
+                }
+
+                $data=myPage($data,10,$page);
+
+                return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
+
+                break;
+
+            default:
+
+                return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+                break;
+        }
+
+        return true;
+    }
 
 
 

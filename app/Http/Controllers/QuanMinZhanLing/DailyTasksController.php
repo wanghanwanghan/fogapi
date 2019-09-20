@@ -194,4 +194,23 @@ class DailyTasksController extends BaseController
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$dailyTasks]);
     }
+
+    //广告看完之后的回调
+    public function callBackForAD(Request $request)
+    {
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
 }

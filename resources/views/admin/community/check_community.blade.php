@@ -223,7 +223,11 @@
                     }
 
                     //刷新页面
-                    location.reload();
+                    setTimeout(function()
+                    {
+                        location.reload();
+                    },1000);
+
                 });
         }
 

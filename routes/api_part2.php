@@ -204,6 +204,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
     });
 
+    //用户页的关注和粉丝详情
+    Route::match(['get','post'],'RelationDetail','QuanMinZhanLing\\Community\\CommunityController@relationDetail');
 
 
 

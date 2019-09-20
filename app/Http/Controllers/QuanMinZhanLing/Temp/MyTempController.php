@@ -17,10 +17,6 @@ class MyTempController extends BaseController
 
 
 
-
-
-
-
         return view('inMap');
     }
 
