@@ -302,7 +302,7 @@ class Achievement extends Command
             if (!Schema::connection('masterDB')->hasTable('buy_sale_info_'.$yearArr[$i])) break;
 
             //只把每个表交易次数最多的前50名取出
-            $sql="select gname,count(1) as totle from buy_sale_info_{$yearArr[$i]} where uid={$uid} or belong={$uid} group by gname limit 50";
+            $sql="select gname,count(1) as totle from buy_sale_info_{$yearArr[$i]} where uid={$uid} or belong={$uid} group by gname order by totle desc limit 50";
 
             $tmp[$yearArr[$i]]=DB::connection('masterDB')->select($sql);
         }

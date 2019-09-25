@@ -18,3 +18,8 @@ Route::post('alipay/notify', function(Request $request) {
 });
 
 
+Route::get('wanghan/send', function(Request $request) {
+
+    dd(str_random());
+
+});

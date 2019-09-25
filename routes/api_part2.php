@@ -165,6 +165,9 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //查看私信
     Route::match(['get','post'],'GetPrivateMail','QuanMinZhanLing\\Community\\CommunityController@getPrivateMail');
 
+    //查看私信列表
+    Route::match(['get','post'],'GetPrivateMailList','QuanMinZhanLing\\Community\\CommunityController@getPrivateMailList');
+
     //查看用户消息（点赞，评论）
     Route::match(['get','post'],'GetUserMessage','QuanMinZhanLing\\Community\\CommunityController@getUserMessage');
 

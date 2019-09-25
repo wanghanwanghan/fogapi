@@ -21,7 +21,7 @@ class SendSmsBase
 
                 // 默认可用的发送网关
                 'gateways' => [
-                    'qcloud','yunpian', 'aliyun',
+                    'qcloud',
                 ],
             ],
             // 可用的网关配置
@@ -29,18 +29,10 @@ class SendSmsBase
                 'errorlog' => [
                     'file' => '/tmp/easy-sms.log',
                 ],
-                'yunpian' => [
-                    'api_key' => '824f0ff2f71cab52936axxxxxxxxxx',
-                ],
-                'aliyun' => [
-                    'access_key_id' => '',
-                    'access_key_secret' => '',
-                    'sign_name' => '',
-                ],
                 'qcloud' => [
                     'sdk_app_id' => '1400216573', // SDK APP ID
                     'app_key' => '8f59f9b1424047820bd4abcca99df95e', // APP KEY
-                    'sign_name' => '纪申背锅', // 短信签名，如果使用默认签名，该字段可缺省（对应官方文档中的sign）
+                    'sign_name' => '探索世界APP', // 短信签名，如果使用默认签名，该字段可缺省（对应官方文档中的sign）
                 ],
                 //...
             ],
@@ -52,13 +44,9 @@ class SendSmsBase
     {
         $sms=new EasySms($this->getConfig());
 
-        $sendContent=[
-            'content'=>'您的验证码为: 6379',
-            'template'=>'sms_001',
-            'data'=>['code'=>6379],
-        ];
+        $sendContent=['content'=>'验证码：6666，您正在进行绑定手机操作，切勿将验证码泄露于他人。如验证码泄露会有帐号被盗风险。'];
 
-        $sms->send(18618457910,$sendContent);
+        dd($sms->send(18618457910,$sendContent));
 
         return true;
     }
@@ -73,13 +61,13 @@ class SendSmsBase
     public function send_sms_tssj_new()
     {
         $mobile=18618457910;
-        $msg='测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试';
+        $msg='【探索世界APP】验证码：6666，您正在进行绑定手机操作，切勿将验证码泄露于他人。如验证码泄露会有帐号被盗风险。';
         $nationcode=86;
 
         $appid = "1400067654";
         $appkey = "4e4f5a259ef7984075a9629b2d02f395";
         $time = time();
-        $random = rand(0,1000);
+        $random = substr(uniqid(), -10);
 
         if (empty($nationcode)||$nationcode==''||!is_numeric($nationcode)) $nationcode='86';
 

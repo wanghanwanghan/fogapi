@@ -2026,7 +2026,12 @@ Eof;
             Redis::connection('CommunityInfo')->zadd('fans_'.$tid,time(),$uid);
         }
 
-        return response()->json(['resCode'=>Config::get('resCode.200')]);
+        //我关注他没
+        Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$tid)!=null ? $followerNum=1 : $followerNum=0;
+        //他关注我没
+        Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$tid)!=null ? $fansNum=2 : $fansNum=0;
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'relation'=>$followerNum+$fansNum]);
     }
 
     //删除印象
@@ -2092,7 +2097,7 @@ Eof;
         $tid=trim($request->tid);
 
         //私信内容
-        $content=$request->contents;
+        $content=trim($request->contents);
 
         if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
         if (!is_numeric($tid) || $tid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
@@ -2125,8 +2130,8 @@ Eof;
 
         $suffix=($uid+$tid)%5;
 
-        //10%机率清理一下数据表
-        if ($page===1 && random_int(1,10) > 9) $this->clearUpPrivateMailTable($uid,$tid,$suffix);
+        //20%机率清理一下数据表
+        if ($page===1 && random_int(1,10) >= 9) $this->clearUpPrivateMailTable($uid,$tid,$suffix);
 
         $limit=10;
         $offset=($page-1)*$limit;
@@ -2140,12 +2145,14 @@ Eof;
 
         foreach ($res as &$oneMail)
         {
+            //取得用户信息
             $oneMail['uName']=Redis::connection('UserInfo')->hget($oneMail['uid'],'name');
             $oneMail['uAvatar']=Redis::connection('UserInfo')->hget($oneMail['uid'],'avatar');
 
             if ($oneMail['uName']==null) $oneMail['uName']='网友'.str_random(6);
             if ($oneMail['uAvatar']==null) $oneMail['uAvatar']='/imgModel/systemAvtar.png';
 
+            //取得用户信息
             $oneMail['tName']=Redis::connection('UserInfo')->hget($oneMail['tid'],'name');
             $oneMail['tAvatar']=Redis::connection('UserInfo')->hget($oneMail['tid'],'avatar');
 
@@ -2155,6 +2162,100 @@ Eof;
         unset($oneMail);
 
         $res=arraySort1($res,['asc','unixTime']);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
+    }
+
+    //获取私信列表
+    public function getPrivateMailList(Request $request)
+    {
+        //发送者id
+        $uid=trim($request->uid);
+
+        //页码
+        $page=(int)trim($request->page);
+        $page < 1 ? $page=1 : null;
+
+        if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        //从5个私信表中找数据
+        $res=[];
+        for ($i=0;$i<=4;$i++)
+        {
+            $sql="select uid,tid,content,unixTime,created_at from community_private_mail_{$i} where id in (select max(id) from community_private_mail_{$i} where uid={$uid} or tid={$uid} group by uid,tid) order by unixTime desc";
+
+            $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($sql)));
+
+            if (empty($tmp)) continue;
+
+            foreach ($tmp as $one) array_push($res,$one);
+        }
+
+        $res=arraySort1($res,['desc','unixTime']);
+
+        //这个数组里有两个人所有聊天的最后两条
+        //取最近的一条内容
+
+        $tmp=['data'=>[],'index'=>[]];
+
+        //这个res已经是有序的了
+        foreach ($res as $one)
+        {
+            if ($one['uid']==$uid)
+            {
+                //我给某人发的
+
+                $key=$one['uid'].'_'.$one['tid'];
+
+                if (in_array($key,$tmp['index'])) continue;
+            }
+
+            if ($one['tid']==$uid)
+            {
+                //某人给我发的
+
+                $key=$one['tid'].'_'.$one['uid'];
+
+                if (in_array($key,$tmp['index'])) continue;
+            }
+
+            $readyToPush['ids']=$key;
+            $ids=explode('_',$key);
+            $readyToPush['uid']=$ids[0];
+            $readyToPush['tid']=$ids[1];
+            $readyToPush['content']=$one['content'];
+            $readyToPush['unixTime']=$one['unixTime'];
+            $readyToPush['created_at']=$one['created_at'];
+
+            array_push($tmp['data'],$readyToPush);
+            $tmp['index'][]=$key;
+        }
+
+        //用这个分页
+        $res=$tmp['data'];
+
+        //分页后的
+        $res=myPage($res,10,$page);
+
+        if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
+
+        foreach ($res as &$oneMail)
+        {
+            //取得用户信息
+            $oneMail['uName']=Redis::connection('UserInfo')->hget($oneMail['uid'],'name');
+            $oneMail['uAvatar']=Redis::connection('UserInfo')->hget($oneMail['uid'],'avatar');
+
+            if ($oneMail['uName']==null) $oneMail['uName']='网友'.str_random(6);
+            if ($oneMail['uAvatar']==null) $oneMail['uAvatar']='/imgModel/systemAvtar.png';
+
+            //取得用户信息
+            $oneMail['tName']=Redis::connection('UserInfo')->hget($oneMail['tid'],'name');
+            $oneMail['tAvatar']=Redis::connection('UserInfo')->hget($oneMail['tid'],'avatar');
+
+            if ($oneMail['tName']==null) $oneMail['tName']='网友'.str_random(6);
+            if ($oneMail['tAvatar']==null) $oneMail['tAvatar']='/imgModel/systemAvtar.png';
+        }
+        unset($oneMail);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
     }
@@ -2428,7 +2529,35 @@ Eof;
             case 3:
 
                 //我的点赞
-                $like=$this->getReadLike($uid,$page);
+                $limit=5;
+                $offset=($page-1)*$limit;
+
+                $now=Carbon::now();
+
+                //此处留坑
+                for ($i=0;$i<3;$i++)
+                {
+                    $suffix=$now->year - $i;
+
+                    $table="community_article_like_{$suffix}";
+
+                    if (!Schema::connection($this->db)->hasTable($table)) break;
+
+                    $tableTarget[]=$table;
+                }
+
+                $sql='';
+                foreach ($tableTarget as $oneTable)
+                {
+                    $sql.=" union select * from {$oneTable}";
+                }
+                $sql=trim(ltrim(trim($sql),'union'));
+
+                $reslSql="select aid,uid,tid,unixTime from ({$sql}) as tmp where uid={$uid} and isLike=1 order by unixTime desc limit {$offset},{$limit}";
+
+                $tmp=DB::connection($this->db)->select($reslSql);
+
+                $like=jsonDecode(jsonEncode($tmp));
 
                 if (empty($like)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$like]);
 
@@ -2529,7 +2658,7 @@ Eof;
 
             CommentsModel::suffix($suffix);
 
-            $count+=CommentsModel::where('uid',$uid)->count();
+            $count+=CommentsModel::where('oid',$uid)->orWhere('uid',$uid)->orWhere('tid',$uid)->count();
         }
 
         return $count;
@@ -2698,7 +2827,7 @@ Eof;
         }
         $sql=trim(ltrim(trim($sql),'union'));
 
-        $reslSql="select id,aid,uid,tid,oid,comment,unixTime from ({$sql}) as tmp where (oid={$uid}) or (oid!={$uid} and tid={$uid}) order by unixTime desc limit {$offset},{$limit}";
+        $reslSql="select id,aid,uid,tid,oid,comment,unixTime from ({$sql}) as tmp where (oid={$uid}) or (oid!={$uid} and (tid={$uid} or uid={$uid})) order by unixTime desc limit {$offset},{$limit}";
 
         $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
 
@@ -3269,7 +3398,7 @@ Eof;
                     //他关注我没
                     Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$key)!=null ? $fansNum=2 : $fansNum=0;
 
-                    $data[]=['timestamp'=>$value,'uAvatar'=>$userInfo['avatar'],'uName'=>$userInfo['name'],'fansTotal'=>$fansTotal,'communityTotal'=>$communityTotal,'relation'=>$followerNum+$fansNum];
+                    $data[]=['timestamp'=>$value,'uid'=>$key,'uAvatar'=>$userInfo['avatar'],'uName'=>$userInfo['name'],'fansTotal'=>$fansTotal,'communityTotal'=>$communityTotal,'relation'=>$followerNum+$fansNum];
                 }
 
                 $data=myPage($data,10,$page);
@@ -3305,7 +3434,7 @@ Eof;
                     //他关注我没
                     Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$key)!=null ? $fansNum=2 : $fansNum=0;
 
-                    $data[]=['timestamp'=>$value,'uAvatar'=>$userInfo['avatar'],'uName'=>$userInfo['name'],'fansTotal'=>$fansTotal,'communityTotal'=>$communityTotal,'relation'=>$followerNum+$fansNum];
+                    $data[]=['timestamp'=>$value,'uid'=>$key,'uAvatar'=>$userInfo['avatar'],'uName'=>$userInfo['name'],'fansTotal'=>$fansTotal,'communityTotal'=>$communityTotal,'relation'=>$followerNum+$fansNum];
                 }
 
                 $data=myPage($data,10,$page);
@@ -3320,8 +3449,6 @@ Eof;
 
                 break;
         }
-
-        return true;
     }
 
 
