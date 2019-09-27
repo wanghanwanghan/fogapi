@@ -126,6 +126,12 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link" href="{{route('communityIndex')}}">
+          <i class="fas fa-fw fa-images"></i>
+          <span>印象置顶加精</span></a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link" href="{{route('gridImg2')}}">
           <i class="fas fa-fw fa-images"></i>
           <span>排行榜格子图片</span></a>

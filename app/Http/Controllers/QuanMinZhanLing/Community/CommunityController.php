@@ -2131,10 +2131,11 @@ Eof;
         $suffix=($uid+$tid)%5;
 
         //20%机率清理一下数据表
-        if ($page===1 && random_int(1,10) >= 9) $this->clearUpPrivateMailTable($uid,$tid,$suffix);
+        if (random_int(1,10) >= 9) $this->clearUpPrivateMailTable($uid,$tid,$suffix);
 
-        $limit=10;
+        $limit=200;
         $offset=($page-1)*$limit;
+        $offset=0;
 
         PrivateMailModel::suffix($suffix);
         $res=PrivateMailModel::where(function ($query) use ($uid,$tid){
@@ -2190,6 +2191,8 @@ Eof;
 
             foreach ($tmp as $one) array_push($res,$one);
         }
+
+        if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
 
         $res=arraySort1($res,['desc','unixTime']);
 

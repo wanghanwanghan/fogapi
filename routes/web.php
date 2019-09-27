@@ -61,7 +61,10 @@ Route::group(['prefix'=>'admin'],function ()
 
         //印象
         Route::match(['get','post'],'/community/check/community','admin\\AdminCommunityController@checkCommunity')->name('checkCommunity');
+        //印象置顶加精
+        Route::match(['get','post'],'/community/index','admin\\AdminCommunityController@communityIndex')->name('communityIndex');
         Route::match(['get','post'],'/community/ajax','admin\\AdminCommunityController@ajax');
+
 
 
 
