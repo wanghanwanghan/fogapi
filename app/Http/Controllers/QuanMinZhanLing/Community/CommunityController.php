@@ -1691,7 +1691,7 @@ Eof;
     }
 
     //获取用户印象和印象数，分页显示
-    public function getArticleByUid($uid,$label,$page,$paginate=5)
+    public function getArticleByUid($uid,$label,$myself,$page,$paginate=5)
     {
         $res=[];
         $aid=[];
@@ -1727,7 +1727,14 @@ Eof;
 
         $sql=trim(ltrim(trim($sql),'union'));
 
-        $reslSql="select * from ({$sql}) as tmp where uid={$uid} order by unixTime desc limit {$offset},{$paginate}";
+        if ($myself)
+        {
+            $reslSql="select * from ({$sql}) as tmp where uid={$uid} order by unixTime desc limit {$offset},{$paginate}";
+
+        }else
+        {
+            $reslSql="select * from ({$sql}) as tmp where uid={$uid} and isShow=1 order by unixTime desc limit {$offset},{$paginate}";
+        }
 
         $res=DB::connection($this->db)->select($reslSql);
 
@@ -1897,11 +1904,15 @@ Eof;
             unset($oneLabel);
         }
 
-        $article=$this->getArticleByUid($uid,0,$page);
+        //自己看自己？？？
+        $uid==$tid ? $myself=1 : $myself=0;
+
+        $article=$this->getArticleByUid($uid,0,$myself,$page);
         $userInfo['communityTotal']=$article[2];
         $article=$this->addLikesToArticle($article);
         $article=$this->addCommentsToArticle($article);
-        $article=$this->sortArticle($article,$uid);
+        //传机霸uid tid都机霸传乱了，草泥马的
+        $article=$this->sortArticle($article,$tid);
 
         $followerFans=$this->getPeopleFollowerFansAndDetail($uid);
 
@@ -2485,7 +2496,36 @@ Eof;
             case 2:
 
                 //我的评论
-                $comment=$this->getReadComment($uid,$page);
+                $limit=5;
+                $offset=($page-1)*$limit;
+
+                $now=Carbon::now();
+
+                //此处留坑
+                for ($i=0;$i<3;$i++)
+                {
+                    $suffix=$now->year - $i;
+
+                    $table="community_article_comment_{$suffix}";
+
+                    if (!Schema::connection($this->db)->hasTable($table)) break;
+
+                    $tableTarget[]=$table;
+                }
+
+                $sql='';
+                foreach ($tableTarget as $oneTable)
+                {
+                    $sql.=" union select id,oid,aid,uid,tid,comment,unixTime from {$oneTable}";
+                }
+                $sql=trim(ltrim(trim($sql),'union'));
+
+                $reslSql="select id,aid,uid,tid,oid,comment,unixTime from ({$sql}) as tmp where (oid={$uid}) or (oid!={$uid} and (tid={$uid} or uid={$uid})) order by unixTime desc limit {$offset},{$limit}";
+                $reslSql="select id,aid,uid,tid,oid,comment,unixTime from ({$sql}) as tmp where uid={$uid} order by unixTime desc limit {$offset},{$limit}";
+
+                $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
+
+                $comment=jsonDecode(jsonEncode($tmp));
 
                 if (empty($comment)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$comment]);
 
@@ -2519,7 +2559,7 @@ Eof;
 
                     LikesModel::suffix($suffix);
                     CommentsModel::suffix($suffix);
-                    $one['likeTotal']=LikesModel::where('aid',$one['aid'])->count();
+                    $one['likeTotal']=LikesModel::where(['aid'=>$one['aid'],'isLike'=>1])->count();
                     LikesModel::where(['aid'=>$one['aid'],'uid'=>$uid,'isLike'=>1])->first() == null ? $one['iLike']=0 : $one['iLike']=1;
                     $one['commentTotal']=CommentsModel::where('aid',$one['aid'])->count();
                 }

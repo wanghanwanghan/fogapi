@@ -15,8 +15,8 @@
     <div class="container-fluid">
 
         <!-- Page Heading -->
-        <h1 class="h3 mb-2 text-gray-800">说明</h1>
-        <p class="mb-3">印象置顶加精</p>
+        {{--<h1 class="h3 mb-2 text-gray-800">说明</h1>--}}
+        {{--<p class="mb-3">印象置顶加精</p>--}}
 
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
@@ -198,6 +198,8 @@
         //设置成置顶
         function setTop(aid)
         {
+            event.stopPropagation();
+
             topAndTheBestAjax(aid,'setTop');
 
             //点击之前是叉子状态
@@ -212,6 +214,8 @@
         //设置成精华
         function setTheBest(aid)
         {
+            event.stopPropagation();
+
             topAndTheBestAjax(aid,'setTheBest');
 
             //点击之前是叉子状态
@@ -227,6 +231,8 @@
         //取消置顶
         function cancleTop(aid)
         {
+            event.stopPropagation();
+
             topAndTheBestAjax(aid,'cancleTop');
 
             //点击之前是对勾状态
@@ -241,6 +247,8 @@
         //取消精华
         function cancleTheBest(aid)
         {
+            event.stopPropagation();
+
             topAndTheBestAjax(aid,'cancleTheBest');
 
             //点击之前是对勾状态
@@ -313,6 +321,7 @@
                     {"data":"theBest"},
                     {"data":"content"},
                 ],
+                "order":[3,'desc'],//默认用时间排序，最新的再第一条
                 "language":{
                     "lengthMenu": "每页显示 _MENU_ 记录",
                     "zeroRecords": "无记录",
@@ -346,6 +355,12 @@
                 //取视频或图片
                 $.post(url,{_token:$("input[name=_token]").val(),aid:aid,type:'getVideoOrPic'},function (response) {
 
+                    if (response.resCode==201)
+                    {
+                        alert('没有图片或视频');
+                        return;
+                    }
+
                     if (response.resCode!=200)
                     {
                         alert('error');
@@ -364,7 +379,7 @@
                         {
                             //图片
                             value=value.replace('thum','origin');
-                            $('#img_content').append("<img src="+value+">");
+                            $('#img_content').append("<img width='600px' src="+value+">");
                         }
                     });
 

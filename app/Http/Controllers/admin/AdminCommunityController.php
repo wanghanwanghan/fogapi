@@ -84,6 +84,22 @@ class AdminCommunityController extends AdminBaseController
 
             case 'communityIndex':
 
+                //排序方法
+                //column：0是印象主键，1是用户主键，2是格子编号，3是时间，4是置顶，5是精华，6是内容
+                //dir   ：asc是升序，desc是降序
+                $order=current($request->order);
+
+                if ($order['column']==0) $cond='aid';
+                if ($order['column']==1) $cond='uid';
+                if ($order['column']==2) $cond='gName';
+                if ($order['column']==3) $cond='unixTime';
+                if ($order['column']==4) $cond='isTop';
+                if ($order['column']==5) $cond='theBest';
+                if ($order['column']==6) $cond='content';
+
+                //搜索
+                $search=$request->search;
+
                 //相当于limit
                 $length=$request->length;
 
@@ -92,7 +108,18 @@ class AdminCommunityController extends AdminBaseController
 
                 ArticleModel::suffix(Carbon::now()->year);
 
-                $res=ArticleModel::orderBy('unixTime','desc')->limit($length)->offset($start)->get()->toArray();
+                if ($search['value']!='')
+                {
+                    //含有搜索条件
+                    $res=ArticleModel::where('uid','like',"%{$search['value']}%")
+                        ->orWhere('gName','like',"%{$search['value']}%")
+                        ->orWhere('content','like',"%{$search['value']}%")
+                        ->orderBy($cond,$order['dir'])->limit($length)->offset($start)->get()->toArray();
+                }else
+                {
+                    $res=ArticleModel::orderBy($cond,$order['dir'])->limit($length)->offset($start)->get()->toArray();
+                }
+
 
                 $tmp['draw']=$request->draw;
                 $tmp['recordsTotal']=ArticleModel::count();//数据总数
@@ -107,8 +134,8 @@ class AdminCommunityController extends AdminBaseController
                         'uid'=>$one['uid'],
                         'gName'=>$one['gName'],
                         'created_at'=>$one['created_at'],
-                        'isTop'=>$one['isTop']     > 0 ? "<a href='#' id={$one['aid']} onclick=cancleTop($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a>" : "<a href='#' id={$one['aid']} onclick=setTop($(this).attr('id')) class='btn btn-danger btn-circle btn-sm'><i class='fas fa-times'></i></a>",
-                        'theBest'=>$one['theBest'] > 0 ? "<a href='#' id={$one['aid']} onclick=cancleTheBest($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a>" : "<a href='#' id={$one['aid']} onclick=setTheBest($(this).attr('id')) class='btn btn-danger btn-circle btn-sm'><i class='fas fa-times'></i></a>",
+                        'isTop'=>$one['isTop']     > 0 ? "<a href='javascript:void(0);' id={$one['aid']} onclick=cancleTop($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a>" : "<a href='javascript:void(0);' id={$one['aid']} onclick=setTop($(this).attr('id')) class='btn btn-danger btn-circle btn-sm'><i class='fas fa-times'></i></a>",
+                        'theBest'=>$one['theBest'] > 0 ? "<a href='javascript:void(0);' id={$one['aid']} onclick=cancleTheBest($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a>" : "<a href='javascript:void(0);' id={$one['aid']} onclick=setTheBest($(this).attr('id')) class='btn btn-danger btn-circle btn-sm'><i class='fas fa-times'></i></a>",
                         'content'=>$one['content'],
                     ];
 
@@ -260,6 +287,8 @@ class AdminCommunityController extends AdminBaseController
                 $url[]=$res->picOrVideo7;
                 $url[]=$res->picOrVideo8;
                 $url[]=$res->picOrVideo9;
+
+                if (empty(array_filter($url))) return ['resCode'=>201,'url'=>$url];
 
                 return ['resCode'=>200,'url'=>$url];
 
