@@ -74,6 +74,7 @@ class Kernel extends ConsoleKernel
 
 
 
+        $schedule->command('Tssj:OneJoke')->everyFifteenMinutes()->withoutOverlapping();
     }
 
     /**

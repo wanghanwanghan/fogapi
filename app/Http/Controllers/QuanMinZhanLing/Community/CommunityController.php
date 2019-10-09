@@ -1951,7 +1951,8 @@ Eof;
 
         $label=jsonDecode($request->label);
 
-        if (!is_array($label) || empty($label)) return response()->json(['resCode'=>Config::get('resCode.601')]);
+        if (empty($label) || $label=='') return response()->json(['resCode'=>Config::get('resCode.200')]);
+        if (!is_array($label)) return response()->json(['resCode'=>Config::get('resCode.601')]);
 
         foreach ($label as $one)
         {

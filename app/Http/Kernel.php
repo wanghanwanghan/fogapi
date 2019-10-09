@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\AdminLogin;
+use App\Http\Middleware\CheckRequestToken;
 use App\Http\Middleware\init;
 use App\Http\Middleware\PVandUV;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
@@ -17,7 +18,8 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        //站点是否进入维护模式
+        //\Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
@@ -68,5 +70,6 @@ class Kernel extends HttpKernel
         'init'=>init::class,
         'AdminLogin'=>AdminLogin::class,
         'PVandUV'=>PVandUV::class,
+        'CheckRequestToken'=>CheckRequestToken::class,
     ];
 }

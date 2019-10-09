@@ -105,5 +105,5 @@ Route::group(['prefix'=>'admin'],function ()
 });
 
 //
-Route::get('test','QuanMinZhanLing\\Temp\\MyTempController@test');
+Route::get('test','QuanMinZhanLing\Temp\MyTempController@test');
 
