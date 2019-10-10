@@ -588,7 +588,7 @@ Eof;
         DB::connection($this->db)->commit();
 
         //记录一下这个用户一共发布了几条印象
-        Redis::connection('UserInfo')->hincrby('ZzZzZzZzZzZzZzZz','CommunityArticleTotal',1);
+        Redis::connection('UserInfo')->hincrby($uid,'CommunityArticleTotal',1);
 
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
@@ -1595,11 +1595,14 @@ Eof;
         ArticleModel::suffix($suffix);
         CommentsModel::suffix($suffix);
 
+        //修改印象排序时间
+        $model=ArticleModel::where('aid',$aid)->first();
+
         try
         {
             CommentsModel::create([
                 'aid'=>$aid,
-                'oid'=>ArticleModel::where('aid',$aid)->first()->uid,
+                'oid'=>$model->uid,
                 'uid'=>$uid,
                 'tid'=>$tid,
                 'isShow'=>1,
@@ -1607,6 +1610,10 @@ Eof;
                 'comment'=>$comment,
                 'unixTime'=>time(),
             ]);
+
+            //修改印象排序时间
+            $model->unixTime=time();
+            $model->save();
 
             //给印象加分
             $this->setCommunityScore('comment',$uid,$aid);
@@ -2094,7 +2101,7 @@ Eof;
         DB::connection($this->db)->commit();
 
         //记录一下这个用户一共发布了几条印象
-        Redis::connection('UserInfo')->hincrby('ZzZzZzZzZzZzZzZz','CommunityArticleTotal',-1);
+        Redis::connection('UserInfo')->hincrby($uid,'CommunityArticleTotal',-1);
 
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
