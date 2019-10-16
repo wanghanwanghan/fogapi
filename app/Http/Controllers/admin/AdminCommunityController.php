@@ -537,7 +537,7 @@ class AdminCommunityController extends AdminBaseController
                 $realPath=$one->getRealPath();
 
                 //存origin
-                Image::make($realPath)->save(public_path("admin/temp/{$uid}origin{$num}.jpg"),70);
+                Image::make($realPath)->save(public_path("webAdmin/temp/{$uid}origin{$num}.jpg"),70);
 
                 $picInfo=getimagesize($realPath);
                 $width=$height=null;
@@ -547,9 +547,9 @@ class AdminCommunityController extends AdminBaseController
                 Image::make($realPath)->resize($width,$height,function($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
-                })->crop(200,200)->save(public_path("admin/temp/{$uid}thum{$num}.jpg"));
+                })->crop(200,200)->save(public_path("webAdmin/temp/{$uid}thum{$num}.jpg"));
 
-                $url[]="/admin/temp/{$uid}thum{$num}.jpg";
+                $url[]="/webAdmin/temp/{$uid}thum{$num}.jpg";
 
                 $num++;
             }
