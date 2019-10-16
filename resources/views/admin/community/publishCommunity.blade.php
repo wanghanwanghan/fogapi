@@ -275,6 +275,14 @@
                     if (response.resCode!=200)
                     {
                         alert('发布失败：'+response.resCode);
+                    }else
+                    {
+                        swal("发布成功", "app上已经可以显示了", "success");
+                        //刷新页面
+                        setTimeout(function()
+                        {
+                            location.reload();
+                        },600);
                     }
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
