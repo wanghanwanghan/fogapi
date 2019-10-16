@@ -10,6 +10,18 @@
     {{--wangEditor--}}
     <script type="text/javascript" src="//unpkg.com/wangeditor/release/wangEditor.min.js"></script>
 
+    <link rel="stylesheet" type="text/css" href="{{asset('js/uploadfile/diyUpload/css/webuploader.css')}}">
+
+    <link rel="stylesheet" type="text/css" href="{{asset('js/uploadfile/diyUpload/css/diyUpload.css')}}">
+
+    <script type="text/javascript" src="{{asset('js/uploadfile/diyUpload/js/webuploader.html5only.min.js')}}"></script>
+
+    <script type="text/javascript" src="{{asset('js/uploadfile/diyUpload/js/diyUpload.js')}}"></script>
+
+    <style>
+        #demo{border:solid silver 1px; width:300px; min-height:200px; background:white}
+    </style>
+
     <div class="container-fluid">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
@@ -26,15 +38,30 @@
                 <div class="col-12">
 
                     <div class="form-group row mb-2">
+                        <label class="col-md-2 col-form-label">虚拟用户头像</label>
+                        <div class="col-md-10">
+                            <div class="input-group">
+                                <div id="demo">
+                                    <div id="as" ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="sidebar-divider">
+
+                    <div class="form-group row mb-2">
                         <label class="col-md-2 col-form-label">虚拟用户</label>
                         <div class="col-md-10">
                             <div class="input-group">
                                 <input type="hidden" id="VRuid">
-                                <select type="text" class="col-2 form-control" name="VRselect" id="VRselect">
+                                <select type="text" class="col-3 form-control" name="VRselect" id="VRselect" ondblclick=$("#userName").removeClass('d-none')>
                                     @foreach($user as $oneUser)
                                         <option class="form-control" value="{{$oneUser->userid}}">{{$oneUser->username}}</option>
                                     @endforeach
                                 </select>
+
+                                <input type="text" class="col-3 form-control ml-5 d-none" name="" id="userName" placeholder="修改用户名" ondblclick="modifyUserName($('#VRselect').val(),$(this).val());">
                             </div>
                         </div>
                     </div>
@@ -97,6 +124,36 @@
 
     <script type="text/javascript">
 
+        $('#as').diyUpload({
+
+            url:'/admin/community/ajax',
+
+            success:function(data) {
+                console.log(data,'ok');
+            },
+
+            error:function(err) {
+                console.log(err,'err');
+            },
+
+            buttonText : '选择头像图片',
+
+            chunked:false,
+
+            // 分片大小
+            chunkSize:512 * 1024,
+
+            //最大上传的文件数量, 总文件大小,单个文件大小(单位字节);
+            fileNumLimit:1,
+
+            fileSizeLimit:500000 * 1024,
+
+            fileSingleSizeLimit:50000 * 1024,
+
+            accept: {}
+
+        });
+
         function getCheckboxValues() {
 
             var arr = new Array();
@@ -109,6 +166,102 @@
 
             console.log(vals);
 
+        }
+
+        function modifyUserName(id,name) {
+            var uid=$.trim(id);
+            var userName=$.trim(name);
+
+            $.ajax({
+                url: '/admin/community/ajax',
+                type: 'post',
+                cache: false,
+                async: true,//true为异步，false为同步
+                dataType: 'json',
+                data: {
+                    _token: $("input[name=_token]").val(),
+                    type: 'modifyUserName',
+                    uid: uid,
+                    userName: userName
+                },
+                success: function (response, textStatus) {
+                    if (response.resCode!=200)
+                    {
+                        alert('修改失败：'+response.resCode);
+                    }else
+                    {
+                        swal("修改成功", "app上已经可以显示了", "success");
+                        //刷新页面
+                        setTimeout(function()
+                        {
+                            location.reload();
+                        },600);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('修改出错');return;
+                },
+                beforeSend: function (XMLHttpRequest) {
+                    $('#myMsg1').css('display','block');
+                    $('#myMsg2').html('');
+                    $('#myMsg2').append("等待修改用户名");
+                    $('#myMsg2').append("<i class=\"fa fa-spinner fa-spin fa-fw margin-bottom\"></i>");
+                },
+                complete: function (XMLHttpRequest, textStatus) {
+                    $("#userName").addClass('d-none');
+                    $('#myMsg1').css('display','none');
+                },
+            });
+        }
+
+        function modifyAvatar(id) {
+            var uid=$.trim(id);
+            var formData = new FormData();
+
+            formData.append("crowd_file",$('#i-file')[0].files[0]);
+
+            $.ajax({
+                url: '/admin/community/ajax',
+                type: 'post',
+                cache: false,
+                async: true,//true为异步，false为同步
+                dataType: 'json',
+                contentType:false,
+                processData:false,
+                data: {
+                    _token: $("input[name=_token]").val(),
+                    type: 'modifyAvatar',
+                    uid: uid,
+                    avatar: formData
+                },
+                success: function (response, textStatus) {
+                    if (response.resCode!=200)
+                    {
+                        alert('修改失败：'+response.resCode);
+                    }else
+                    {
+                        swal("修改成功", "app上已经可以显示了", "success");
+                        //刷新页面
+                        setTimeout(function()
+                        {
+                            location.reload();
+                        },600);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('修改出错');return;
+                },
+                beforeSend: function (XMLHttpRequest) {
+                    $('#myMsg1').css('display','block');
+                    $('#myMsg2').html('');
+                    $('#myMsg2').append("等待修改用户名");
+                    $('#myMsg2').append("<i class=\"fa fa-spinner fa-spin fa-fw margin-bottom\"></i>");
+                },
+                complete: function (XMLHttpRequest, textStatus) {
+                    $("#userName").addClass('d-none');
+                    $('#myMsg1').css('display','none');
+                },
+            });
         }
 
         $("#VRselect").change(function() {
@@ -210,8 +363,8 @@
             },
         };
 
-        //将 timeout 时间改为 10s
-        editor.customConfig.uploadImgTimeout = 10000;
+        //将 timeout 时间改为 30s
+        editor.customConfig.uploadImgTimeout = 30000;
 
         //隐藏“网络图片”tab
         editor.customConfig.showLinkImg = false;

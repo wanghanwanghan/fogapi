@@ -24,6 +24,36 @@ class AdminCommunityController extends AdminBaseController
 
     public function ajax(Request $request)
     {
+        if (isset($request->mytype) && $request->mytype='modifyAvatar')
+        {
+            //修改头像
+            $uid=trim($request->uid);
+
+            $suffix=$uid%5;
+
+            foreach ($request->all() as $one)
+            {
+                if ($one instanceof UploadedFile)
+                {
+                    //获取缓存在tmp目录下的文件名，带后缀，如php8933.tmp
+                    $filaName=$one->getFilename();
+
+                    //获取上传的文件缓存在tmp文件夹下的绝对路径
+                    $realPath=$one->getRealPath();
+
+                    //存头像
+                    Image::make($realPath)->resize(200,200,function($constraint) {
+                        $constraint->aspectRatio();
+                        $constraint->upsize();
+                    })->crop(200,200)->save(public_path("img/{$suffix}/{$uid}_avatar.jpg"));
+
+                    Redis::connection('UserInfo')->hset($uid,'avatar',"/img/{$suffix}/{$uid}_avatar.jpg");
+                }
+            }
+
+            return ['resCode'=>200];
+        }
+
         switch ($request->type)
         {
             case 'pass':
@@ -363,6 +393,9 @@ class AdminCommunityController extends AdminBaseController
                     if (!is_dir($storePathForThum)) mkdir($storePathForThum,0777,true);
                     if (!is_dir($storePathForOrigin)) mkdir($storePathForOrigin,0777,true);
 
+                    $one=explode('?',$one);
+                    $one=current($one);
+
                     //thum
                     Image::make(public_path(ltrim($one,'/')))->save($storePathForThum.$fileName,100);
 
@@ -436,6 +469,25 @@ class AdminCommunityController extends AdminBaseController
                 Redis::connection('UserInfo')->hincrby($uid,'CommunityArticleTotal',1);
 
                 return response()->json(['resCode'=>Config::get('resCode.200')]);
+
+                break;
+
+            case 'modifyUserName':
+
+                $uid=$request->uid;
+                $userName=$request->userName;
+
+                DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->update(['username'=>$userName]);
+
+                Redis::connection('UserInfo')->hset($uid,'name',$userName);
+
+                return ['resCode'=>200];
+
+                break;
+
+            case 'modifyAvatar':
+
+                //废止
 
                 break;
         }
@@ -549,7 +601,7 @@ class AdminCommunityController extends AdminBaseController
                     $constraint->upsize();
                 })->crop(200,200)->save(public_path("webAdmin/temp/{$uid}thum{$num}.jpg"));
 
-                $url[]="/webAdmin/temp/{$uid}thum{$num}.jpg";
+                $url[]="/webAdmin/temp/{$uid}thum{$num}.jpg?".time();
 
                 $num++;
             }

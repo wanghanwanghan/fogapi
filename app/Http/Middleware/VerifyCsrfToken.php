@@ -16,6 +16,7 @@ class VerifyCsrfToken extends Middleware
         '/admin/editor/wangEditor/uploadPic',
         '/admin/community/publish/community/uploadPic',
         '/admin/user/feedback/uploadPic/*',
+        '/admin/community/ajax',
 
     ];
 }
