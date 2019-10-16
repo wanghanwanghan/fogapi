@@ -56,6 +56,8 @@ class OneJoke extends Command
                     {
                         $time=Carbon::now()->format('Y-m-d H:i:s');
 
+                        $oneJoke['content']=addslashes($oneJoke['content']);
+
                         $sql="insert into oneJoke values (null,'{$oneJoke['hashId']}','{$oneJoke['content']}',{$oneJoke['unixtime']},'{$time}','{$time}')";
 
                         DB::connection('masterDB')->insert($sql);

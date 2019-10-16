@@ -85,7 +85,7 @@ class StoreVideoBase
             //最新版本的ffmpeg不支持--enable-libfaac ,所以PHP-FFMpeg默认用的libfaac会导致错误
             //可以这样new FFMpeg\Format\Video\X264('libmp3lame')
             //或者使用libfdk_aac
-            $this->ffmpeg->open($file)->save(new X264('libmp3lame'),$pathAndFileName);
+            $this->ffmpeg->open($file)->save(new X264('libfdk_aac'),$pathAndFileName);
 
         }catch (\Exception $e)
         {

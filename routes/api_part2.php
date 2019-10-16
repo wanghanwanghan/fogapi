@@ -101,12 +101,17 @@ Route::group(['middleware'=>['PVandUV']],function ()
         return false;
     });
 
-    //迷雾上传
+    //探索世界迷雾上传
     Route::match(['get','post'],'FogUpload','TanSuoShiJie\\FogController@fogUpload');
 
-    //迷雾下载
+    //探索世界迷雾下载
     Route::match(['get','post'],'FogDownload','TanSuoShiJie\\FogController@fogDownload');
 
+    //我的路迷雾上传
+    Route::match(['get','post'],'TrackFogUpload','WoDeLu\TrackFogController@fogUpload');
+
+    //我的路迷雾下载
+    Route::match(['get','post'],'TrackFogDownload','WoDeLu\TrackFogController@fogDownload');
 
     //发布一条印象
     Route::match(['get','post'],'CreateArticle','QuanMinZhanLing\\Community\\CommunityController@createArticle');

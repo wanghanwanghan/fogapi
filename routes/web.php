@@ -59,7 +59,11 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['post'],'/user/ajax','admin\\AdminUserAvatarController@userAjax');
         Route::match(['post'],'/grid/ajax','admin\\AdminGridController@gridAjax');
 
-        //印象
+        //发布印象
+        Route::match(['get','post'],'/community/publish/community','admin\\AdminCommunityController@publishCommunity')->name('publishCommunity');
+        //后台发布印象时候上传图片
+        Route::match(['post'],'/community/publish/community/uploadPic','admin\\AdminCommunityController@uploadPic');
+        //审核印象
         Route::match(['get','post'],'/community/check/community','admin\\AdminCommunityController@checkCommunity')->name('checkCommunity');
         //印象置顶加精
         Route::match(['get','post'],'/community/index','admin\\AdminCommunityController@communityIndex')->name('communityIndex');

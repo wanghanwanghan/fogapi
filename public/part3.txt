@@ -1,0 +1,10 @@
+用户页的关注和粉丝详情
+
+post
+http://newfogapi.wodeluapp.com/api/RelationDetail
+
+参数
+int    uid=17469               用户主键
+int    type=0                  0是关注，1是粉丝
+int    page=1                  第几页
+=================================================================

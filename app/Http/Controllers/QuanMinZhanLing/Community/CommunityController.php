@@ -529,12 +529,16 @@ Eof;
         //全都是空发什么发，发你麻痹
         if ($includeText==0 && $includePic==0 && $includeVideo==0) return response()->json(['resCode'=>Config::get('resCode.664')]);
 
+        //如果不包含图片视频，直接过
+        $isShow=0;
+        if ($includePic==0 && $includeVideo==0) $isShow=1;
+
         $readyToInsert=[
             'aid'=>$articlePrimary,
             'uid'=>$uid,
             'gName'=>$gName,
             'content'=>$content,
-            'isShow'=>0,
+            'isShow'=>$isShow,
             'myself'=>$myself,
             'includeText'=>$includeText,
             'includePic'=>$includePic,
@@ -1241,7 +1245,7 @@ Eof;
     }
 
     //排序
-    public function sortArticle($articleArr,$uid)
+    public function sortArticle($articleArr,$uid,$sort=true)
     {
         //印象的赞取最新7个
         //印象的评论取最新5个
@@ -1276,6 +1280,7 @@ Eof;
         {
             if (empty($one['likes']['theLast'])) continue;
 
+            $iLike=0;
             //查看传入的uid点没点赞
             foreach ($one['likes']['theLast'] as $oneTarget)
             {
@@ -1344,7 +1349,8 @@ Eof;
         }
         unset($one);
 
-        $targetAllData=arraySort1($targetAllData,['desc','unixTime']);
+        //默认为必须排序
+        if ($sort) $targetAllData=arraySort1($targetAllData,['desc','unixTime']);
 
         //unixTime变成多少分钟前
         foreach ($targetAllData as &$one)
@@ -2709,7 +2715,8 @@ Eof;
 
             CommentsModel::suffix($suffix);
 
-            $count+=CommentsModel::where('oid',$uid)->orWhere('uid',$uid)->orWhere('tid',$uid)->count();
+            //$count+=CommentsModel::where('oid',$uid)->orWhere('uid',$uid)->orWhere('tid',$uid)->count();
+            $count+=CommentsModel::where('uid',$uid)->count();
         }
 
         return $count;
@@ -3263,7 +3270,7 @@ Eof;
 
                 $data=$this->addLikesToArticle($data);
                 $data=$this->addCommentsToArticle($data);
-                $data=current($this->sortArticle($data,$uid));
+                $data=current($this->sortArticle($data,$uid,false));
 
                 return response()->json(['resCode'=>Config::get('resCode.200'),'littleRedDot'=>$littleRedDot,'hotLabels'=>$hotLabels,'data'=>$data]);
 
@@ -3306,7 +3313,7 @@ Eof;
                 }
                 $uidStr=ltrim($uidStr,',');
 
-                $reslSql="select * from ({$sql}) as tmp where uid in ({$uidStr}) order by unixTime desc limit {$offset},{$limit}";
+                $reslSql="select * from ({$sql}) as tmp where uid in ({$uidStr}) and isShow=1 order by unixTime desc limit {$offset},{$limit}";
 
                 $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
 
@@ -3351,7 +3358,7 @@ Eof;
 
                 $offset=($page-1)*$limit;
 
-                $reslSql="select * from ({$sql}) as tmp order by unixTime desc limit {$offset},{$limit}";
+                $reslSql="select * from ({$sql}) as tmp where isShow=1 order by unixTime desc limit {$offset},{$limit}";
 
                 $tmp=jsonDecode(jsonEncode(DB::connection($this->db)->select($reslSql)));
 
@@ -3367,6 +3374,8 @@ Eof;
                 $data=$this->addLikesToArticle($data);
                 $data=$this->addCommentsToArticle($data);
                 $data=current($this->sortArticle($data,$uid));
+
+                $data=arraySort1($data,['desc','created_at']);
 
                 return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
 

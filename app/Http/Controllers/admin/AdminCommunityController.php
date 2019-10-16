@@ -2,18 +2,25 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Http\Controllers\QuanMinZhanLing\Community\CommunityController;
 use App\Model\Community\ArticleLabelModel;
 use App\Model\Community\ArticleModel;
 use App\Model\Community\CommentsModel;
+use App\Model\Community\LabelModel;
 use App\Model\Community\LikesModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Session;
+use Intervention\Image\Facades\Image;
 
 class AdminCommunityController extends AdminBaseController
 {
     public $communityDB='communityDB';
+    public $db='communityDB';
 
     public function ajax(Request $request)
     {
@@ -293,6 +300,144 @@ class AdminCommunityController extends AdminBaseController
                 return ['resCode'=>200,'url'=>$url];
 
                 break;
+
+            case 'createArticle':
+
+                //后台发布印象
+                $aid=(new CommunityController)->getArticlePrimary();
+
+                $uid=trim($request->uid);
+
+                if (!is_numeric($uid) || $uid <= 0) return response()->json(['resCode'=>Config::get('resCode.601')]);
+
+                $gName=trim($request->gName);
+
+                if ($gName=='') return response()->json(['resCode'=>Config::get('resCode.605')]);
+
+                $myself=0;
+
+                //标签
+                $labels=explode(',',trim($request->vals));
+
+                if (empty($labels) || $labels=='') return response()->json(['resCode'=>Config::get('resCode.665')]);
+
+                sort($labels);
+
+                $includeText=0;
+                $includePic=0;
+                $includeVideo=0;
+
+                //内容
+                $content=trim($request->text);
+
+                if ($content!='') $includeText=1;
+
+                //img src
+                $imgSrc=trim($request->html);
+
+                preg_match_all('/(?<=(src="))[^"]*?(?=")/',$imgSrc,$res);
+
+                $res=current($res);
+
+                if (!empty($res)) $includePic=1;
+
+                //全都是空发什么发，发你麻痹
+                if ($includeText==0 && $includePic==0 && $includeVideo==0) return response()->json(['resCode'=>Config::get('resCode.664')]);
+
+                $picNum=1;
+                $readyToInsertForPicAndVideo=[];
+                foreach ($res as $one)
+                {
+                    //存到public/community/pic/当年/thum/articleID%5/
+                    $year=Carbon::now()->year;
+                    $suffix=string2Number($aid)%5;
+
+                    //生成文件名，picNum是该印象的第几张图
+                    $fileName=$aid.$picNum.'.jpg';
+
+                    //存缩略图的目录
+                    $storePathForThum  =public_path("community/pic/{$year}/thum/{$suffix}/");
+                    $returnPathForThum="/community/pic/{$year}/thum/{$suffix}/";
+                    $storePathForOrigin=public_path("community/pic/{$year}/origin/{$suffix}/");
+
+                    if (!is_dir($storePathForThum)) mkdir($storePathForThum,0777,true);
+                    if (!is_dir($storePathForOrigin)) mkdir($storePathForOrigin,0777,true);
+
+                    //thum
+                    Image::make(public_path(ltrim($one,'/')))->save($storePathForThum.$fileName,100);
+
+                    //origin
+                    Image::make(public_path(ltrim(str_replace('thum','origin',$one),'/')))->save($storePathForOrigin.$fileName,100);
+
+                    $readyToInsertForPicAndVideo["picOrVideo{$picNum}"]=$returnPathForThum.$fileName;
+
+                    $picNum++;
+                }
+
+                $readyToInsert=[
+                    'aid'=>$aid,
+                    'uid'=>$uid,
+                    'gName'=>$gName,
+                    'content'=>$content,
+                    'isShow'=>1,
+                    'myself'=>$myself,
+                    'includeText'=>$includeText,
+                    'includePic'=>$includePic,
+                    'includeVideo'=>$includeVideo,
+                    'unixTime'=>time(),
+                ];
+
+                $readyToInsert=$readyToInsert+$readyToInsertForPicAndVideo;
+
+                try
+                {
+                    DB::connection($this->db)->beginTransaction();
+
+                    //创建印象
+                    ArticleModel::suffix(Carbon::now()->year);
+                    ArticleModel::create($readyToInsert);
+
+                    //创建印象和标签的关系
+                    $suffix=Carbon::now()->year;
+
+                    $time=time();
+
+                    foreach ($labels as $oneLabels)
+                    {
+                        $data[]=[
+                            'aid'=>$aid,
+                            'labelId'=>$oneLabels,
+                            'gName'=>$gName,
+                            'unixTime'=>$time,
+                            'created_at'=>date('Y-m-d H:i:s',$time),
+                            'updated_at'=>date('Y-m-d H:i:s',$time),
+                        ];
+                    }
+
+                    DB::connection($this->db)->table("community_article_label_{$suffix}")->insert($data);
+
+                    //更新标签使用次数
+                    $labels=implode(',',$labels);
+
+                    $sql="update community_label set useTotal=useTotal+1 where id in ({$labels})";
+
+                    DB::connection($this->db)->update($sql);
+
+                }catch (\Exception $e)
+                {
+                    DB::connection($this->db)->rollBack();
+
+                    return response()->json(['resCode'=>Config::get('resCode.660')]);
+                }
+
+                DB::connection($this->db)->commit();
+
+                //记录一下这个用户一共发布了几条印象
+                Redis::connection('UserInfo')->hincrby($uid,'CommunityArticleTotal',1);
+
+                return response()->json(['resCode'=>Config::get('resCode.200')]);
+
+                break;
         }
     }
 
@@ -358,8 +503,60 @@ class AdminCommunityController extends AdminBaseController
         return view('admin.community.check_community')->with(['info'=>$res1,'waitToCheck'=>$res2]);
     }
 
+    //发布印象
+    public function publishCommunity(Request $request)
+    {
+        $arr=[103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357];
 
+        //虚拟用户
+        $user=DB::connection('tssj_old')->table('tssj_member')->whereIn('userid',$arr)->get(['userid','username','avatar']);
 
+        //官方标签
+        $label=LabelModel::where('id','<=',101)->where('labelContent','<>','amyYOEPCiph6NQr')->get(['id','labelContent']);
+
+        return view('admin.community.publishCommunity')->with(['user'=>$user,'label'=>$label]);
+    }
+
+    //上传图片
+    public function uploadPic(Request $request)
+    {
+        $url=[];
+
+        $uid=trim($request->uid);
+
+        $num=1;
+
+        foreach ($request->all() as $one)
+        {
+            if ($one instanceof UploadedFile)
+            {
+                //获取缓存在tmp目录下的文件名，带后缀，如php8933.tmp
+                $filaName=$one->getFilename();
+
+                //获取上传的文件缓存在tmp文件夹下的绝对路径
+                $realPath=$one->getRealPath();
+
+                //存origin
+                Image::make($realPath)->save(public_path("admin/temp/{$uid}origin{$num}.jpg"),70);
+
+                $picInfo=getimagesize($realPath);
+                $width=$height=null;
+                $picInfo[0] > $picInfo[1] ? $height=200 : $width=200;
+
+                //存thum
+                Image::make($realPath)->resize($width,$height,function($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                })->crop(200,200)->save(public_path("admin/temp/{$uid}thum{$num}.jpg"));
+
+                $url[]="/admin/temp/{$uid}thum{$num}.jpg";
+
+                $num++;
+            }
+        }
+
+        return ['errno'=>0,'data'=>$url];
+    }
 
 
 

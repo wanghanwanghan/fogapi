@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
 
         '/admin/editor/wangEditor/uploadPic',
+        '/admin/community/publish/community/uploadPic',
         '/admin/user/feedback/uploadPic/*',
 
     ];

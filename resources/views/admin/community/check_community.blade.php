@@ -130,12 +130,12 @@
                 baseUrl=baseUrl.replace('thum','origin');
                 baseUrl=baseUrl.replace('jpg','mp4');
 
-                $('#img_content').append("<video autoplay loop><source src='"+baseUrl+"' type='video/mp4'>您的浏览器不支持 HTML5 video 标签。</video>");
+                $('#img_content').append("<video width='500px' autoplay loop><source src='"+baseUrl+"' type='video/mp4'>您的浏览器不支持 HTML5 video 标签。</video>");
             }else
             {
                 //是图片
                 baseUrl=baseUrl.replace('thum','origin');
-                $('#img_content').append("<img src="+baseUrl+">");
+                $('#img_content').append("<img width='500px' src="+baseUrl+">");
             }
 
             //弹出

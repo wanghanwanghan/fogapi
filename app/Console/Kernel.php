@@ -71,6 +71,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('Tssj:FogUpload8')->everyMinute()->withoutOverlapping();
         $schedule->command('Tssj:FogUpload9')->everyMinute()->withoutOverlapping();
 
+        //处理我的路迷雾
+        $schedule->command('Wodelu:FogUpload0')->everyMinute()->withoutOverlapping();
 
 
 

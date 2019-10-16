@@ -120,6 +120,12 @@
       </div>
 
       <li class="nav-item">
+        <a class="nav-link" href="{{route('publishCommunity')}}">
+          <i class="fas fa-fw fa-images"></i>
+          <span>发布印象</span></a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link" href="{{route('checkCommunity')}}">
           <i class="fas fa-fw fa-images"></i>
           <span>审核印象</span></a>
