@@ -19,19 +19,39 @@ class PlaceMapController extends AdminBaseController
         {
             case 'get_one_or_all_data':
 
+                //这个是输入框里的
                 $uid=trim($request->uid);
+
+                $selectCond=trim($request->selectCond);
+
+                //无
+                if ($selectCond==='0') $raw='1=1';
+                //价格大于等于50的
+                if ($selectCond==='1') $raw='price >= 50';
+                //价格大于等于100的
+                if ($selectCond==='2') $raw='price >= 100';
+                //价格大于等于200的
+                if ($selectCond==='3') $raw='price >= 200';
+                //价格大于等于400的
+                if ($selectCond==='4') $raw='price >= 400';
+                //最贵的格子前5
+                if ($selectCond==='5') $raw='1=1 order by price desc limit 5';
+                //最贵的格子前50
+                if ($selectCond==='6') $raw='1=1 order by price desc limit 50';
+                //最贵的格子前500
+                if ($selectCond==='7') $raw='1=1 order by price desc limit 500';
+                //最贵的格子前5000
+                if ($selectCond==='8') $raw='1=1 order by price desc limit 5000';
+                //最近交易50个格子
+                if ($selectCond==='9') $raw='1=1 order by updated_at desc limit 50';
+                //最近交易150个格子
+                if ($selectCond==='10') $raw='1=1 order by updated_at desc limit 150';
+                //最近交易450个格子
+                if ($selectCond==='11') $raw='1=1 order by updated_at desc limit 450';
 
                 if ($uid=='')
                 {
-                    //ini_set('memory_limit','256M');
-
-                    //全部数据
-                    //$data=Cache::remember('allPointForPlaceMap',600,function()
-                    //{
-                    //    return GridModel::where('belong','<>',0)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
-                    //});
-
-                    $data=GridModel::where('belong','<>',0)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
+                    $data=GridModel::where('belong','<>',0)->whereRaw($raw)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
 
                     $count=$data->count();
 
@@ -58,7 +78,7 @@ class PlaceMapController extends AdminBaseController
                 if (is_numeric($uid))
                 {
                     //单用户数据
-                    $data=GridModel::where('belong',$uid)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
+                    $data=GridModel::where('belong',$uid)->whereRaw($raw)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
 
                     if (empty($data->toArray())) return ['resCode'=>201,'data'=>[],'count'=>0];
 
@@ -85,7 +105,7 @@ class PlaceMapController extends AdminBaseController
                 }
 
                 //查单个格子
-                $data=GridModel::where('name',$uid)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
+                $data=GridModel::where('name',$uid)->whereRaw($raw)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
 
                 if (empty($data->toArray())) return ['resCode'=>202,'data'=>[],'count'=>0];
 

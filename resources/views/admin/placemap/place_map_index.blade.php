@@ -25,12 +25,29 @@
                     <label class="custom-control-label" for="radio2" onclick="selectMapType('fog')">迷雾</label>
                 </div>
 
+                <div class="input-group" style="width: 370px">
+                    <select type="text" class="col-7 form-control" id="selectCond">
+                        <option class="form-control" value="0" >无</option>
+                        <option class="form-control" value="1" >价格大于等于50的</option>
+                        <option class="form-control" value="2" >价格大于等于100的</option>
+                        <option class="form-control" value="3" >价格大于等于200的</option>
+                        <option class="form-control" value="4" >价格大于等于400的</option>
+                        <option class="form-control" value="5" >最贵的格子前5</option>
+                        <option class="form-control" value="6" >最贵的格子前50</option>
+                        <option class="form-control" value="7" >最贵的格子前500</option>
+                        <option class="form-control" value="8" >最贵的格子前5000</option>
+                        <option class="form-control" value="9" >最近交易50个格子</option>
+                        <option class="form-control" value="10">最近交易150个格子</option>
+                        <option class="form-control" value="11">最近交易450个格子</option>
+                    </select>
+                </div>
+
                 <input id="mapType" type="hidden" value="grid">
 
                 <div class="input-group" style="width: 370px">
                     <input type="text" class="form-control bg-light border-1 small" id="uidInput" placeholder="用户主键，格子编号，不输入查全部">
                     <div class="input-group-append">
-                        <button class="btn btn-primary" id="searchBtn" onclick="selectData($('#uidInput').val(),$('#mapType').val());" type="button">
+                        <button class="btn btn-primary" id="searchBtn" onclick="selectData($('#uidInput').val(),$('#mapType').val(),$('#selectCond').val());" type="button">
                             <i class="fas fa-search fa-sm">搜索</i>
                         </button>
                     </div>
@@ -232,12 +249,12 @@
 
             if (event.keyCode=='13')
             {
-                selectData($('#uidInput').val(),$('#mapType').val());
+                selectData($('#uidInput').val(),$('#mapType').val(),$('#selectCond').val());
             }
 
         });
 
-        function selectData(uid,mapType) {
+        function selectData(uid,mapType,selectCond) {
 
             if (mapType=='grid')
             {
@@ -251,6 +268,7 @@
                         _token:$("input[name=_token]").val(),
                         type:'get_one_or_all_data',
                         uid:uid,
+                        selectCond:selectCond
                     },
                     success:function(response,textStatus)
                     {

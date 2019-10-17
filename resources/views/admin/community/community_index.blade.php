@@ -270,9 +270,14 @@
         {
             event.stopPropagation();
 
-            topAndTheBestAjax(aid,'deleteThisArticle');
+            var yesOrNo=confirm('删除这条印象？');
 
-            location.reload();
+            if (yesOrNo)
+            {
+                topAndTheBestAjax(aid,'deleteThisArticle');
+
+                location.reload();
+            }
         }
 
         //置顶，精华，删除 ajax请求
