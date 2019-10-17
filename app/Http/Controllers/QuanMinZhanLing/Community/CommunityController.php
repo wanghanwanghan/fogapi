@@ -2106,6 +2106,9 @@ Eof;
 
         DB::connection($this->db)->commit();
 
+        //这里没有删除印象文件
+        //todo
+
         //记录一下这个用户一共发布了几条印象
         Redis::connection('UserInfo')->hincrby($uid,'CommunityArticleTotal',-1);
 
@@ -3001,8 +3004,8 @@ Eof;
         //取最近3天的热门
         $today=Carbon::now();
 
-        //3分钟过期
-        $minute=3;
+        //2分钟过期
+        $minute=2;
 
         //生成大集合
         $res=Cache::remember("func_getHotArticleFromRedis_cache_label_{$label}",$minute,function () use ($today,$minute,$label) {
@@ -3272,7 +3275,15 @@ Eof;
                 $data=$this->addCommentsToArticle($data);
                 $data=current($this->sortArticle($data,$uid,false));
 
-                return response()->json(['resCode'=>Config::get('resCode.200'),'littleRedDot'=>$littleRedDot,'hotLabels'=>$hotLabels,'data'=>$data]);
+                //热门还鸡巴加置顶？
+                $onTop=[];
+
+
+
+
+
+
+                return response()->json(['resCode'=>Config::get('resCode.200'),'littleRedDot'=>$littleRedDot,'hotLabels'=>$hotLabels,'onTop'=>$onTop,'data'=>$data]);
 
                 break;
 

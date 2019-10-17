@@ -129,7 +129,7 @@ class AdminCommunityController extends AdminBaseController
                 if ($order['column']==0) $cond='aid';
                 if ($order['column']==1) $cond='uid';
                 if ($order['column']==2) $cond='gName';
-                if ($order['column']==3) $cond='unixTime';
+                if ($order['column']==3) $cond='created_at';
                 if ($order['column']==4) $cond='isTop';
                 if ($order['column']==5) $cond='theBest';
                 if ($order['column']==6) $cond='content';
@@ -174,6 +174,7 @@ class AdminCommunityController extends AdminBaseController
                         'isTop'=>$one['isTop']     > 0 ? "<a href='javascript:void(0);' id={$one['aid']} onclick=cancleTop($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a>" : "<a href='javascript:void(0);' id={$one['aid']} onclick=setTop($(this).attr('id')) class='btn btn-danger btn-circle btn-sm'><i class='fas fa-times'></i></a>",
                         'theBest'=>$one['theBest'] > 0 ? "<a href='javascript:void(0);' id={$one['aid']} onclick=cancleTheBest($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a>" : "<a href='javascript:void(0);' id={$one['aid']} onclick=setTheBest($(this).attr('id')) class='btn btn-danger btn-circle btn-sm'><i class='fas fa-times'></i></a>",
                         'content'=>$one['content'],
+                        'useForDelete'=>"<a href='javascript:void(0);' id={$one['aid']} onclick=deleteThisArticle($(this).attr('id')) class='btn btn-warning btn-circle btn-sm'><i class='fas fa-trash'></i></a>",
                     ];
 
                     $i++;
@@ -304,6 +305,86 @@ class AdminCommunityController extends AdminBaseController
                 }
 
                 return ['resCode'=>200,'aid'=>$aid];
+
+                break;
+
+            case 'deleteThisArticle':
+
+                $aid=trim($request->aid);
+
+                $suffix=date('Y',substr($aid,0,10));
+
+                ArticleModel::suffix($suffix);
+                $res=ArticleModel::where('aid',$aid)->first();
+
+                //发布者uid
+                $publishUid=$res->uid;
+
+                DB::connection($this->db)->beginTransaction();
+
+                try
+                {
+                    //删除印象图片，视频
+                    for ($i=1;$i<=9;$i++)
+                    {
+                        $varName='picOrVideo'.$i;
+
+                        if ($res->$varName=='') continue;
+
+                        //视频要删的
+                        //community/video/2019/origin/2/1570790769DEMXcZ.mp4
+                        //community/video/2019/thum/2/1570790769DEMXcZ.jpg
+
+                        //图片要删的
+                        //community/pic/2019/origin/0/1570774050d0YhwR1.jpg
+                        //community/pic/2019/thum/0/1570774050d0YhwR1.jpg
+
+                        //是不是图片
+                        $isPic=1;
+
+                        if (count(explode('video',$res->$varName))==2) $isPic=0;
+
+                        if ($isPic)
+                        {
+                            //是图片
+                            @unlink(public_path().$res->$varName);//缩略图
+                            @unlink(public_path().str_replace('thum','origin',$res->$varName));//原图
+
+                        }else
+                        {
+                            //是视频
+                            @unlink(public_path().$res->$varName);//原视频
+                            @unlink(public_path().str_replace('mp4','jpg',str_replace('origin','thum',$res->$varName)));//缩略图
+                        }
+                    }
+
+                    //印象主表删除操作
+                    $res->delete();
+
+                    //删除印象评论
+                    CommentsModel::suffix($suffix);
+                    CommentsModel::where('aid',$aid)->delete();
+
+                    //删除印象赞
+                    LikesModel::suffix($suffix);
+                    LikesModel::where('aid',$aid)->delete();
+
+                    //删除印象标签
+                    ArticleLabelModel::suffix($suffix);
+                    ArticleLabelModel::where('aid',$aid)->delete();
+
+                }catch (\Exception $e)
+                {
+                    DB::connection($this->db)->rollBack();
+
+                    return response()->json(['resCode'=>Config::get('resCode.675')]);
+                }
+
+                DB::connection($this->db)->commit();
+
+                Redis::connection('UserInfo')->hincrby($publishUid,'CommunityArticleTotal',-1);
+
+                return ['resCode'=>200];
 
                 break;
 

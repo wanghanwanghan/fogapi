@@ -38,9 +38,11 @@
                         <th>用户</th>
                         <th>编号</th>
                         <th>时间</th>
-                        <th>置顶</th>
-                        <th>精华</th>
+                        <th>置顶(格)</th>
+                        <th>精华(格)</th>
+                        {{--<th>置顶(广)</th>--}}
                         <th>内容</th>
+                        <th>删除</th>
                     </tr>
                     </thead>
 
@@ -53,9 +55,11 @@
                         <th>用户</th>
                         <th>编号</th>
                         <th>时间</th>
-                        <th>置顶</th>
-                        <th>精华</th>
+                        <th>置顶(格)</th>
+                        <th>精华(格)</th>
+                        {{--<th>置顶(广)</th>--}}
                         <th>内容</th>
+                        <th>删除</th>
                     </tr>
                     </tfoot>
                 </table>
@@ -261,7 +265,17 @@
             node.append("<i class='fas fa-times'></i>");
         }
 
-        //置顶，精华ajax请求
+        //删除这条印象
+        function deleteThisArticle(aid)
+        {
+            event.stopPropagation();
+
+            topAndTheBestAjax(aid,'deleteThisArticle');
+
+            location.reload();
+        }
+
+        //置顶，精华，删除 ajax请求
         function topAndTheBestAjax(aid,type)
         {
             var url ='/admin/community/ajax';
@@ -269,7 +283,7 @@
                 {
                     _token:$("input[name=_token]").val(),
                     aid   :aid,
-                    type  :type,//setTop,setTheBest,cancleTop,cancleTheBest
+                    type  :type,//setTop,setTheBest,cancleTop,cancleTheBest,deleteThisArticle
                 };
 
             $.post(url,data,function (response) {
@@ -311,6 +325,8 @@
                     {"width":"7%","targets":3},
                     {"width":"5%","targets":4},
                     {"width":"5%","targets":5},
+                    {"targets":6},
+                    {"width":"5%","targets":7},
                 ],
                 "columns": [
                     {"data":"aid"},
@@ -320,6 +336,7 @@
                     {"data":"isTop"},
                     {"data":"theBest"},
                     {"data":"content"},
+                    {"data":"useForDelete"},
                 ],
                 "order":[3,'desc'],//默认用时间排序，最新的再第一条
                 "language":{
