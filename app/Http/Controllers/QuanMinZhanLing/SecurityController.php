@@ -21,8 +21,8 @@ class SecurityController extends BaseController
     public $userDistribution='UserDistribution';
 
     //虚拟用户uid
-    public $uid='103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357';
-    public $uidArr=[103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357];
+    public $uid='103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357,137545,97105';
+    public $uidArr=[103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357,137545,97105];
 
     //统计pv，访问量
     public function recodePV()
@@ -252,12 +252,12 @@ Eof;
                 $suffix=Carbon::now()->year;
 
                 //真实用户
-                $sql="select right(left(created_at,10),2) as myDay,count(1) as total from community_article_{$suffix} where uid not in ({$arr}) group by myDay";
+                $sql="select right(myDay,2) as myDay,total from (select left(created_at,10) as myDay,count(1) as total from community_article_{$suffix} where uid not in ({$arr}) group by myDay) as tmp";
 
                 $real=DB::connection('communityDB')->select($sql);
 
                 //虚拟用户
-                $sql="select right(left(created_at,10),2) as myDay,count(1) as total from community_article_{$suffix} where uid in ({$arr}) group by myDay";
+                $sql="select right(myDay,2) as myDay,total from (select left(created_at,10) as myDay,count(1) as total from community_article_{$suffix} where uid in ({$arr}) group by myDay) as tmp";
 
                 $notReal=DB::connection('communityDB')->select($sql);
 
@@ -267,6 +267,8 @@ Eof;
                     $tmp[$one->myDay]=$one->total;
                 }
                 $real=$tmp;
+
+                unset($tmp);
 
                 foreach ($notReal as $one)
                 {

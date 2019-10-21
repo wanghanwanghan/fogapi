@@ -73,6 +73,15 @@ class Kernel extends ConsoleKernel
 
         //处理我的路迷雾
         $schedule->command('Wodelu:FogUpload0')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:FogUpload1')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:FogUpload2')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:FogUpload3')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:FogUpload4')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:FogUpload5')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:FogUpload6')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:FogUpload7')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:FogUpload8')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:FogUpload9')->everyMinute()->withoutOverlapping();
 
 
 

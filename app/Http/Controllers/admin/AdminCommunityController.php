@@ -14,7 +14,6 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Session;
 use Intervention\Image\Facades\Image;
 
 class AdminCommunityController extends AdminBaseController
@@ -775,7 +774,7 @@ Eof;
     public function publishCommunity(Request $request)
     {
         //虚拟用户uid
-        $arr=[103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357];
+        $arr=[103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357,137545,97105];
 
         //虚拟用户
         $user=DB::connection('tssj_old')->table('tssj_member')->whereIn('userid',$arr)->get(['userid','username','avatar']);
