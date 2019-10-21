@@ -274,7 +274,7 @@
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">当月用户发布印象量</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">当月用户发布印象量 实：<span id="real"></span> 虚：<span id="notReal"></span></h6>
                         <div class="input-group" style="width: 250px">
                             <input type="text" class="form-control bg-light border-1 small" placeholder="">
                             <div class="input-group-append">

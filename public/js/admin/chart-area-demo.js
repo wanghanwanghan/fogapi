@@ -415,6 +415,10 @@ function get_user_publish_article_totle() {
             bottomNotReal.push(value);
         });
 
+        //真实，虚拟用户发布量
+        $("#real").html(response[2][0]);
+        $("#notReal").html(response[2][1]);
+
         // Area Chart Example
         var ctx = document.getElementById("userPublishArticleTotle");
 

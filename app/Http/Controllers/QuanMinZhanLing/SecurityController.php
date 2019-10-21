@@ -285,7 +285,7 @@ Eof;
                 ksort($real);
                 ksort($notReal);
 
-                return [$real,$notReal];
+                return [$real,$notReal,[array_sum($real),array_sum($notReal)]];
 
                 break;
 
