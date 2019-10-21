@@ -2,6 +2,9 @@
 
 @section('content')
 
+    <link href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+    <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
+
     <div class="container-fluid">
 
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -265,15 +268,90 @@
 
         </div>
 
+        <div class="row">
+
+            <div class="col-xl-6 col-lg-7">
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">当月用户发布印象量</h6>
+                        <div class="input-group" style="width: 250px">
+                            <input type="text" class="form-control bg-light border-1 small" placeholder="">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" onclick="alert('没做呢')" type="button">
+                                    <i class="fas fa-search fa-sm">搜索</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <div class="chart-area" id="gridTradeInfoFather">
+                            <div class="chartjs-size-monitor">
+                                <div class="chartjs-size-monitor-expand">
+                                    <div class="">
+
+                                    </div>
+                                </div>
+                                <div class="chartjs-size-monitor-shrink">
+                                    <div class="">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <canvas id="userPublishArticleTotle" style="display: block; height: 320px; width: 584px;" width="1168" height="640" class="chartjs-render-monitor"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6 col-lg-7">
+                <div class="card shadow mb-4">
+                    <!-- Card Header - Dropdown -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">用户发布印象总量</h6>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <table id="userPublishArticleTotleDataTables1" style="width: 100%;text-align: center">
+                            <thead>
+                            <tr>
+                                <th>发布印象</th>
+                                <th>用户名称</th>
+                                <th>用户主键</th>
+                            </tr>
+                            </thead>
+                            <tbody id="userPublishArticleTotleDataTables1_fillData">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+
+
+
+
     </div>
 
     {{csrf_field()}}
 
     {{--<script src="{{asset('vendor/chart.js/Chart.min.js')}}"></script>--}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+    {{--折现--}}
     <script src="{{asset('js/admin/chart-area-demo.js')}}?<?php echo time()?>"></script>
+    {{--饼状图--}}
     <script src="{{asset('js/admin/chart-pie-demo.js')}}?<?php echo time()?>"></script>
+    {{--格子保有量--}}
     <script src="{{asset('js/admin/chart-bar-demo.js')}}?<?php echo time()?>"></script>
+    {{--datetable--}}
+    <script src="{{asset('js/admin/datatables-demo.js')}}?<?php echo time()?>"></script>
 
     {{--网页转图片--}}
     <script src="https://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>

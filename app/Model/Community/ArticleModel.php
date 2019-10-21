@@ -21,4 +21,7 @@ class ArticleModel extends Model
     protected $table='community_article_';
 
     protected $guarded=[];
+
+
+
 }

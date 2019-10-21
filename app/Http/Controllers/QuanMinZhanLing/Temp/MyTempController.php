@@ -16,15 +16,6 @@ class MyTempController extends BaseController
 {
     public function test()
     {
-        $max = collect([
-            ['title' => 'Gift', 'price' => 20],
-            ['title' => 'card', 'price' => 30],
-            ['title' => 'Chair','price' => 40]
-        ])->max('price');
-
-        dd($max);
-
-
         return Excel::download(new ArticleExport([]),'xxx.xlsx');
 
 

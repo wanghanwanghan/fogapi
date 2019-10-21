@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Schema;
 
 class SecurityController extends BaseController
 {
@@ -18,6 +19,10 @@ class SecurityController extends BaseController
 
     //用户分布rediskey
     public $userDistribution='UserDistribution';
+
+    //虚拟用户uid
+    public $uid='103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357';
+    public $uidArr=[103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357];
 
     //统计pv，访问量
     public function recodePV()
@@ -239,9 +244,117 @@ Eof;
 
                 break;
 
-            case '':
+            case 'get_user_publish_article_totle':
+
+                //虚拟用户uid
+                $arr=$this->uid;
+
+                $suffix=Carbon::now()->year;
+
+                //真实用户
+                $sql="select right(left(created_at,10),2) as myDay,count(1) as total from community_article_{$suffix} where uid not in ({$arr}) group by myDay";
+
+                $real=DB::connection('communityDB')->select($sql);
+
+                //虚拟用户
+                $sql="select right(left(created_at,10),2) as myDay,count(1) as total from community_article_{$suffix} where uid in ({$arr}) group by myDay";
+
+                $notReal=DB::connection('communityDB')->select($sql);
+
+                //整理数组
+                foreach ($real as $one)
+                {
+                    $tmp[$one->myDay]=$one->total;
+                }
+                $real=$tmp;
+
+                foreach ($notReal as $one)
+                {
+                    $tmp[$one->myDay]=$one->total;
+                }
+                $notReal=$tmp;
+
+                //今天是当月第几天
+                $currentDay=(int)Carbon::now()->day;
+
+                for ($i=1;$i<=$currentDay-1;$i++)
+                {
+                    isset($real[$i]) ?    null : $real[$i]=0;
+                    isset($notReal[$i]) ? null : $notReal[$i]=0;
+                }
+                ksort($real);
+                ksort($notReal);
+
+                return [$real,$notReal];
 
                 break;
+
+            case 'user_publish_article_totle_datatables_1':
+
+                $now=Carbon::now();
+
+                //只取得最近4年的？此处留坑
+                $tmp=[];
+                for ($i=0;$i<4;$i++)
+                {
+                    $suffix=$now->year - $i;
+
+                    $table="community_article_{$suffix}";
+
+                    if (!Schema::connection('communityDB')->hasTable($table)) continue;
+
+                    $sql="select uid,count(1) as total from {$table} where uid not in ({$this->uid}) group by uid";
+
+                    $res=DB::connection('communityDB')->select($sql);
+
+                    foreach ($res as $one)
+                    {
+                        isset($tmp[$one->uid]) ? $tmp[$one->uid]=$tmp[$one->uid]+$one->total : $tmp[$one->uid]=$one->total;
+                    }
+
+                    arsort($tmp);
+                }
+
+                $res=[];
+                foreach ($tmp as $k=>$v)
+                {
+                    $res[]=[$k=>$v];
+                }
+
+                //只取得前200个
+                $res=collect($res)->slice(0,200);
+
+                $tmp=[];
+                foreach ($res as $one)
+                {
+                    $uid=key($one);
+                    $publishTotal=current($one);
+
+                    $userName=trim(Redis::connection('UserInfo')->hget($uid,'name'));
+
+                    //如果名字是空
+                    if ($userName=='')
+                    {
+                        $userName=DB::connection('tssj_old')->table('tssj_member')->where('userid',$uid)->first()->username;
+                        Redis::connection('UserInfo')->hset($uid,'name',$userName);
+                    }
+
+                    $tmp[]=['uid'=>$uid,'userName'=>$userName,'publishTotal'=>$publishTotal];
+                }
+
+                return $tmp;
+
+                break;
+
+
+
+
+
+
+
+
+
+
 
             default:
 

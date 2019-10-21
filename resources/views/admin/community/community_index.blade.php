@@ -41,6 +41,8 @@
                         <th>置顶(格)</th>
                         <th>精华(格)</th>
                         {{--<th>置顶(广)</th>--}}
+                        <th>点赞</th>
+                        <th>评论</th>
                         <th>内容</th>
                         <th>删除</th>
                     </tr>
@@ -58,6 +60,8 @@
                         <th>置顶(格)</th>
                         <th>精华(格)</th>
                         {{--<th>置顶(广)</th>--}}
+                        <th>点赞</th>
+                        <th>评论</th>
                         <th>内容</th>
                         <th>删除</th>
                     </tr>
@@ -324,14 +328,16 @@
                     },
                 },
                 "columnDefs":[
-                    {"width":"5%","targets":0},
-                    {"width":"5%","targets":1},
-                    {"width":"5%","targets":2},
-                    {"width":"7%","targets":3},
-                    {"width":"5%","targets":4},
-                    {"width":"5%","targets":5},
-                    {"targets":6},
-                    {"width":"5%","targets":7},
+                    {"width":"5%","targets":0},//印象主键
+                    {"width":"5%","targets":1},//用户主键
+                    {"width":"5%","targets":2},//格子编号
+                    {"width":"7%","targets":3},//发布时间
+                    {"width":"5%","targets":4},//格子置顶
+                    {"width":"5%","targets":5},//格子精华
+                    {"width":"5%","targets":6},//点赞数字
+                    {"width":"5%","targets":7},//评论数字
+                    {"targets":8},             //印象内容
+                    {"width":"5%","targets":9},//删除印象
                 ],
                 "columns": [
                     {"data":"aid"},
@@ -340,6 +346,8 @@
                     {"data":"created_at"},
                     {"data":"isTop"},
                     {"data":"theBest"},
+                    {"data":"likes"},
+                    {"data":"comments"},
                     {"data":"content"},
                     {"data":"useForDelete"},
                 ],

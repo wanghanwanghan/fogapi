@@ -132,7 +132,9 @@ class AdminCommunityController extends AdminBaseController
                 if ($order['column']==3) $cond='created_at';
                 if ($order['column']==4) $cond='isTop';
                 if ($order['column']==5) $cond='theBest';
-                if ($order['column']==6) $cond='content';
+                if ($order['column']==6) $cond='likes';
+                if ($order['column']==7) $cond='comments';
+                if ($order['column']==8) $cond='content';
 
                 //搜索
                 $search=$request->search;
@@ -143,20 +145,149 @@ class AdminCommunityController extends AdminBaseController
                 //相当于offset
                 $start=$request->start;
 
-                ArticleModel::suffix(Carbon::now()->year);
+                $suffix=Carbon::now()->year;
+
+                ArticleModel::suffix($suffix);
 
                 if ($search['value']!='')
                 {
-                    //含有搜索条件
-                    $res=ArticleModel::where('uid','like',"%{$search['value']}%")
-                        ->orWhere('gName','like',"%{$search['value']}%")
-                        ->orWhere('content','like',"%{$search['value']}%")
-                        ->orderBy($cond,$order['dir'])->limit($length)->offset($start)->get()->toArray();
+                    $sql=<<<Eof
+SELECT
+	aid,
+	uid,
+	gName,
+	created_at,
+	isTop,
+	theBest,
+	sum(likes) AS likes,
+	sum(comments) AS comments,
+	content
+FROM
+	(
+		(
+			SELECT
+				t1.aid,
+				t1.uid,
+				t1.gName,
+				t1.created_at,
+				t1.isTop,
+				t1.theBest,
+				t1.content,
+				CASE
+			WHEN t2.isLike IS NULL THEN
+				0
+			ELSE
+				t2.isLike
+			END AS likes,
+			0 AS comments
+		FROM
+			community_article_{$suffix} AS t1
+		LEFT JOIN community_article_like_{$suffix} AS t2 ON t1.aid = t2.aid
+		WHERE
+			t1.uid LIKE '%{$search['value']}%'
+		OR t1.gName LIKE '%{$search['value']}%'
+		OR t1.content LIKE '%{$search['value']}%'
+		)
+		UNION ALL
+			(
+				SELECT
+					t1.aid,
+					t1.uid,
+					t1.gName,
+					t1.created_at,
+					t1.isTop,
+					t1.theBest,
+					t1.content,
+					0 AS likes,
+					CASE
+				WHEN t3.uid IS NULL THEN
+					0
+				ELSE
+					1
+				END AS comments
+				FROM
+					community_article_{$suffix} AS t1
+				LEFT JOIN community_article_comment_{$suffix} AS t3 ON t1.aid = t3.aid
+				WHERE
+			        t1.uid LIKE '%{$search['value']}%'
+		        OR t1.gName LIKE '%{$search['value']}%'
+		        OR t1.content LIKE '%{$search['value']}%'
+			)
+	) AS tmp
+GROUP BY
+	tmp.aid
+ORDER BY
+	{$cond} {$order['dir']}
+LIMIT {$start},
+ {$length}
+Eof;
                 }else
                 {
-                    $res=ArticleModel::orderBy($cond,$order['dir'])->limit($length)->offset($start)->get()->toArray();
+                    $sql=<<<Eof
+SELECT
+	aid,
+	uid,
+	gName,
+	created_at,
+	isTop,
+	theBest,
+	sum(likes) AS likes,
+	sum(comments) AS comments,
+	content
+FROM
+	(
+		(
+			SELECT
+				t1.aid,
+				t1.uid,
+				t1.gName,
+				t1.created_at,
+				t1.isTop,
+				t1.theBest,
+				t1.content,
+				CASE
+			WHEN t2.isLike IS NULL THEN
+				0
+			ELSE
+				t2.isLike
+			END AS likes,
+			0 AS comments
+		FROM
+			community_article_{$suffix} AS t1
+		LEFT JOIN community_article_like_{$suffix} AS t2 ON t1.aid = t2.aid
+		)
+		UNION ALL
+			(
+				SELECT
+					t1.aid,
+					t1.uid,
+					t1.gName,
+					t1.created_at,
+					t1.isTop,
+					t1.theBest,
+					t1.content,
+					0 AS likes,
+					CASE
+				WHEN t3.uid IS NULL THEN
+					0
+				ELSE
+					1
+				END AS comments
+				FROM
+					community_article_{$suffix} AS t1
+				LEFT JOIN community_article_comment_{$suffix} AS t3 ON t1.aid = t3.aid
+			)
+	) AS tmp
+GROUP BY
+	tmp.aid
+ORDER BY
+	{$cond} {$order['dir']}
+LIMIT {$start},
+ {$length}
+Eof;
                 }
 
+                $res=DB::connection($this->db)->select($sql);
 
                 $tmp['draw']=$request->draw;
                 $tmp['recordsTotal']=ArticleModel::count();//数据总数
@@ -166,6 +297,8 @@ class AdminCommunityController extends AdminBaseController
                 $i=1;
                 foreach ($res as $one)
                 {
+                    $one=jsonDecode(jsonEncode($one));
+
                     $tmp['data'][]=[
                         'aid'=>$one['aid'],
                         'uid'=>$one['uid'],
@@ -173,6 +306,8 @@ class AdminCommunityController extends AdminBaseController
                         'created_at'=>$one['created_at'],
                         'isTop'=>$one['isTop']     > 0 ? "<a href='javascript:void(0);' id={$one['aid']} onclick=cancleTop($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a>" : "<a href='javascript:void(0);' id={$one['aid']} onclick=setTop($(this).attr('id')) class='btn btn-danger btn-circle btn-sm'><i class='fas fa-times'></i></a>",
                         'theBest'=>$one['theBest'] > 0 ? "<a href='javascript:void(0);' id={$one['aid']} onclick=cancleTheBest($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a>" : "<a href='javascript:void(0);' id={$one['aid']} onclick=setTheBest($(this).attr('id')) class='btn btn-danger btn-circle btn-sm'><i class='fas fa-times'></i></a>",
+                        'likes'=>$one['likes'],
+                        'comments'=>$one['comments'],
                         'content'=>$one['content'],
                         'useForDelete'=>"<a href='javascript:void(0);' id={$one['aid']} onclick=deleteThisArticle($(this).attr('id')) class='btn btn-warning btn-circle btn-sm'><i class='fas fa-trash'></i></a>",
                     ];
@@ -639,6 +774,7 @@ class AdminCommunityController extends AdminBaseController
     //发布印象
     public function publishCommunity(Request $request)
     {
+        //虚拟用户uid
         $arr=[103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357];
 
         //虚拟用户
