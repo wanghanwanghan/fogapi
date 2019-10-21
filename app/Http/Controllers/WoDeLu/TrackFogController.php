@@ -26,8 +26,8 @@ class TrackFogController extends Controller
         //先%10，得到数据库后缀
         $db=$uid%10;
 
-        //再%800，得到表后缀
-        $table=$uid%800;
+        //再%900，得到表后缀
+        $table=$uid%900;
 
         return ['db'=>$db,'table'=>$table];
     }

@@ -21,6 +21,10 @@ class AdminCommunityController extends AdminBaseController
     public $communityDB='communityDB';
     public $db='communityDB';
 
+    //虚拟用户uid
+    public $uid='103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357,137545,97105';
+    public $uidArr=[103595,104994,191662,138283,106241,187126,18656,137544,18658,18657,104563,22357,137545,97105];
+
     public function ajax(Request $request)
     {
         if (isset($request->mytype) && $request->mytype='modifyAvatar')
@@ -173,7 +177,7 @@ FROM
 				t1.theBest,
 				t1.content,
 				CASE
-			WHEN t2.isLike IS NULL THEN
+			WHEN t2.isLike IS NULL OR t2.uid IN ({$this->uid}) THEN
 				0
 			ELSE
 				t2.isLike
@@ -199,7 +203,7 @@ FROM
 					t1.content,
 					0 AS likes,
 					CASE
-				WHEN t3.uid IS NULL THEN
+				WHEN t3.uid IS NULL OR t3.uid IN ({$this->uid}) THEN
 					0
 				ELSE
 					1
@@ -245,7 +249,7 @@ FROM
 				t1.theBest,
 				t1.content,
 				CASE
-			WHEN t2.isLike IS NULL THEN
+			WHEN t2.isLike IS NULL OR t2.uid IN ({$this->uid}) THEN
 				0
 			ELSE
 				t2.isLike
@@ -267,7 +271,7 @@ FROM
 					t1.content,
 					0 AS likes,
 					CASE
-				WHEN t3.uid IS NULL THEN
+				WHEN t3.uid IS NULL OR t3.uid IN ({$this->uid}) THEN
 					0
 				ELSE
 					1
