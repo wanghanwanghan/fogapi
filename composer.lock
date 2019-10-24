@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd163b93e1d3e54e002846942bc9ca2b",
+    "content-hash": "63fcf6bf92a1365d98248c0baf4df556",
     "packages": [
         {
             "name": "alchemy/binary-driver",
@@ -1753,6 +1753,51 @@
                 "微信支付"
             ],
             "time": "2018-11-02T06:03:53+00:00"
+        },
+        {
+            "name": "lustre/php-dfa-sensitive",
+            "version": "v1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FireLustre/php-dfa-sensitive.git",
+                "reference": "dc33f5a4be86516582fc6ac7c25e33c21a6664e6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FireLustre/php-dfa-sensitive/zipball/dc33f5a4be86516582fc6ac7c25e33c21a6664e6",
+                "reference": "dc33f5a4be86516582fc6ac7c25e33c21a6664e6",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DfaFilter\\": "src/DfaFilter"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Lustre",
+                    "email": "firelustre@163.com"
+                }
+            ],
+            "description": "To achieve the filtering of sensitive words, based on the determination of finite automata (DFA) algorithm.",
+            "time": "2019-05-10T08:20:16+00:00"
         },
         {
             "name": "maatwebsite/excel",

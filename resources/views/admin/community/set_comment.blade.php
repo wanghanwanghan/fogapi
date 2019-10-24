@@ -40,10 +40,15 @@
                             <span class="username">
                                 <a href="#">{{$article['name']}}</a>
                             </span>
-                            <span class="description">{{$article['gName']}} - {{$article['created_at']}}</span>
+                            <span class="description">
+                                <img style="width: 18px;height: 18px;" src="/img/admin/location.png">
+                                {{$article['gName']}} - {{$article['created_at']}}
+                            </span>
                         </div>
 
                         <p>{{$article['content']}}</p>
+
+                        <hr>
 
                         <ul class="users-list clearfix">
                             @if($article['picOrVideo1']!='')
@@ -121,18 +126,20 @@
     <div class="card direct-chat direct-chat-warning">
         <div class="card-header">
             <h3 class="card-title">所有评论如下：<span style="color: red">评论中不能带有#号</span></h3>
-            {{--<div class="card-tools">--}}
+            <div class="card-tools">
                 {{--<span data-toggle="tooltip" title="3 New Messages" class="badge badge-warning">3</span>--}}
                 {{--<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>--}}
                 {{--</button>--}}
                 {{--<button type="button" class="btn btn-tool" data-toggle="tooltip" title="Contacts" data-widget="chat-pane-toggle">--}}
-                    {{--<i class="fas fa-comments"></i></button>--}}
-                {{--<button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i>--}}
+                    {{--<i class="fas fa-comments"></i>--}}
                 {{--</button>--}}
-            {{--</div>--}}
+                <button type="button" class="btn btn-tool" data-card-widget="remove" onclick="location.reload()">
+                    <i class="fa fa-comments"></i>
+                </button>
+            </div>
         </div>
         <div class="card-body">
-            <div class="direct-chat-messages">
+            <div class="direct-chat-messages" style="height: 315px">
 
                 {{--所有评论--}}
                 @foreach($comments as $one)

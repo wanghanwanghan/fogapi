@@ -163,6 +163,7 @@
                 type: 2,
                 title: '评论窗',
                 shadeClose: true,
+                scrollbar: true,
                 shade: 0.8,
                 area: ['50%','95%'],
                 content: '/admin/community/setcomment/'+aid+'/'+uid

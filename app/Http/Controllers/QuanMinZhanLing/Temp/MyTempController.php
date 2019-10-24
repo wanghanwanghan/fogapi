@@ -8,6 +8,7 @@ use App\Http\Controllers\Server\ContentCheckBase;
 use App\Model\Community\ArticleModel;
 use App\Model\Community\CommentsModel;
 use Carbon\Carbon;
+use DfaFilter\SensitiveHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
@@ -18,10 +19,36 @@ class MyTempController extends BaseController
 {
     public function test()
     {
-        for ($i=0;$i<10;$i++)
-        {
-            dump(randomUserAvatar());
-        }
+        $wordData=[
+            '傻逼',
+        ];
+
+        $handle=SensitiveHelper::init()->setTree($wordData);
+
+        $content='傻哈逼';
+
+        //检测是否含有敏感词
+        $a=$handle->islegal($content);
+
+        //敏感词替换为*为例（会替换为相同字符长度的*）
+        $b=$handle->replace($content,'*',true);
+
+        //或敏感词替换为***为例
+        $c=$handle->replace($content,'***');
+
+        //获取内容中所有的敏感词
+        $d=$handle->getBadWord($content);
+
+        //仅且获取一个敏感词
+        $e=$handle->getBadWord($content,1);
+
+
+
+
+        dd($a,$b,$c);
+
+
+
 
         dd(randomUserName());
 
