@@ -3527,13 +3527,14 @@ Eof;
     {
         $uid=trim($request->uid);
 
-        $gName=trim($request->gName);
+        $gName=strtolower(trim($request->gName));
 
         $now=Carbon::now();
 
         //留坑
         $count=0;
 
+        //先查10张表？
         for ($i=0;$i<=9;$i++)
         {
             $suffix=$now->year - $i;

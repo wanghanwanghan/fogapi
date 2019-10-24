@@ -119,6 +119,8 @@ class AdminCommunityController extends AdminBaseController
                 //删印象主体
                 $res->delete();
 
+                Redis::connection('UserInfo')->hincrby($uid,'CommunityArticleTotal',-1);
+
                 return ['resCode'=>200];
 
                 break;
