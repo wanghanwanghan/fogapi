@@ -128,6 +128,9 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //查看一个格子下的印象
     Route::match(['get','post'],'GetArticleByGridName','QuanMinZhanLing\\Community\\CommunityController@getArticleByGridName');
 
+    //查看一个格子下是否有印象
+    Route::match(['get','post'],'GetArticleNumByGridName','QuanMinZhanLing\\Community\\CommunityController@getArticleNumByGridName');
+
     //返回40个热门标签
     Route::match(['get','post'],'GetHotLabelsLimit40','QuanMinZhanLing\\Community\\CommunityController@getHotLabelsLimit40');
 

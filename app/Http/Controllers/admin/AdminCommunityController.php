@@ -14,6 +14,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Schema;
 use Intervention\Image\Facades\Image;
 
 class AdminCommunityController extends AdminBaseController
@@ -319,6 +320,309 @@ Eof;
                 }
 
                 return $tmp;
+
+                break;
+
+            case 'communityIndexLikesComments':
+
+                $uid=$request->uid;
+
+                //排序方法
+                //column：0是印象主键，1是用户主键，2是格子编号，3是时间，4是点赞，5是评论，5是内容
+                //dir   ：asc是升序，desc是降序
+                $order=current($request->order);
+
+                if ($order['column']==0) $cond='aid';
+                if ($order['column']==1) $cond='uid';
+                if ($order['column']==2) $cond='gName';
+                if ($order['column']==3) $cond='created_at';
+                if ($order['column']==4) $cond='setLike';
+                if ($order['column']==5) $cond='setComment';
+                if ($order['column']==6) $cond='likes';
+                if ($order['column']==7) $cond='comments';
+                if ($order['column']==8) $cond='content';
+
+                //搜索
+                $search=$request->search;
+
+                //相当于limit
+                $length=$request->length;
+
+                //相当于offset
+                $start=$request->start;
+
+                $suffix=Carbon::now()->year;
+
+                ArticleModel::suffix($suffix);
+
+                if ($search['value']!='')
+                {
+                    $sql=<<<Eof
+SELECT
+	aid,
+	uid,
+	gName,
+	created_at,
+	isTop,
+	theBest,
+	sum(likes) AS likes,
+	sum(comments) AS comments,
+	content
+FROM
+	(
+		(
+			SELECT
+				t1.aid,
+				t1.uid,
+				t1.gName,
+				t1.created_at,
+				t1.isTop,
+				t1.theBest,
+				t1.content,
+				CASE
+			WHEN t2.isLike IS NULL OR t2.uid IN ({$this->uid}) THEN
+				0
+			ELSE
+				t2.isLike
+			END AS likes,
+			0 AS comments
+		FROM
+			community_article_{$suffix} AS t1
+		LEFT JOIN community_article_like_{$suffix} AS t2 ON t1.aid = t2.aid
+		WHERE
+			t1.uid LIKE '%{$search['value']}%'
+		OR t1.gName LIKE '%{$search['value']}%'
+		OR t1.content LIKE '%{$search['value']}%'
+		)
+		UNION ALL
+			(
+				SELECT
+					t1.aid,
+					t1.uid,
+					t1.gName,
+					t1.created_at,
+					t1.isTop,
+					t1.theBest,
+					t1.content,
+					0 AS likes,
+					CASE
+				WHEN t3.uid IS NULL OR t3.uid IN ({$this->uid}) THEN
+					0
+				ELSE
+					1
+				END AS comments
+				FROM
+					community_article_{$suffix} AS t1
+				LEFT JOIN community_article_comment_{$suffix} AS t3 ON t1.aid = t3.aid
+				WHERE
+			        t1.uid LIKE '%{$search['value']}%'
+		        OR t1.gName LIKE '%{$search['value']}%'
+		        OR t1.content LIKE '%{$search['value']}%'
+			)
+	) AS tmp
+GROUP BY
+	tmp.aid
+ORDER BY
+	{$cond} {$order['dir']}
+LIMIT {$start},
+ {$length}
+Eof;
+                }else
+                {
+                    $sql=<<<Eof
+SELECT
+	aid,
+	uid,
+	gName,
+	created_at,
+	isTop,
+	theBest,
+	sum(likes) AS likes,
+	sum(comments) AS comments,
+	content
+FROM
+	(
+		(
+			SELECT
+				t1.aid,
+				t1.uid,
+				t1.gName,
+				t1.created_at,
+				t1.isTop,
+				t1.theBest,
+				t1.content,
+				CASE
+			WHEN t2.isLike IS NULL OR t2.uid IN ({$this->uid}) THEN
+				0
+			ELSE
+				t2.isLike
+			END AS likes,
+			0 AS comments
+		FROM
+			community_article_{$suffix} AS t1
+		LEFT JOIN community_article_like_{$suffix} AS t2 ON t1.aid = t2.aid
+		)
+		UNION ALL
+			(
+				SELECT
+					t1.aid,
+					t1.uid,
+					t1.gName,
+					t1.created_at,
+					t1.isTop,
+					t1.theBest,
+					t1.content,
+					0 AS likes,
+					CASE
+				WHEN t3.uid IS NULL OR t3.uid IN ({$this->uid}) THEN
+					0
+				ELSE
+					1
+				END AS comments
+				FROM
+					community_article_{$suffix} AS t1
+				LEFT JOIN community_article_comment_{$suffix} AS t3 ON t1.aid = t3.aid
+			)
+	) AS tmp
+GROUP BY
+	tmp.aid
+ORDER BY
+	{$cond} {$order['dir']}
+LIMIT {$start},
+ {$length}
+Eof;
+                }
+
+                $res=DB::connection($this->db)->select($sql);
+
+                $tmp['draw']=$request->draw;
+                $tmp['recordsTotal']=ArticleModel::count();//数据总数
+                $tmp['recordsFiltered']=ArticleModel::count();//数据筛选后
+                $tmp['data']=[];
+
+                $i=1;
+                foreach ($res as $one)
+                {
+                    $one=jsonDecode(jsonEncode($one));
+
+                    //根据传进来的uid，看看这个虚拟用户点没点赞
+                    $iLike=0;
+                    if ($uid>0)
+                    {
+                        LikesModel::suffix(date('Y',substr($one['aid'],0,10)));
+
+                        $iLike=LikesModel::where(['aid'=>$one['aid'],'uid'=>$uid])->first();
+
+                        if ($iLike && $iLike->isLike) $iLike=1;
+                    }
+
+                    $tmp['data'][]=[
+                        'aid'=>$one['aid'],
+                        'uid'=>$one['uid'],
+                        'gName'=>$one['gName'],
+                        'created_at'=>$one['created_at'],
+                        'setLike'=>$iLike === 1 ? "<a href='javascript:void(0);' id={$one['aid']} onclick=setLike($(this).attr('id'))><img width='35px' height='35px' src='/img/admin/like.png'></a>" : "<a href='javascript:void(0);' id={$one['aid']} onclick=setLike($(this).attr('id'))><img width='35px' height='35px' src='/img/admin/unlike.png'></a>",
+                        'setComment'=>"<a href='javascript:void(0);' id={$one['aid']} onclick=setComment($(this).attr('id'))><img width='35px' height='35px' src='/img/admin/wechat.png'></a>",
+                        'likes'=>$one['likes'],
+                        'comments'=>$one['comments'],
+                        'content'=>$one['content'],
+                        'useForDelete'=>"<a href='javascript:void(0);' id={$one['aid']} onclick=deleteThisArticle($(this).attr('id')) class='btn btn-warning btn-circle btn-sm'><i class='fas fa-trash'></i></a>",
+                    ];
+
+                    $i++;
+                }
+
+                return $tmp;
+
+                break;
+
+            case 'setLike':
+
+                $aid=$request->aid;
+
+                $uid=$request->uid;
+
+                $suffix=date('Y',substr($aid,0,10));
+
+                ArticleModel::suffix($suffix);
+
+                $oid=ArticleModel::where('aid',$aid)->first()->uid;
+
+                LikesModel::suffix($suffix);
+
+                $obj=LikesModel::firstOrNew(['aid'=>$aid,'uid'=>$uid],['tid'=>$oid,'isLike'=>0,'isRead'=>0,'unixTime'=>time()]);
+
+                if ($obj->isLike===0)
+                {
+                    $obj->isLike=1;
+
+                    //给印象加分
+                    (new CommunityController())->setCommunityScore('like',$uid,$aid);
+
+                }else
+                {
+                    $obj->isLike=0;
+                }
+
+                $iLike=$obj->isLike;
+
+                $obj->save();
+
+                return ['resCode'=>200,'iLike'=>$iLike];
+
+                break;
+
+            case 'sendComment':
+
+                $aid=$request->aid;
+
+                $oid=$request->oid;
+
+                //当前条评论的发送者
+                $uid=$request->uid;
+
+                $arr=explode('#',$request->commtent);
+
+                //一个元素说明$isShowTargetName=0 两个元素说明$isShowTargetName=1
+                if (count($arr)===2)
+                {
+                    $isShowTargetName=1;
+
+                    //当前评论发送给谁
+                    $tid=substr($arr[0],1);
+
+                    //评论内容
+                    $comment=trim($arr[1]);
+
+                }else
+                {
+                    $isShowTargetName=0;
+
+                    $tid=$oid;
+
+                    //评论内容
+                    $comment=trim($arr[0]);
+                }
+
+                $suffix=date('Y',substr($aid,0,10));
+
+                CommentsModel::suffix($suffix);
+
+                CommentsModel::create([
+                    'aid'=>$aid,
+                    'oid'=>$oid,
+                    'uid'=>$uid,
+                    'tid'=>$tid,
+                    'isShow'=>1,
+                    'isShowTargetName'=>$isShowTargetName,
+                    'comment'=>$comment,
+                    'unixTime'=>time(),
+                ]);
+
+                //给印象加分
+                (new CommunityController())->setCommunityScore('comment',$uid,$aid);
+
+                return ['resCode'=>200];
 
                 break;
 
@@ -709,14 +1013,161 @@ Eof;
                 //废止
 
                 break;
+
+            case 'getUserMsg':
+
+                //存入session
+                $uid=$request->uid;
+
+                $tmpUser['uid']=$uid;
+                $tmpUser['uName']=trim(Redis::connection('UserInfo')->hget($uid,'name'));
+                $tmpUser['uAvatar']='http://newfogapi.wodeluapp.com'.trim(Redis::connection('UserInfo')->hget($uid,'avatar'));
+
+                session()->put('currentNotRealUser',jsonEncode($tmpUser));
+
+                $now=Carbon::now();
+
+                $likes=[];
+                $comments=[];
+
+                //取最近5年相关的点赞评论
+                for ($i=0;$i<=5;$i++)
+                {
+                    $suffix=$now->year - $i;
+
+                    $table="community_article_{$suffix}";
+
+                    if (!Schema::connection($this->db)->hasTable($table)) break;
+
+                    //找like表中的tid
+                    LikesModel::suffix($suffix);
+                    $tmp=LikesModel::where(['tid'=>$uid,'isLike'=>1])->get(['aid','uid','unixTime','isLike'])->toArray();
+
+                    if (!empty($tmp)) $likes=array_merge($likes,$tmp);
+
+                    //找comment表中的tid
+                    CommentsModel::suffix($suffix);
+                    $tmp=CommentsModel::where('tid',$uid)->get(['aid','uid','unixTime','comment'])->toArray();
+
+                    if (!empty($tmp)) $comments=array_merge($comments,$tmp);
+                }
+
+                $res=array_merge($likes,$comments);
+
+                $count=count($res);
+
+                if (!empty($res)) $res=arraySort1($res,['desc','unixTime']);
+
+                $request->page=='' ? $page=1 : $page=$request->page;
+
+                if ($page>0 && !empty($res)) $res=myPage($res,5,$page);
+
+                //处理数据
+                foreach ($res as &$one)
+                {
+                    $one['uName']=trim(Redis::connection('UserInfo')->hget($one['uid'],'name'));
+                    $one['uAvatar']='http://newfogapi.wodeluapp.com'.trim(Redis::connection('UserInfo')->hget($one['uid'],'avatar'));
+                    $one['unixTime']=formatDate($one['unixTime']);
+
+                    if (isset($one['comment']) && mb_strlen($one['comment'])>30) $one['comment']=mb_substr($one['comment'],0,30).'...';
+                }
+                unset($one);
+
+                return ['resCode'=>200,'res'=>$res,'count'=>$count];
+
+                break;
         }
     }
 
-    //communityIndex
+    //置顶加精
     public function communityIndex(Request $request)
     {
         //返回今年的印象，按照时间倒序
         return view('admin.community.community_index');
+    }
+
+    //点赞评论
+    public function communityIndexLikesComments(Request $request)
+    {
+        //session里有没有已经选过的用户
+        $user=session()->get('currentNotRealUser');
+
+        if (!$user)
+        {
+            $user['uid']=0;
+            $user['uAvatar']='http://newfogapi.wodeluapp.com/favicon.ico';
+            $user['uName']='请选择虚拟用户';
+        }else
+        {
+            $user=jsonDecode($user);
+        }
+
+        $arr=[];
+
+        foreach ($this->uidArr as $one)
+        {
+            $arr[]=[
+                'uid'=>$one,
+                'uName'=>trim(Redis::connection('UserInfo')->hget($one,'name')),
+                'uAvatar'=>trim(Redis::connection('UserInfo')->hget($one,'avatar'))
+            ];
+        }
+
+        //返回今年的印象，按照时间倒序
+        return view('admin.community.community_index_likesComments')->with(['notRealUser'=>$arr,'currentUser'=>$user]);
+    }
+
+    //虚拟用户评论
+    public function communitySetComment($aid,$uid)
+    {
+        $suffix=date('Y',substr($aid,0,10));
+
+        //印象详情
+        ArticleModel::suffix($suffix);
+
+        $article=ArticleModel::where('aid',$aid)->first()->toArray();
+        $article['name']=Redis::connection('UserInfo')->hget($article['uid'],'name');
+        $article['avatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($article['uid'],'avatar');
+
+        //所有评论
+        CommentsModel::suffix($suffix);
+
+        $comments=CommentsModel::where('aid',$aid)->orderBy('id','desc')->get(['oid','uid','tid','isShowTargetName','unixTime','comment','created_at'])->toArray();
+
+        foreach ($comments as &$one)
+        {
+            //取得用户名和头像
+            $one['oName']=trim(Redis::connection('UserInfo')->hget($one['oid'],'name'));
+            if ($one['oName']=='') $one['oName']='网友';
+            $one['oAvatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($one['oid'],'avatar');
+
+            $one['uName']=trim(Redis::connection('UserInfo')->hget($one['uid'],'name'));
+            if ($one['uName']=='') $one['uName']='网友';
+            $one['uAvatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($one['uid'],'avatar');
+
+            $one['tName']=trim(Redis::connection('UserInfo')->hget($one['tid'],'name'));
+            if ($one['tName']=='') $one['tName']='网友';
+            $one['tAvatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($one['tid'],'avatar');
+        }
+        unset($one);
+
+        return view('admin.community.set_comment')->with(['article'=>$article,'comments'=>$comments,'userId'=>$uid]);
+    }
+
+    //虚拟用户的小红点，加载更多
+    public function communityIndexMoreDetail($uid)
+    {
+
+
+        dd($uid);
+
+
+
+
+
+
+
+
     }
 
     //设置置顶

@@ -67,8 +67,13 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['get','post'],'/community/check/community','admin\\AdminCommunityController@checkCommunity')->name('checkCommunity');
         //印象置顶加精
         Route::match(['get','post'],'/community/index','admin\\AdminCommunityController@communityIndex')->name('communityIndex');
+        //印象点赞评论
+        Route::match(['get','post'],'/community/index/likecomments','admin\\AdminCommunityController@communityIndexLikesComments')->name('communityIndexLikesComments');
         Route::match(['get','post'],'/community/ajax','admin\\AdminCommunityController@ajax');
 
+        //虚拟用户的小红点，加载更多
+        Route::match(['get','post'],'/community/index/moredetail/{uid}','admin\\AdminCommunityController@communityIndexMoreDetail')->name('communityIndexMoreDetail');
+        Route::match(['get','post'],'/community/setcomment/{aid}/{uid}','admin\\AdminCommunityController@communitySetComment')->name('communitySetComment');
 
 
 

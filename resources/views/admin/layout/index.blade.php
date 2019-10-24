@@ -126,6 +126,12 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link" href="{{route('communityIndexLikesComments')}}">
+          <i class="fas fa-fw fa-images"></i>
+          <span>印象点赞评论</span></a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link" href="{{route('checkCommunity')}}">
           <i class="fas fa-fw fa-images"></i>
           <span>审核印象</span></a>

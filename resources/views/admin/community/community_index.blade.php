@@ -2,7 +2,6 @@
 
 @section('content')
 
-
     <link href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
     <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
     <script src="{{asset('vendor/layer/layer.js')}}"></script>
@@ -419,7 +418,6 @@
                 $('#img_div').modal('show');
 
             });
-
 
         });
 

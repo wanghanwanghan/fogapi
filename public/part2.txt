@@ -201,6 +201,15 @@ string gName=n2e1        格子名称
 int    label=0           标签id，0代表不筛选标签
 int    page=1            第几页数据
 =================================================================
+查看一个格子下是否有印象
+
+post
+http://newfogapi.wodeluapp.com/api/GetArticleNumByGridName
+
+参数
+int    uid=17469         用户主键
+string gName=n2e1        格子名称
+=================================================================
 创建新标签
 
 post

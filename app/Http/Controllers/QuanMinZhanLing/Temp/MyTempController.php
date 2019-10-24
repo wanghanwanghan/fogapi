@@ -7,6 +7,7 @@ use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Model\Community\ArticleModel;
 use App\Model\Community\CommentsModel;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 use Qiniu\Auth;
@@ -16,6 +17,14 @@ class MyTempController extends BaseController
 {
     public function test()
     {
+
+
+
+
+
+        dd(randomUserName());
+
+
         return Excel::download(new ArticleExport([]),'xxx.xlsx');
 
 

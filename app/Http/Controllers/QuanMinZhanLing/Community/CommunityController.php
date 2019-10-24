@@ -3522,6 +3522,32 @@ Eof;
         }
     }
 
+    //查看一个格子下是否有印象
+    public function getArticleNumByGridName(Request $request)
+    {
+        $uid=trim($request->uid);
+
+        $gName=trim($request->gName);
+
+        $now=Carbon::now();
+
+        //留坑
+        $count=0;
+
+        for ($i=0;$i<=9;$i++)
+        {
+            $suffix=$now->year - $i;
+
+            $table="community_article_{$suffix}";
+
+            if (!Schema::connection($this->db)->hasTable($table)) break;
+
+            $count+=DB::connection($this->db)->table($table)->where('gName',$gName)->count();
+        }
+
+        return ['resCode'=>Config::get('resCode.200'),'articleTotal'=>$count];
+    }
+
 
 
 
