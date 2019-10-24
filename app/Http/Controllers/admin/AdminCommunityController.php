@@ -1120,6 +1120,8 @@ Eof;
     //虚拟用户评论
     public function communitySetComment($aid,$uid)
     {
+        //打开评论页
+
         $suffix=date('Y',substr($aid,0,10));
 
         //印象详情
@@ -1138,16 +1140,34 @@ Eof;
         {
             //取得用户名和头像
             $one['oName']=trim(Redis::connection('UserInfo')->hget($one['oid'],'name'));
-            if ($one['oName']=='') $one['oName']='网友';
-            $one['oAvatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($one['oid'],'avatar');
+            if ($one['oName']=='') $one['oName']=randomUserName();
+            if (Redis::connection('UserInfo')->hget($one['oid'],'avatar')!='')
+            {
+                $one['oAvatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($one['oid'],'avatar');
+            }else
+            {
+                $one['oAvatar']=randomUserAvatar();
+            }
 
             $one['uName']=trim(Redis::connection('UserInfo')->hget($one['uid'],'name'));
-            if ($one['uName']=='') $one['uName']='网友';
-            $one['uAvatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($one['uid'],'avatar');
+            if ($one['uName']=='') $one['uName']=randomUserName();
+            if (Redis::connection('UserInfo')->hget($one['uid'],'avatar')!='')
+            {
+                $one['uAvatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($one['uid'],'avatar');
+            }else
+            {
+                $one['uAvatar']=randomUserAvatar();
+            }
 
             $one['tName']=trim(Redis::connection('UserInfo')->hget($one['tid'],'name'));
-            if ($one['tName']=='') $one['tName']='网友';
-            $one['tAvatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($one['tid'],'avatar');
+            if ($one['tName']=='') $one['tName']=randomUserName();
+            if (Redis::connection('UserInfo')->hget($one['tid'],'avatar')!='')
+            {
+                $one['tAvatar']='http://newfogapi.wodeluapp.com'.Redis::connection('UserInfo')->hget($one['tid'],'avatar');
+            }else
+            {
+                $one['tAvatar']=randomUserAvatar();
+            }
         }
         unset($one);
 
@@ -1157,7 +1177,7 @@ Eof;
     //虚拟用户的小红点，加载更多
     public function communityIndexMoreDetail($uid)
     {
-
+        //废止
 
         dd($uid);
 

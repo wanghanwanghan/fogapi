@@ -51,7 +51,7 @@
                     <div class="dropdown-list dropdown-menu dropdown-menu-left shadow animated--grow-in" aria-labelledby="messagesDropdown">
                         <div id="currentUserMsgDetail">
                         </div>
-                        <a class="dropdown-item text-center small text-gray-500" page="2" onclick="moreDetail($(this));">加载更多</a>
+                        <a class="dropdown-item text-center small text-gray-500" id="littleRedDocPage" page="2" onclick="moreDetail($(this));">加载更多</a>
                     </div>
                 </li>
 
@@ -83,9 +83,6 @@
                     </tr>
                     </thead>
 
-                    {{--<tbody>--}}
-                    {{--</tbody>--}}
-
                     <tfoot>
                     <tr>
                         <th>印象</th>
@@ -101,7 +98,6 @@
                     </tr>
                     </tfoot>
                 </table>
-
             </div>
         </div>
 
@@ -168,7 +164,7 @@
                 title: '评论窗',
                 shadeClose: true,
                 shade: 0.8,
-                area: ['70%','95%'],
+                area: ['50%','95%'],
                 content: '/admin/community/setcomment/'+aid+'/'+uid
             });
         }
@@ -180,8 +176,7 @@
             $('#currentUserName').html(name);
             $('#currentUserId').val(id);
 
-            //加载msg小红点
-            getUserMsg(id,1);
+            drawNewDataTable();
         }
 
         //修改小红点
@@ -192,6 +187,8 @@
                 $('#currentUserMsgNum').html(0);
 
                 $('#currentUserMsgDetail').children().remove();
+
+                $('#littleRedDocPage').attr('page',2);
             }
 
             var url ='/admin/community/ajax';
@@ -244,18 +241,13 @@
         //重新画datatable
         function drawNewDataTable()
         {
-
-        }
-
-
-        $(document).ready( function () {
-
             if ($('#currentUserId').val()!=0)
             {
                 getUserMsg($('#currentUserId').val(),1);
             }
 
-            var table = $('#myTable').DataTable({
+            $('#myTable').DataTable({
+                "destroy": true,
                 "autoWidth":  false,
                 "processing": true,
                 "serverSide": true,
@@ -317,53 +309,12 @@
             //给每行绑定时间，查看图或视频
             $('#myTable tbody').on('click','tr',function () {
 
-                $("#img_content").children().remove();
-
-                var data = table.row(this).data();
-
-                //拿到aid
-                var aid = data.aid;
-
-                var url ='/admin/community/ajax';
-
-                //取视频或图片
-                $.post(url,{_token:$("input[name=_token]").val(),aid:aid,type:'getVideoOrPic'},function (response) {
-
-                    if (response.resCode==201)
-                    {
-                        alert('没有图片或视频');
-                        return;
-                    }
-
-                    if (response.resCode!=200)
-                    {
-                        alert('error');
-                        return;
-                    }
-
-                    $.each(response.url,function (key,value)
-                    {
-                        if (value && value.search(/video/i)>0)
-                        {
-                            //视频
-                            $('#img_content').append("<video autoplay loop><source src='"+value+"' type='video/mp4'>您的浏览器不支持 HTML5 video 标签。</video>");
-                        }
-
-                        if (value && value.search(/pic/i)>0)
-                        {
-                            //图片
-                            value=value.replace('thum','origin');
-                            $('#img_content').append("<img width='600px' src="+value+">");
-                        }
-                    });
-
-                },'json');
-
-                //弹出二维码
-                $('#img_div').modal('show');
-
             });
+        }
 
+
+        $(document).ready( function () {
+            drawNewDataTable();
         });
 
     </script>

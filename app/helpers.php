@@ -1050,7 +1050,20 @@ function randomUserName()
     }
 }
 
+//随机用户头像
+function randomUserAvatar()
+{
+    $count=\Illuminate\Support\Facades\Cache::remember('randomUserAvatarCount',1440,function()
+    {
+        return DB::connection('masterDB')->table('oneAvatar')->count();
+    });
 
+    $where=random_int(1,$count);
+
+    $res=DB::connection('masterDB')->table('oneAvatar')->where('id',$where)->first();
+
+    return $res->imgurl;
+}
 
 
 

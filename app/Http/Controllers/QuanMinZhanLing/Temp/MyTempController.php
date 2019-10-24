@@ -4,6 +4,7 @@ namespace App\Http\Controllers\QuanMinZhanLing\Temp;
 
 use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
+use App\Http\Controllers\Server\ContentCheckBase;
 use App\Model\Community\ArticleModel;
 use App\Model\Community\CommentsModel;
 use Carbon\Carbon;
@@ -17,10 +18,10 @@ class MyTempController extends BaseController
 {
     public function test()
     {
-
-
-
-
+        for ($i=0;$i<10;$i++)
+        {
+            dump(randomUserAvatar());
+        }
 
         dd(randomUserName());
 
