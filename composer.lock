@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "63fcf6bf92a1365d98248c0baf4df556",
+    "content-hash": "c431d77396e6f761e7d11c737c17283c",
     "packages": [
         {
             "name": "alchemy/binary-driver",
@@ -6487,6 +6487,55 @@
             ],
             "description": "LBS地理位置距离计算方法geohash，将一个经纬度信息，转换成一个可以排序，可以比较的字符串编码，用于高效搜索",
             "time": "2018-12-13T07:54:10+00:00"
+        },
+        {
+            "name": "youthage/snowflake",
+            "version": "2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/YouthAge/laravel-snowflake.git",
+                "reference": "dce01c81023984a3b145cce84614ecc617a2c48f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/YouthAge/laravel-snowflake/zipball/dce01c81023984a3b145cce84614ecc617a2c48f",
+                "reference": "dce01c81023984a3b145cce84614ecc617a2c48f",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Ysnowflake\\SnowflakeServiceProvider"
+                    ],
+                    "aliases": {
+                        "Snowflake": "Ysnowflake\\SnowflakeFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ysnowflake\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "YouthAge",
+                    "email": "myouthage@gmail.com"
+                }
+            ],
+            "description": "PHP Laravel Snowflake 生成唯一id",
+            "time": "2019-03-14T16:15:12+00:00"
         }
     ],
     "packages-dev": [

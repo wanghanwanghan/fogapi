@@ -53,7 +53,11 @@
                         <ul class="users-list clearfix">
                             @if($article['picOrVideo1']!='')
                                 <li>
-                                    <img src="http://newfogapi.wodeluapp.com/{{$article['picOrVideo1']}}" alt="User Image">
+                                    @if(preg_match('/mp4/',$article['picOrVideo1'])>0)
+                                        <video autoplay loop><source src="http://newfogapi.wodeluapp.com/{{$article['picOrVideo1']}}" type='video/mp4'>您的浏览器不支持 HTML5 video 标签。</video>
+                                    @else
+                                        <img src="http://newfogapi.wodeluapp.com/{{$article['picOrVideo1']}}" alt="User Image">
+                                    @endif
                                     {{--<a class="users-list-name" href="#">Alexander Pierce</a>--}}
                                     {{--<span class="users-list-date">Today</span>--}}
                                 </li>

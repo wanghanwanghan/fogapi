@@ -4,6 +4,7 @@ namespace App\Http\Controllers\WoDeLu;
 
 use App\Console\Commands\TrackFogUpload0;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class TrackFogController extends Controller
     //是否开启处理迷雾点任务 1开启，0不开启
     public $runWork=1;
 
-    //分库分表规则
+    //分库分表规则 迷雾的
     public function getDatabaseNoOrTableNo($uid)
     {
         //根据uid
@@ -30,6 +31,107 @@ class TrackFogController extends Controller
         $table=$uid%900;
 
         return ['db'=>$db,'table'=>$table];
+    }
+
+    //迷雾上传限流
+    public function todayShowUploadFogBoxLimitForTrackFog(Request $request)
+    {
+        $uid=(int)$request->uid;
+
+        if ($uid <= 0) return response()->json(['resCode'=>601]);
+
+        //当天最大人数，做成动态的吧
+        $limit=Config::get('myDefine.PeopleLimt');
+
+        //当天已经上传的人数
+        $todayPeople='TodayPeople_'.Carbon::now()->format('Ymd');
+
+        //当天的成员
+        $todaySismember='TodaySismember_'.Carbon::now()->format('Ymd');
+
+        //===========================================================================================================
+        if ($request->isMethod('get'))
+        {
+            $sismember=Redis::connection('TrackFog')->sismember($todaySismember,$uid);
+
+            //在当天的成员里，说明传过了
+            if ((int)$sismember) return response()->json(['resCode'=>200,'allow'=>0]);
+
+            $count=Redis::connection('TrackFog')->get($todayPeople);
+
+            //当天上传人数到达限制
+            if ((int)$count >= $limit) return response()->json(['resCode'=>200,'allow'=>0]);
+
+            //控制量
+            $num=0;
+
+            for ($i=0;$i<=9;$i++)
+            {
+                $num += (int)Redis::connection('TrackFog')->llen('FogUploadList_'.$i);
+            }
+
+            //当前要处理的迷雾点太多了，不能上传了
+            if ($num * 5000 > Config::get('myDefine.FogLimit')) return response()->json(['resCode'=>200,'allow'=>0]);
+
+            return response()->json(['resCode'=>200,'allow'=>1]);
+        }
+        //===========================================================================================================
+        if ($request->isMethod('post'))
+        {
+            //把uid添加到集合成员
+            Redis::connection('TrackFog')->sadd($todaySismember,$uid);
+            //设置过期时间
+            Redis::connection('TrackFog')->expire($todaySismember,86400);
+
+            //当天上传limit加1
+            Redis::connection('TrackFog')->incr($todayPeople);
+            //设置过期时间
+            Redis::connection('TrackFog')->expire($todayPeople,86400);
+
+            return response()->json(['resCode'=>200]);
+        }
+        //===========================================================================================================
+
+        return false;
+    }
+
+    //分库分表规则 足迹的
+    public function getDatabaseNoOrTableNoForZUJI($uid,$unixTimeOrYmd='')
+    {
+        //228万数据，440兆空间，7字段，2索引
+
+        //395面积，5万个点，1万人，5亿数据
+
+        //根据uid
+        if (!is_numeric($uid) || $uid <= 0) return false;
+
+        if ($unixTimeOrYmd=='') $unixTimeOrYmd=time();
+
+        //库后缀，一年一个库
+        //再%5，得到表后缀，一天一个表，一年365 * 5个表
+        //20190330 2019-03-30 1571991904
+        try
+        {
+            $db=Carbon::parse($unixTimeOrYmd)->format('Y');
+
+            $table=Carbon::parse($unixTimeOrYmd)->format('Ymd').'_'.$uid%5;
+
+        }catch (\Exception $e)
+        {
+            $db=date('Y',$unixTimeOrYmd);
+
+            $table=date('Ymd',$unixTimeOrYmd).'_'.$uid%5;
+        }
+
+        //db=>2019 table=>20190101_1
+        return ['db'=>$db,'table'=>$table];
+    }
+
+    //足迹上传限流
+    public function todayShowUploadFogBoxLimitForTrackZuJi(Request $request)
+    {
+
+        return false;
     }
 
     //迷雾上传
@@ -96,9 +198,52 @@ class TrackFogController extends Controller
         return response()->json(['resCode'=>Config::get('resCode.200'),'thisTotle'=>count($res),'data'=>$res]);
     }
 
+    //足迹上传
+    public function zujiUpload(Request $request)
+    {
+        if (!$this->runWork) return response()->json(['resCode'=>Config::get('resCode.200')]);
 
+        //[
+        //  'uid' =>23357,
+        //  'date'=>20191031,
+        //  'data'=>要处理的足迹json,
+        //]
 
+        $uid=trim($request->uid);
 
+        if (!is_numeric($uid) || $uid <= 0 || $request->data=='') return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        $date=trim($request->date);
+
+        if (!is_numeric($date) || $date <= 0) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        $data=jsonDecode($request->data);
+
+        $readyToHandle['uid']=$uid;
+        $readyToHandle['date']=$date;
+        $readyToHandle['data']=$data;
+
+        //通过uid分成最多10个队列处理数据
+        $suffix=$uid%$this->workList;
+
+        try
+        {
+            //左进
+            Redis::connection('TrackFog')->lpush('FogUploadZuJiList_'.$suffix,jsonEncode($readyToHandle));
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.631')]);
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200')]);
+    }
+
+    //足迹下载
+    public function zujiDownload(Request $request)
+    {
+
+    }
 
 
 

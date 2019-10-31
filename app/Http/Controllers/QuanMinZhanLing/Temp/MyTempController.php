@@ -5,20 +5,55 @@ namespace App\Http\Controllers\QuanMinZhanLing\Temp;
 use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\Server\ContentCheckBase;
+use App\Http\Controllers\WoDeLu\TrackFogController;
 use App\Model\Community\ArticleModel;
 use App\Model\Community\CommentsModel;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
+use Geohash\GeoHash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 use Qiniu\Auth;
 use Qiniu\Sms\Sms;
+use Ysnowflake\SnowflakeFacade;
 
 class MyTempController extends BaseController
 {
     public function test()
     {
+        for ($i=1;$i<=100;$i++)
+        {
+            dump(SnowflakeFacade::nextId());
+        }
+
+
+
+
+
+        dd('wancheng');
+
+
+        $obj=new GeoHash();
+
+        $res10=$obj->encode('35.9262980000','105.3660250000','10');
+        $res11=$obj->encode('35.9262980000','105.3660250000','11');
+        $res12=$obj->encode('35.9262980000','105.3660250000','12');
+
+
+
+
+
+
+
+
+
+        dd($res10,$res11,$res12);
+
+
+
+
         $wordData=[
             '傻逼',
         ];

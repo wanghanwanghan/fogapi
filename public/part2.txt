@@ -293,21 +293,4 @@ http://newfogapi.wodeluapp.com/api/FogUpload
 int    uid =17469            用户主键
 string data=                 经纬度的json串
 =================================================================
-我的路迷雾下载
 
-post
-http://newfogapi.wodeluapp.com/api/TrackFogDownload
-
-参数
-int    uid =17469    用户主键
-int    page=1        第几页数据
-=================================================================
-我的路迷雾上传
-
-post
-http://newfogapi.wodeluapp.com/api/TrackFogUpload
-
-参数
-int    uid =17469            用户主键
-string data=                 经纬度的json串
-=================================================================

@@ -31,7 +31,8 @@
         "simplesoftwareio/simple-qrcode": "^2.0",
         "yadakhov/insert-on-duplicate-key": "^1.2",
         "yansongda/laravel-pay": "^2.0",
-        "youthage/laravel-geohash": "^3.1"
+        "youthage/laravel-geohash": "^3.1",
+        "youthage/snowflake": "^2.1"
     },
     "require-dev": {
         "eaglewu/swoole-ide-helper": "dev-master",

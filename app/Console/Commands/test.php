@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\TanSuoShiJie\FogController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
@@ -39,161 +40,52 @@ class test extends Command
      */
     public function handle()
     {
-        $Geo=new \Geohash\GeoHash();
+        Redis::connection('UserInfo')->multi();//开启事务
+        Redis::connection('UserInfo')->keys('1*');
+        Redis::connection('UserInfo')->keys('2*');
+        Redis::connection('UserInfo')->keys('3*');
+        Redis::connection('UserInfo')->keys('4*');
+        Redis::connection('UserInfo')->keys('5*');
+        Redis::connection('UserInfo')->keys('6*');
+        Redis::connection('UserInfo')->keys('7*');
+        Redis::connection('UserInfo')->keys('8*');
+        Redis::connection('UserInfo')->keys('9*');
+        $all=Redis::connection('UserInfo')->exec();//提交事务
 
-        DB::connection('tssj_old')->table('tssj_fog')->orderBy('fogid')->chunk(5000,function ($data) use ($Geo)
+        $all=array_flatten($all);
+
+        $suffixOBJ=new FogController();
+
+        foreach ($all as $one)
         {
-            $connection='tssj_new_2019';
+            $suffix=$suffixOBJ->getDatabaseNoOrTableNo($one);
 
-            //最后要执行数组
-            $sqlGeoArray=[];
-            $sqlUsrArray=[];
-
-            foreach ($data as $one)
+            try
             {
-                if (!is_numeric($one->longitude) || !is_numeric($one->latitude)) continue;
+                $count=DB::connection("TssjFog{$suffix['db']}")->table("user_fog_{$suffix['table']}")->where('uid',$one)->count();
 
-                $lng=\sprintf("%.4f",$one->longitude);
-                $lat=\sprintf("%.4f",$one->latitude);
-
-                $geohash=$Geo->encode($lat,$lng,'9');
-
-                $res=amapSelect($lng,$lat);
-
-                if ($res===false)
-                {
-                    $tmp=DB::connection($connection)->table('Unknown_geohash')->where('geohash',$geohash)->first();
-
-                    if ($tmp==null)
-                    {
-                        $arr['geohash']=$geohash;
-                        $arr['lng']=empty($lng)?'':$lng;
-                        $arr['lat']=empty($lat)?'':$lat;
-
-                        DB::connection($connection)->table('Unknown_geohash')->insert($arr);
-                    }
-
-                    continue;
-                }
-
-                //生成基础坐标点sql语句['tableName'=>'要插入的值']
-                $res=insertGeohash($Geo,$lng,$lat,$res);
-
-                //下面要循环拼接的sql
-                $sqlGeoArray[$res[0]][]=$res[1];
-
-                //关联当前坐标和用户
-                if (!is_numeric($one->userid))
-                {
-                    continue;
-                }else
-                {
-                    $userid=$one->userid;
-                }
-
-                if (!is_numeric($one->dateline))
-                {
-                    $dateline=time();
-                }else
-                {
-                    $dateline=$one->dateline;
-                }
-
-                $res=insertUserGeo($geohash,$userid,$dateline);
-
-                //下面要循环拼接的sql
-                $sqlUsrArray[$res[0]][]=$res[1];
+            }catch (\Exception $e)
+            {
+                continue;
             }
 
-            //====================准备插入数据 拼接数组中的value====================
+            //迷雾面积在：
+            //1.  100k㎡（12660迷雾点）-200k㎡（25320迷雾点）的人数
+            //2.  200k㎡（25320迷雾点）-300k㎡（37980迷雾点）的人数
+            //3.  300k㎡（37980迷雾点）-2000k㎡（253170迷雾点）的人数
+            //4.  2000k㎡（253170迷雾点）以上的人数
 
-            //最后要执行数组
-            $sqlGeoArray_tmp=[];
-            $sqlUsrArray_tmp=[];
+            $count=$count*0.0079;
 
-            //$sqlGeoArray
-            //$key是表名 $value是需要插入的数据["'','wx4eqy9fb','','海淀区'"]
-            //$sqlUsrArray
-            //$key是表名 $value是需要插入的数据["'',18343,'wx4g3bmcz','1453683658'"]
+            if ($count<100) Redis::connection('default')->hincrby('userFog','1',1);
 
-            foreach ($sqlGeoArray as $key=>$value)
-            {
-                foreach ($value as $one)
-                {
-                    if (isset($sqlGeoArray_tmp[$key]))
-                    {
-                        $sqlGeoArray_tmp[$key].='('.$one.'),';
-                    }else
-                    {
-                        $sqlGeoArray_tmp[$key]='('.$one.'),';
-                    }
-                }
-            }
+            if ($count>=100 && $count<=200) Redis::connection('default')->hincrby('userFog','2',1);
 
-            foreach ($sqlUsrArray as $key=>$value)
-            {
-                foreach ($value as $one)
-                {
-                    if (isset($sqlUsrArray_tmp[$key]))
-                    {
-                        $sqlUsrArray_tmp[$key].='('.$one.'),';
-                    }else
-                    {
-                        $sqlUsrArray_tmp[$key]='('.$one.'),';
-                    }
-                }
-            }
+            if ($count>200 && $count<=300) Redis::connection('default')->hincrby('userFog','3',1);
 
-            //插入数据
-            foreach ($sqlGeoArray_tmp as $key=>$value)
-            {
-                DB::connection($connection)->insert("insert ignore into ".$key.' values '.rtrim($value,','));
-            }
+            if ($count>300 && $count<=2000) Redis::connection('default')->hincrby('userFog','4',1);
 
-            foreach ($sqlUsrArray_tmp as $key=>$value)
-            {
-                DB::connection($connection)->insert("insert ignore into ".$key.' values '.rtrim($value,','));
-            }
-
-            //每处理5000条记录一下
-            $ExecCout=Redis::get('ExecCout');
-
-            if ($ExecCout)
-            {
-                $ExecCout++;
-            }else
-            {
-                $ExecCout=1;
-            }
-
-            Redis::set('ExecCout',$ExecCout);
-        });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            if ($count>2000) Redis::connection('default')->hincrby('userFog','5',1);
+        }
     }
 }

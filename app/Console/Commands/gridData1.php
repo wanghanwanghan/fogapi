@@ -19,7 +19,7 @@ class gridData1 extends Command
 
     public function handle()
     {
-        $res=GridModel::orderBy('price','desc')->orderBy('id')->limit(5000)->get([
+        $res=GridModel::orderBy('price','desc')->orderBy('id')->limit(10000)->get([
             'name','price','hightPrice','totle','belong','updated_at'
         ]);
 
