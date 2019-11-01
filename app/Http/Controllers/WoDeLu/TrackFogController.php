@@ -72,7 +72,7 @@ class TrackFogController extends Controller
             }
 
             //当前要处理的迷雾点太多了，不能上传了
-            if ($num * 5000 > Config::get('myDefine.FogLimit')) return response()->json(['resCode'=>200,'allow'=>0]);
+            if ($num * 5000 > Config::get('myDefine.FogLimit') / 10) return response()->json(['resCode'=>200,'allow'=>0]);
 
             return response()->json(['resCode'=>200,'allow'=>1]);
         }
@@ -128,6 +128,61 @@ class TrackFogController extends Controller
     //足迹上传限流
     public function todayShowUploadFogBoxLimitForTrackZuJi(Request $request)
     {
+        $uid=(int)$request->uid;
+
+        if ($uid <= 0) return response()->json(['resCode'=>601]);
+
+        //当天最大人数，做成动态的吧
+        $limit=Config::get('myDefine.ZuJiPeopleLimt');
+
+        //当天已经上传的人数
+        $todayPeople='ZuJiTodayPeople_'.Carbon::now()->format('Ymd');
+
+        //当天的成员
+        $todaySismember='ZuJiTodaySismember_'.Carbon::now()->format('Ymd');
+
+        //===========================================================================================================
+        if ($request->isMethod('get'))
+        {
+            $sismember=Redis::connection('TrackFog')->sismember($todaySismember,$uid);
+
+            //在当天的成员里，说明传过了
+            if ((int)$sismember) return response()->json(['resCode'=>200,'allow'=>0]);
+
+            $count=Redis::connection('TrackFog')->get($todayPeople);
+
+            //当天上传人数到达限制
+            if ((int)$count >= $limit) return response()->json(['resCode'=>200,'allow'=>0]);
+
+            //控制量
+            $num=0;
+
+            for ($i=0;$i<=9;$i++)
+            {
+                $num += (int)Redis::connection('TrackFog')->llen('FogUploadZuJiList_'.$i);
+            }
+
+            //当前要处理的足迹天数太多了，不能上传了
+            if ($num > Config::get('myDefine.ZuJiDayLimit')) return response()->json(['resCode'=>200,'allow'=>0]);
+
+            return response()->json(['resCode'=>200,'allow'=>1]);
+        }
+        //===========================================================================================================
+        if ($request->isMethod('post'))
+        {
+            //把uid添加到集合成员
+            Redis::connection('TrackFog')->sadd($todaySismember,$uid);
+            //设置过期时间
+            Redis::connection('TrackFog')->expire($todaySismember,86400);
+
+            //当天上传limit加1
+            Redis::connection('TrackFog')->incr($todayPeople);
+            //设置过期时间
+            Redis::connection('TrackFog')->expire($todayPeople,86400);
+
+            return response()->json(['resCode'=>200]);
+        }
+        //===========================================================================================================
 
         return false;
     }
@@ -269,7 +324,7 @@ class TrackFogController extends Controller
                 'distance'=>$one->distance,
                 'stopLocationStr'=>$one->stopLocationStr,
                 'startTimestamp'=>$one->startTimestamp,
-                'startlocationStr'=>$one->startlocationStr,
+                'startlocationStr'=>$one->startLocationStr,
                 'endTimestamp'=>$one->endTimestamp,
                 'interval'=>$one->interval,
                 'locations'=>$locations,

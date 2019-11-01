@@ -144,9 +144,9 @@ class TrackFogUploadForZUJI9 extends Command
 
                 $startTimestamp=mb_substr($oneData['startTimestamp']-0,0,10);
 
-                if (isset($oneData['startLocationStr']))
+                if (isset($oneData['startlocationStr']))
                 {
-                    $startLocationStr=trim($oneData['startLocationStr']);
+                    $startLocationStr=trim($oneData['startlocationStr']);
                 }else
                 {
                     $startLocationStr='';
