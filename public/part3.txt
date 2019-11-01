@@ -6,7 +6,7 @@ http://newfogapi.wodeluapp.com/api/TrackZuJiDownload
 
 参数
 int    uid =17469    用户主键
-int    page=1        第几页数据
+int    date=20191031 下载哪天
 ==========================================================================
 我的路足迹上传
 
@@ -15,7 +15,8 @@ http://newfogapi.wodeluapp.com/api/TrackZuJiUpload
 
 参数
 int    uid =17469            用户主键
-string data=                 经纬度的json串
+int    date=20191031         上传哪天
+string data=                 要上传的json串
 ==========================================================================
 我的路迷雾下载
 

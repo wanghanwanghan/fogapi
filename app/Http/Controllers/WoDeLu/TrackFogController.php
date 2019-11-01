@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\WoDeLu;
 
 use App\Console\Commands\TrackFogUpload0;
+use App\Console\Commands\TrackFogUploadForZUJI0;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -96,14 +97,11 @@ class TrackFogController extends Controller
     }
 
     //分库分表规则 足迹的
-    public function getDatabaseNoOrTableNoForZUJI($uid,$unixTimeOrYmd='')
+    public function getDatabaseNoOrTableNoForZUJI($unixTimeOrYmd='')
     {
         //228万数据，440兆空间，7字段，2索引
 
         //395面积，5万个点，1万人，5亿数据
-
-        //根据uid
-        if (!is_numeric($uid) || $uid <= 0) return false;
 
         if ($unixTimeOrYmd=='') $unixTimeOrYmd=time();
 
@@ -114,16 +112,16 @@ class TrackFogController extends Controller
         {
             $db=Carbon::parse($unixTimeOrYmd)->format('Y');
 
-            $table=Carbon::parse($unixTimeOrYmd)->format('Ymd').'_'.$uid%5;
+            $table=Carbon::parse($unixTimeOrYmd)->format('Ymd');
 
         }catch (\Exception $e)
         {
             $db=date('Y',$unixTimeOrYmd);
 
-            $table=date('Ymd',$unixTimeOrYmd).'_'.$uid%5;
+            $table=date('Ymd',$unixTimeOrYmd);
         }
 
-        //db=>2019 table=>20190101_1
+        //db=>2019 table=>20190101
         return ['db'=>$db,'table'=>$table];
     }
 
@@ -242,7 +240,43 @@ class TrackFogController extends Controller
     //足迹下载
     public function zujiDownload(Request $request)
     {
+        $uid=$request->uid;
 
+        $date=$request->date;
+
+        $suffix=$this->getDatabaseNoOrTableNoForZUJI($date);
+
+        $obj=new TrackFogUploadForZUJI0();
+
+        $obj->createTable($suffix);
+
+        //判断有没有数据
+        $todayAll=DB::connection('TrackFogForZUJI'.$suffix['db'])->table('user_zuji_index')->where(['uid'=>$uid,'date'=>$date])->get()->toArray();
+
+        //如果数据是空
+        if (empty($todayAll)) return response()->json(['resCode'=>Config::get('resCode.625'),'data'=>[]]);
+
+        //如果有数据
+        foreach ($todayAll as $one)
+        {
+            $locations=DB::connection('TrackFogForZUJI'.$suffix['db'])
+                ->table("user_zuji_{$suffix['table']}")
+                ->where(['uid'=>$uid,'randomUUID'=>$one->randomUUID])
+                ->get(['timestamp','lat as latitude','lng as longitude']);
+
+            $res[]=[
+                'status'=>$one->status,
+                'distance'=>$one->distance,
+                'stopLocationStr'=>$one->stopLocationStr,
+                'startTimestamp'=>$one->startTimestamp,
+                'startlocationStr'=>$one->startlocationStr,
+                'endTimestamp'=>$one->endTimestamp,
+                'interval'=>$one->interval,
+                'locations'=>$locations,
+            ];
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
     }
 
 

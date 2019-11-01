@@ -23,14 +23,14 @@ class MyTempController extends BaseController
 {
     public function test()
     {
-        for ($i=1;$i<=100;$i++)
+
+
+
+        for ($i=1;$i<=30;$i++)
         {
-            dump(SnowflakeFacade::nextId());
+            //dump(SnowflakeFacade::nextId());
+            dump(randomUUID());
         }
-
-
-
-
 
         dd('wancheng');
 

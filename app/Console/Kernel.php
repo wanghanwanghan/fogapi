@@ -83,6 +83,18 @@ class Kernel extends ConsoleKernel
         $schedule->command('Wodelu:FogUpload8')->everyMinute()->withoutOverlapping();
         $schedule->command('Wodelu:FogUpload9')->everyMinute()->withoutOverlapping();
 
+        //处理我的路足迹
+        $schedule->command('Wodelu:TrackFogUploadForZUJI0')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:TrackFogUploadForZUJI1')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:TrackFogUploadForZUJI2')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:TrackFogUploadForZUJI3')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:TrackFogUploadForZUJI4')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:TrackFogUploadForZUJI5')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:TrackFogUploadForZUJI6')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:TrackFogUploadForZUJI7')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:TrackFogUploadForZUJI8')->everyMinute()->withoutOverlapping();
+        $schedule->command('Wodelu:TrackFogUploadForZUJI9')->everyMinute()->withoutOverlapping();
+
 
 
         $schedule->command('Tssj:OneJoke')->everyFifteenMinutes()->withoutOverlapping();

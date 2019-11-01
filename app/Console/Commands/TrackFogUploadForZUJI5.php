@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 
-class TrackFogUploadForZUJI0 extends Command
+class TrackFogUploadForZUJI5 extends Command
 {
-    protected $signature = 'Wodelu:TrackFogUploadForZUJI0';
+    protected $signature = 'Wodelu:TrackFogUploadForZUJI5';
 
-    protected $myTarget = 0;
+    protected $myTarget = 5;
 
     protected $description = '处理用户上传的足迹';
 

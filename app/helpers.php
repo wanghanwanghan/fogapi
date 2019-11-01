@@ -1065,5 +1065,9 @@ function randomUserAvatar()
     return $res->imgurl;
 }
 
-
+//随机uuid
+function randomUUID()
+{
+    return md5(uniqid(mt_rand(),true));
+}
 
