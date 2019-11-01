@@ -45,7 +45,6 @@ return [
             'strict' => false,
             'engine' => null,
         ],
-
         'masterDB' => [
             'driver' => 'mysql',
             'host' => '183.136.232.236',
@@ -60,7 +59,6 @@ return [
             'strict' => false,
             'engine' => null,
         ],
-
         'aboutTssj' => [
             'driver' => 'mysql',
             'host' => '183.136.232.236',
@@ -75,7 +73,6 @@ return [
             'strict' => false,
             'engine' => null,
         ],
-
         'gridTradeInfoDB' => [
             'driver' => 'mysql',
             'host' => '183.136.232.236',
@@ -90,12 +87,25 @@ return [
             'strict' => false,
             'engine' => null,
         ],
-
         'communityDB' => [
             'driver' => 'mysql',
             'host' => '183.136.232.236',
             'port' => '3306',
             'database' => 'community_game',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+        'userOrder' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'user_order',
             'username' => 'chinaiiss',
             'password' => 'chinaiiss',
             'unix_socket' => '',
@@ -389,48 +399,6 @@ return [
             'engine' => null,
         ],
         //以下是我的路用户足迹点数据库
-        'TrackFogForZUJI2015' => [
-            'driver' => 'mysql',
-            'host' => '183.136.232.237',
-            'port' => '3306',
-            'database' => 'track_zuji_2015',
-            'username' => 'chinaiiss',
-            'password' => 'chinaiiss',
-            'unix_socket' => '',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => false,
-            'engine' => null,
-        ],
-        'TrackFogForZUJI2016' => [
-            'driver' => 'mysql',
-            'host' => '183.136.232.237',
-            'port' => '3306',
-            'database' => 'track_zuji_2016',
-            'username' => 'chinaiiss',
-            'password' => 'chinaiiss',
-            'unix_socket' => '',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => false,
-            'engine' => null,
-        ],
-        'TrackFogForZUJI2017' => [
-            'driver' => 'mysql',
-            'host' => '183.136.232.237',
-            'port' => '3306',
-            'database' => 'track_zuji_2017',
-            'username' => 'chinaiiss',
-            'password' => 'chinaiiss',
-            'unix_socket' => '',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => false,
-            'engine' => null,
-        ],
         'TrackFogForZUJI2018' => [
             'driver' => 'mysql',
             'host' => '183.136.232.237',
@@ -503,7 +471,6 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
         ],
-
         'mysql' => [
             'driver' => 'mysql',
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -518,7 +485,6 @@ return [
             'strict' => true,
             'engine' => null,
         ],
-
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -531,7 +497,6 @@ return [
             'schema' => 'public',
             'sslmode' => 'prefer',
         ],
-
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'host' => env('DB_HOST', 'localhost'),

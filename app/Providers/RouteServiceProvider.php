@@ -84,8 +84,6 @@ class RouteServiceProvider extends ServiceProvider
     //所有的回调通知
     protected function mapNotificationRoutes()
     {
-        Route::prefix('notification')
-            ->namespace($this->namespace.'\Notification')
-            ->group(base_path('routes/notification.php'));
+        Route::namespace($this->namespace.'\Notification')->group(base_path('routes/notification.php'));
     }
 }

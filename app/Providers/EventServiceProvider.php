@@ -21,6 +21,12 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\Test1',
             'App\Listeners\Test2',
         ],
+
+        'App\Events\CreateWodeluOrderEvent' => [
+            'App\Listeners\CreateDataInMysql',
+            'App\Listeners\CreateDataInRedis',
+        ],
+
     ];
 
     /**

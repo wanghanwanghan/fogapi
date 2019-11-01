@@ -884,6 +884,7 @@ Eof;
 
                 //内容
                 $content=trim($request->text);
+                $content=str_replace('&nbsp;','',$content);
 
                 if ($content!='') $includeText=1;
 

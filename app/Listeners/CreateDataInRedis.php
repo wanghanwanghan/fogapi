@@ -2,12 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\TestEvent;
+use App\Events\CreateWodeluOrderEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Redis;
 
-class Test1
+class CreateDataInRedis
 {
     /**
      * Create the event listener.
@@ -22,10 +22,10 @@ class Test1
     /**
      * Handle the event.
      *
-     * @param  TestEvent  $event
+     * @param  CreateWodeluOrderEvent  $event
      * @return void
      */
-    public function handle(TestEvent $event)
+    public function handle(CreateWodeluOrderEvent $event)
     {
 
     }

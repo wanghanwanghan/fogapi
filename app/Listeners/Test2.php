@@ -27,6 +27,6 @@ class Test2
      */
     public function handle(TestEvent $event)
     {
-        Redis::connection('TssjFog')->set('testEvent2','test event 2');
+
     }
 }
