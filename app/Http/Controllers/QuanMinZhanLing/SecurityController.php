@@ -251,13 +251,16 @@ Eof;
 
                 $suffix=Carbon::now()->year;
 
+                //查询当月的
+                $currentMouth=Carbon::now()->format('Y-m-');
+
                 //真实用户
-                $sql="select right(myDay,2) as myDay,total from (select left(created_at,10) as myDay,count(1) as total from community_article_{$suffix} where uid not in ({$arr}) group by myDay) as tmp";
+                $sql="select right(myDay,2) as myDay,total from (select left(created_at,10) as myDay,count(1) as total from community_article_{$suffix} where uid not in ({$arr}) and created_at like '{$currentMouth}%' group by myDay) as tmp";
 
                 $real=DB::connection('communityDB')->select($sql);
 
                 //虚拟用户
-                $sql="select right(myDay,2) as myDay,total from (select left(created_at,10) as myDay,count(1) as total from community_article_{$suffix} where uid in ({$arr}) group by myDay) as tmp";
+                $sql="select right(myDay,2) as myDay,total from (select left(created_at,10) as myDay,count(1) as total from community_article_{$suffix} where uid in ({$arr}) and created_at like '{$currentMouth}%' group by myDay) as tmp";
 
                 $notReal=DB::connection('communityDB')->select($sql);
 
