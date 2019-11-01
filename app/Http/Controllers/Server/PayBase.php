@@ -21,6 +21,7 @@ class PayBase
             '3'=>18,   //季度vip
             '4'=>68,   //年vip
             '5'=>108,  //终身
+            '999'=>1,  //测试
         ];
 
         $subject=[
@@ -29,6 +30,7 @@ class PayBase
             '3'=>'季度vip',
             '4'=>'年vip',
             '5'=>'终身',
+            '999'=>'测试',
         ];
 
         if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId]];
