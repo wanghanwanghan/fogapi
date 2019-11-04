@@ -46,7 +46,7 @@ class PayBase
                 '4'=>68,    //年vip
                 '5'=>108,   //终身
 
-                '999'=>0.01,//测试
+                '255'=>0.01,//测试
             ];
 
             $subject=[
@@ -56,7 +56,7 @@ class PayBase
                 '4'=>'年vip',
                 '5'=>'终身',
 
-                '999'=>'测试',
+                '255'=>'测试',
             ];
         }
 
@@ -156,7 +156,7 @@ class PayBase
     {
         $gateway=OmnipayFacade::gateway('wodelu_app_alipay');
 
-        Redis::connection('default')->set('wodeluAlipayNotify',Carbon::now()->format('Y-m-d H:i:s'));
+        Redis::connection('default')->set('wodeluAlipayNotify',jsonEncode($request->all()));
 
         try
         {
