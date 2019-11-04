@@ -23,6 +23,9 @@ class MyTempController extends BaseController
 {
     public function test()
     {
+        $res=sprintf('%.2f',0.01);
+
+        dd($res);
 
 
 

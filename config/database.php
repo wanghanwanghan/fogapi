@@ -554,6 +554,14 @@ return [
         ],
 
         //计算广场热门选择卡
+        'TrackUserInfo' => [
+            'host' => '183.136.232.236',
+            'password' => 'wanghan123',
+            'port' => '6379',
+            'database' => 8,
+        ],
+
+        //计算广场热门选择卡
         'HotArticleInfo' => [
             'host' => '183.136.232.236',
             'password' => 'wanghan123',

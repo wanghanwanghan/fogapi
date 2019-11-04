@@ -13,25 +13,52 @@ use Illuminate\Support\Facades\Schema;
 
 class PayBase
 {
-    public function choseProduct($productId)
+    public function choseProduct($productId,$plant='android')
     {
-        $arr=[
-            '1'=>3,    //50km
-            '2'=>8,    //月vip
-            '3'=>18,   //季度vip
-            '4'=>68,   //年vip
-            '5'=>108,  //终身
-            '999'=>1,  //测试
-        ];
+        if ($plant==='android')
+        {
+            $arr=[
+                '1'=>3,     //50km
+                '2'=>8,     //月vip
+                '3'=>18,    //季度vip
+                '4'=>68,    //年vip
+                '5'=>108,   //终身
 
-        $subject=[
-            '1'=>'50km',
-            '2'=>'月vip',
-            '3'=>'季度vip',
-            '4'=>'年vip',
-            '5'=>'终身',
-            '999'=>'测试',
-        ];
+                '255'=>0.01,//测试
+            ];
+
+            $subject=[
+                '1'=>'50km',
+                '2'=>'月vip',
+                '3'=>'季度vip',
+                '4'=>'年vip',
+                '5'=>'终身',
+
+                '255'=>'测试',
+            ];
+
+        }else
+        {
+            $arr=[
+                '1'=>3,     //50km
+                '2'=>8,     //月vip
+                '3'=>18,    //季度vip
+                '4'=>68,    //年vip
+                '5'=>108,   //终身
+
+                '999'=>0.01,//测试
+            ];
+
+            $subject=[
+                '1'=>'50km',
+                '2'=>'月vip',
+                '3'=>'季度vip',
+                '4'=>'年vip',
+                '5'=>'终身',
+
+                '999'=>'测试',
+            ];
+        }
 
         if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId]];
 
@@ -81,8 +108,11 @@ class PayBase
 
         if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
 
+        //安卓还是ios
+        $type=$request->type;
+
         //需要付款多少钱
-        $price=$this->choseProduct($request->productId);
+        $price=$this->choseProduct($request->productId,$type);
 
         if (!$price) return response()->json(['resCode'=>Config::get('resCode.604')]);
 
@@ -90,9 +120,6 @@ class PayBase
 
         //生成订单号
         $orderId=randomUUID();
-
-        //安卓还是ios
-        $type=$request->type;
 
         if ($type=='android')
         {

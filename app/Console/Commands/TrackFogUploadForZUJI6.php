@@ -94,7 +94,7 @@ class TrackFogUploadForZUJI6 extends Command
             if (!is_numeric($res['uid']) || $res['uid'] <= 0) continue;
 
             //时间不正确
-            if (!is_numeric($res['date']) || $res['date'] < 20180801) continue;
+            if (!is_numeric($res['date']) || $res['date'] < 20180101) continue;
 
             $uid=$res['uid']-0;
             $date=$res['date']-0;

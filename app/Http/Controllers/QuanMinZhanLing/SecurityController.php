@@ -267,7 +267,7 @@ Eof;
                 //整理数组
                 foreach ($real as $one)
                 {
-                    $tmp[$one->myDay]=$one->total;
+                    $tmp[(int)$one->myDay]=$one->total;
                 }
                 $real=$tmp;
 
@@ -275,7 +275,7 @@ Eof;
 
                 foreach ($notReal as $one)
                 {
-                    $tmp[$one->myDay]=$one->total;
+                    $tmp[(int)$one->myDay]=$one->total;
                 }
                 $notReal=$tmp;
 
