@@ -3,7 +3,7 @@
 return [
 
 	// The default gateway to use
-	'default' => 'paypal',
+	'default' => 'wodelu_app_alipay',
 
     // Add in each gateway here
     'gateways' =>
@@ -13,10 +13,10 @@ return [
                     'driver' => 'Alipay_AopApp',
                     'options' =>
                         [
-                            'appId' => '2019110168840479',
+                            'appId' => '2019110568930442',
                             'notifyUrl' => 'http://newfogapi.wodeluapp.com/wodelu/alipay/notify',
-                            'privateKey' => storage_path('app/key/wodelu/alipay/newfogapi.wodeluapp.com_privateKey.txt'),
-                            'alipayPublicKey' => storage_path('app/key/wodelu/alipay/alipayCertPublicKey_RSA2.crt'),
+                            'privateKey' => storage_path('app/key/wodelu/alipay/wodeluPrivateKey.txt'),
+                            'alipayPublicKey' => storage_path('app/key/wodelu/alipay/alipayPublicKey.txt'),
                             'environment' => 'production',
                             'signType' => 'RSA2',
                         ],

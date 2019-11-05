@@ -8,8 +8,10 @@ use Ignited\LaravelOmnipay\Facades\OmnipayFacade;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
+use Yansongda\LaravelPay\Facades\Pay;
 
 class PayBase
 {
@@ -24,7 +26,7 @@ class PayBase
                 '4'=>68,    //年vip
                 '5'=>108,   //终身
 
-                '255'=>0.01,//测试
+                '255'=>1,   //测试
             ];
 
             $subject=[
@@ -46,7 +48,7 @@ class PayBase
                 '4'=>68,    //年vip
                 '5'=>108,   //终身
 
-                '255'=>0.01,//测试
+                '255'=>1,   //测试
             ];
 
             $subject=[
@@ -123,12 +125,24 @@ class PayBase
 
         if ($type=='android')
         {
-            $res=OmnipayFacade::gateway('wodelu_app_alipay')->purchase()->setBizContent([
-                'subject'      => $subject,
+            //omnipay===========================================================================================
+//            $payWay='omnipay';
+//            $res=OmnipayFacade::gateway('wodelu_app_alipay')->purchase()->setBizContent([
+//                'subject'      => $subject,
+//                'out_trade_no' => $orderId,
+//                'total_amount' => sprintf("%.2f",$price[0]),
+//                'product_code' => 'QUICK_MSECURITY_PAY',
+//            ])->send();
+            //omnipay===========================================================================================
+
+            //yansongda=========================================================================================
+            $payWay='yansongda';
+            $res = Pay::alipay()->app([
+                'subject' => $subject,
                 'out_trade_no' => $orderId,
                 'total_amount' => sprintf("%.2f",$price[0]),
-                'product_code' => 'QUICK_MSECURITY_PAY',
-            ])->send();
+            ]);
+            //yansongda=========================================================================================
 
             event(new CreateWodeluOrderEvent([
                 'uid'=>$uid,
@@ -139,6 +153,8 @@ class PayBase
                 'type'=>$type,
                 'productId'=>$request->productId,
             ]));
+
+            if ($payWay==='yansongda') return response()->json(['resCode'=>Config::get('resCode.200'),'str'=>$res->getContent()]);
 
             return response()->json(['resCode'=>Config::get('resCode.200'),'str'=>$res->getOrderString()]);
 
@@ -154,28 +170,81 @@ class PayBase
     //我的路支付回调（阿里）
     public function wodeluAlipayNotify(Request $request)
     {
-        $gateway=OmnipayFacade::gateway('wodelu_app_alipay');
-
-        Redis::connection('default')->set('wodeluAlipayNotify',jsonEncode($request->all()));
+        $alipay = Pay::alipay();
 
         try
         {
-            $response=$gateway->completePurchase()->setParams($request->all())->send();
+            //data返回的是laravel集合
+            $data=$alipay->verify(); // 是的，验签就这么简单！
+
+            // 请自行对 trade_status 进行判断及其它逻辑进行判断，在支付宝的业务通知中，只有交易通知状态为 TRADE_SUCCESS 或 TRADE_FINISHED 时，支付宝才会认定为买家付款成功。
+            // 1、商户需要验证该通知数据中的out_trade_no是否为商户系统中创建的订单号；
+            // 2、判断total_amount是否确实为该订单的实际金额（即商户订单创建时的金额）；
+            // 3、校验通知中的seller_id（或者seller_email) 是否为out_trade_no这笔单据的对应的操作方（有的时候，一个商户可能有多个seller_id/seller_email）；
+            // 4、验证app_id是否为该商户本身。
+            // 5、其它业务逻辑情况
+
+            //是否支付成功
+            if (!isset($data->trade_status) || $data->trade_status!='TRADE_SUCCESS') return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'fail']);
+
+            //找到找到订单，设置状态
+            $orderId=$data->out_trade_no;
+
+            $suffix=Carbon::now()->year;
+
+            $res=DB::connection('userOrder')->table('wodelu'.$suffix)->where('orderId',$orderId)->first();
+
+            //金额不正确
+            if ((int)$res->price!==(int)$data->total_amount) return response()->json(['resCode'=>Config::get('resCode.642'),'status'=>'fail']);
+
+            DB::connection('userOrder')->table('wodelu'.$suffix)->where('orderId',$orderId)->update(['alipayTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
 
         }catch (\Exception $e)
         {
-            die('fail');
+            // $e->getMessage();
+            // laravel 框架中请直接 `return $alipay->success()`
+            return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'fail']);
         }
 
-        if ($response->isPaid())
-        {
-            die('success');
-        }else
-        {
-            die('fail');
-        }
+        //如果都通过了
+        $uid=$res->uid;
 
-        return true;
+        $productId=$res->productId;
+
+
+
+
+
+
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>$alipay->success()]);
+
+
+
+
+
+
+
+//        $gateway=OmnipayFacade::gateway('wodelu_app_alipay');
+//
+//        Redis::connection('default')->set('wodeluAlipayNotify',jsonEncode($request->all()));
+//
+//        try
+//        {
+//            $response=$gateway->completePurchase()->setParams($request->all())->send();
+//
+//        }catch (\Exception $e)
+//        {
+//            die('fail');
+//        }
+//
+//        if ($response->isPaid())
+//        {
+//            die('success');
+//        }else
+//        {
+//            die('fail');
+//        }
     }
 
 
