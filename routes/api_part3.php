@@ -20,12 +20,21 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //我的路足迹下载
     Route::match(['get','post'],'TrackZuJiDownload','WoDeLu\TrackFogController@zujiDownload');
 
-    //我的路支付路由==================================================
+    //我的路支付路由================================================================================
     //我的路安卓支付宝支付
     Route::match(['get','post'],'WodeluAlipay','Server\PayBase@wodeluAlipay');
 
 
-    //===============================================================
+    //===========================================================================================
+
+
+
+
+    //我的路用户信息
+    Route::match(['get','post'],'TrackUserInfo','WoDeLu\TrackUserController@getUserInfo');
+
+
+
 
 });
 

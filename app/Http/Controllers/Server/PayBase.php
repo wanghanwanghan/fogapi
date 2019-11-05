@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Server;
 
 use App\Events\CreateWodeluOrderEvent;
+use App\Http\Controllers\WoDeLu\TrackUserController;
 use Carbon\Carbon;
 use Ignited\LaravelOmnipay\Facades\OmnipayFacade;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,21 +21,29 @@ class PayBase
         if ($plant==='android')
         {
             $arr=[
-                '1'=>3,     //50km
-                '2'=>8,     //月vip
-                '3'=>18,    //季度vip
-                '4'=>68,    //年vip
-                '5'=>108,   //终身
+                '1'=>6,     //一个月vip
+                '2'=>18,    //三个月vip
+                '3'=>68,    //一年vip
+                '4'=>6,     //100km
+                '5'=>12,    //200km
+                '6'=>18,    //300km
+                '7'=>30,    //500km
+                '8'=>45,    //750km
+                '9'=>60,    //1000km
 
                 '255'=>1,   //测试
             ];
 
             $subject=[
-                '1'=>'50km',
-                '2'=>'月vip',
-                '3'=>'季度vip',
-                '4'=>'年vip',
-                '5'=>'终身',
+                '1'=>'一个月vip',
+                '2'=>'三个月vip',
+                '3'=>'一年vip',
+                '4'=>'100km',
+                '5'=>'200km',
+                '6'=>'300km',
+                '7'=>'500km',
+                '8'=>'750km',
+                '9'=>'1000km',
 
                 '255'=>'测试',
             ];
@@ -42,21 +51,29 @@ class PayBase
         }else
         {
             $arr=[
-                '1'=>3,     //50km
-                '2'=>8,     //月vip
-                '3'=>18,    //季度vip
-                '4'=>68,    //年vip
-                '5'=>108,   //终身
+                '1'=>6,     //一个月vip
+                '2'=>18,    //三个月vip
+                '3'=>68,    //一年vip
+                '4'=>6,     //100km
+                '5'=>12,    //200km
+                '6'=>18,    //300km
+                '7'=>30,    //500km
+                '8'=>45,    //750km
+                '9'=>60,    //1000km
 
                 '255'=>1,   //测试
             ];
 
             $subject=[
-                '1'=>'50km',
-                '2'=>'月vip',
-                '3'=>'季度vip',
-                '4'=>'年vip',
-                '5'=>'终身',
+                '1'=>'一个月vip',
+                '2'=>'三个月vip',
+                '3'=>'一年vip',
+                '4'=>'100km',
+                '5'=>'200km',
+                '6'=>'300km',
+                '7'=>'500km',
+                '8'=>'750km',
+                '9'=>'1000km',
 
                 '255'=>'测试',
             ];
@@ -170,7 +187,7 @@ class PayBase
     //我的路支付回调（阿里）
     public function wodeluAlipayNotify(Request $request)
     {
-        $alipay = Pay::alipay();
+        $alipay=Pay::alipay();
 
         try
         {
@@ -183,6 +200,8 @@ class PayBase
             // 3、校验通知中的seller_id（或者seller_email) 是否为out_trade_no这笔单据的对应的操作方（有的时候，一个商户可能有多个seller_id/seller_email）；
             // 4、验证app_id是否为该商户本身。
             // 5、其它业务逻辑情况
+
+            Redis::connection('default')->set('alipayTest1',jsonEncode($data));
 
             //是否支付成功
             if (!isset($data->trade_status) || $data->trade_status!='TRADE_SUCCESS') return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'fail']);
@@ -203,7 +222,7 @@ class PayBase
         {
             // $e->getMessage();
             // laravel 框架中请直接 `return $alipay->success()`
-            return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'fail']);
+            return response()->json(['resCode'=>Config::get('resCode.643'),'status'=>'fail']);
         }
 
         //如果都通过了
@@ -211,11 +230,8 @@ class PayBase
 
         $productId=$res->productId;
 
-
-
-
-
-
+        //操作对应的$productId逻辑
+        (new TrackUserController())->modifyVipStatus($uid,$productId);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>$alipay->success()]);
 

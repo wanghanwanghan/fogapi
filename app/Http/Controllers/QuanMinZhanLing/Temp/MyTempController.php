@@ -23,7 +23,7 @@ class MyTempController extends BaseController
 {
     public function test()
     {
-        $res=sprintf('%.2f',0.01);
+        $res=Carbon::createFromTimestamp(time())->addDays(365)->format('Y-m-d H:i:s');
 
         dd($res);
 

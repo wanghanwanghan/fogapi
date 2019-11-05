@@ -1,3 +1,20 @@
+我的路用户信息
+
+get
+http://newfogapi.wodeluapp.com/api/TrackUserInfo
+
+参数
+int    uid =17469    用户主键
+==========================================================================
+我的路支付
+
+post
+http://newfogapi.wodeluapp.com/api/WodeluAlipay
+
+参数
+int    uid =17469    用户主键
+string type=android  用户设备
+int    productId=255 产品编号
 ==========================================================================
 我的路足迹下载
 
