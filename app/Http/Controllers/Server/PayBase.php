@@ -46,7 +46,53 @@ class PayBase
             '255'=>'测试',
         ];
 
-        if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId]];
+        if ($plant==='ios')
+        {
+            $arr=[
+                'wodeluapp.zujiyigeyuehuiyuan'=>6,   //一个月vip
+                'wodeluapp.zujisangeyuehuiyuan'=>18, //三个月vip
+                'wodeluapp.zujinianhuiyuan'=>68,     //一年vip
+                'wodeluapp.zuji100km'=>6,            //100km
+                'wodeluapp.zuji200km'=>12,           //200km
+                'wodeluapp.zuji300km'=>18,           //300km
+                'wodeluapp.zuji500km'=>30,           //500km
+                'wodeluapp.zuji750km'=>45,           //750km
+                'wodeluapp.zuji1000km'=>60,          //1000km
+
+                '255'=>1,   //测试
+            ];
+
+            $subject=[
+                'wodeluapp.zujiyigeyuehuiyuan'=>'一个月vip',
+                'wodeluapp.zujisangeyuehuiyuan'=>'三个月vip',
+                'wodeluapp.zujinianhuiyuan'=>'一年vip',
+                'wodeluapp.zuji100km'=>'100km',
+                'wodeluapp.zuji200km'=>'200km',
+                'wodeluapp.zuji300km'=>'300km',
+                'wodeluapp.zuji500km'=>'500km',
+                'wodeluapp.zuji750km'=>'750km',
+                'wodeluapp.zuji1000km'=>'1000km',
+
+                '255'=>'测试',
+            ];
+
+            $productIdArr=[
+                'wodeluapp.zujiyigeyuehuiyuan'=>1,
+                'wodeluapp.zujisangeyuehuiyuan'=>2,
+                'wodeluapp.zujinianhuiyuan'=>3,
+                'wodeluapp.zuji100km'=>4,
+                'wodeluapp.zuji200km'=>5,
+                'wodeluapp.zuji300km'=>6,
+                'wodeluapp.zuji500km'=>7,
+                'wodeluapp.zuji750km'=>8,
+                'wodeluapp.zuji1000km'=>9,
+            ];
+
+            $productId=$productIdArr[$productId];
+        }
+
+
+        if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId],$productId];
 
         return false;
     }
@@ -66,6 +112,7 @@ class PayBase
                         $table->increments('id')->unsigned()->comment('订单主键');
                         $table->integer('uid')->unsigned()->comment('用户主键');
                         $table->string('orderId','50')->comment('订单号uuid');
+                        $table->bigInteger('transactionId')->unsigned()->nullable()->comment('苹果的');
                         $table->tinyInteger('productId')->unsigned()->comment('产品编号');
                         $table->string('productSubject','100')->comment('产品名称');
                         $table->integer('price')->unsigned()->comment('订单金额');
@@ -82,43 +129,6 @@ class PayBase
 
                 break;
         }
-    }
-
-    //我的路支付（苹果内购）
-    public function wodeluApplePay(Request $request)
-    {
-        //创建
-        $this->createTable('wodelu');
-
-        $uid=$request->uid;
-
-        if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
-
-        //ios
-        $type=$request->type;
-        $type='ios';
-
-        //需要付款多少钱
-        $price=$this->choseProduct($request->productId,$type);
-
-        if (!$price) return response()->json(['resCode'=>Config::get('resCode.604')]);
-
-        $subject=$price[1];
-
-        //生成订单号
-        $orderId=randomUUID();
-
-        event(new CreateWodeluOrderEvent([
-            'uid'=>$uid,
-            'price'=>$price[0],
-            'orderTime'=>time(),
-            'orderId'=>$orderId,
-            'subject'=>$subject,
-            'type'=>$type,
-            'productId'=>$request->productId,
-        ]));
-
-        return response()->json(['resCode'=>Config::get('resCode.200'),'orderId'=>$orderId]);
     }
 
     //我的路支付（阿里）
@@ -146,24 +156,11 @@ class PayBase
 
         if ($type=='android')
         {
-            //omnipay===========================================================================================
-//            $payWay='omnipay';
-//            $res=OmnipayFacade::gateway('wodelu_app_alipay')->purchase()->setBizContent([
-//                'subject'      => $subject,
-//                'out_trade_no' => $orderId,
-//                'total_amount' => sprintf("%.2f",$price[0]),
-//                'product_code' => 'QUICK_MSECURITY_PAY',
-//            ])->send();
-            //omnipay===========================================================================================
-
-            //yansongda=========================================================================================
-            $payWay='yansongda';
             $res = Pay::alipay()->app([
                 'subject' => $subject,
                 'out_trade_no' => $orderId,
                 'total_amount' => sprintf("%.2f",$price[0]),
             ]);
-            //yansongda=========================================================================================
 
             event(new CreateWodeluOrderEvent([
                 'uid'=>$uid,
@@ -175,9 +172,7 @@ class PayBase
                 'productId'=>$request->productId,
             ]));
 
-            if ($payWay==='yansongda') return response()->json(['resCode'=>Config::get('resCode.200'),'str'=>$res->getContent()]);
-
-            return response()->json(['resCode'=>Config::get('resCode.200'),'str'=>$res->getOrderString()]);
+            return response()->json(['resCode'=>Config::get('resCode.200'),'str'=>$res->getContent()]);
 
         }elseif ($type=='ios')
         {
@@ -236,57 +231,51 @@ class PayBase
         (new TrackUserController())->modifyVipStatus($uid,$productId);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>$alipay->success()]);
-
-
-
-
-
-
-
-//        $gateway=OmnipayFacade::gateway('wodelu_app_alipay');
-//
-//        Redis::connection('default')->set('wodeluAlipayNotify',jsonEncode($request->all()));
-//
-//        try
-//        {
-//            $response=$gateway->completePurchase()->setParams($request->all())->send();
-//
-//        }catch (\Exception $e)
-//        {
-//            die('fail');
-//        }
-//
-//        if ($response->isPaid())
-//        {
-//            die('success');
-//        }else
-//        {
-//            die('fail');
-//        }
     }
 
     //我的路支付回调（苹果内购）
     public function wodeluApplePayNotify(Request $request)
     {
+        //创建
+        $this->createTable('wodelu');
+
         $receiptData=$request->receiptData;
 
         $uid=$request->uid;
 
-        $productId=$request->productId;
-
-        $data=$this->acurl($receiptData);
+        $data=$this->acurl($receiptData,1);
 
         $data=jsonDecode($data);
 
+        //* 21000 App Store不能读取你提供的JSON对象
+        //* 21002 receipt-data域的数据有问题
+        //* 21003 receipt无法通过验证
+        //* 21004 提供的shared secret不匹配你账号中的shared secret
+        //* 21005 receipt服务器当前不可用
+        //* 21006 receipt合法，但是订阅已过期。服务器接收到这个状态码时，receipt数据仍然会解码并一起发送
+        //* 21007 receipt是Sandbox receipt，但却发送至生产系统的验证服务
+        //* 21008 receipt是生产receipt，但却发送至Sandbox环境的验证服务
+
         //支付失败
-        if (intval($data['status'])!==0) return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'fail']);
+        if (intval($data['status'])!==0) return response()->json(['resCode'=>Config::get('resCode.641'),'msg'=>$data]);
 
-        //验证$productId是否一致
-        if ($data['receipt']['product_id']!==$productId) return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'productIdFail']);
+        //根据最新的一单transaction_id查询是否处理了
+        isset($data['receipt']['in_app']) ? $in_app=$data['receipt']['in_app'] : $in_app=[];
 
-        $price=$this->choseProduct($request->productId,'ios');
+        if (empty($in_app)) return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'in_app empty']);
 
-        if (!$price) return response()->json(['resCode'=>Config::get('resCode.604')]);
+        //整理好，取第一个
+        $in_app=current(arraySort1($in_app,['desc','purchase_date_ms']));
+
+        $product_id=$in_app['product_id'];
+        $price=$this->choseProduct($product_id,'ios');
+        $transactionId=$in_app['transaction_id'];
+
+        //查看这个订单是不是处理了
+        $suffix=Carbon::now()->year;
+        $res=DB::connection('userOrder')->table('wodelu'.$suffix)->where(['uid'=>$uid,'transactionId'=>$transactionId,'productId'=>$price[2]])->first();
+
+        if ($res) return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'exist order']);
 
         $subject=$price[1];
 
@@ -298,20 +287,17 @@ class PayBase
             'price'=>$price[0],
             'orderTime'=>time(),
             'orderId'=>$orderId,
+            'transactionId'=>$transactionId,
             'subject'=>$subject,
             'type'=>'ios',
-            'productId'=>$productId,
+            'productId'=>$price[2],
         ]));
 
         //修改订单状态
-        $suffix=Carbon::now()->year;
-
-        $res=DB::connection('userOrder')->table('wodelu'.$suffix)->where('orderId',$orderId)->first();
-
         DB::connection('userOrder')->table('wodelu'.$suffix)->where(['uid'=>$uid,'orderId'=>$orderId])->update(['payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
 
         //操作对应的$productId逻辑
-        (new TrackUserController())->modifyVipStatus($uid,$productId);
+        (new TrackUserController())->modifyVipStatus($uid,$price[2]);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>'success']);
     }

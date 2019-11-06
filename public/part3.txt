@@ -9,11 +9,11 @@ int    uid =17469    用户主键
 我的路支付 苹果内购
 
 post
-http://newfogapi.wodeluapp.com/api/WodeluApplePay
+http://newfogapi.wodeluapp.com/wodelu/applepay/notify
 
 参数
+string receiptData   苹果返回的一大堆
 int    uid =17469    用户主键
-int    productId=1   产品编号   1-9
 ==========================================================================
 我的路支付 安卓支付宝
 

@@ -93,19 +93,141 @@ class TrackUserController extends Controller
     //修改会员状态，支付后，接收到异步通知调用
     public function modifyVipStatus($uid,$productId)
     {
-        $subject=[
-            '1'=>'一个月vip',
-            '2'=>'三个月vip',
-            '3'=>'一年vip',
-            '4'=>'100km',
-            '5'=>'200km',
-            '6'=>'300km',
-            '7'=>'500km',
-            '8'=>'750km',
-            '9'=>'1000km',
+        if (!is_numeric($productId))
+        {
+            //苹果的逻辑
+            switch ($productId)
+            {
+                case 'wodeluapp.zujiyigeyuehuiyuan':
 
-            '255'=>'测试',
-        ];
+                    $vipInfo=$this->getVipInfo($uid);
+
+                    $res['level']=1;
+
+                    $expire=Carbon::now()->addDays(31)->timestamp;
+
+                    $res['expire']=$expire;
+
+                    if ($vipInfo)
+                    {
+                        $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(31)->timestamp;
+                    }
+
+                    Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'VipInfo',jsonEncode($res));
+
+                    break;
+
+                case 'wodeluapp.zujisangeyuehuiyuan':
+
+                    $vipInfo=$this->getVipInfo($uid);
+
+                    $res['level']=2;
+
+                    $expire=Carbon::now()->addDays(93)->timestamp;
+
+                    $res['expire']=$expire;
+
+                    if ($vipInfo)
+                    {
+                        $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(93)->timestamp;
+                    }
+
+                    Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'VipInfo',jsonEncode($res));
+
+                    break;
+
+                case 'wodeluapp.zujinianhuiyuan':
+
+                    $vipInfo=$this->getVipInfo($uid);
+
+                    $res['level']=3;
+
+                    $expire=Carbon::now()->addDays(365)->timestamp;
+
+                    $res['expire']=$expire;
+
+                    if ($vipInfo)
+                    {
+                        $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(365)->timestamp;
+                    }
+
+                    Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'VipInfo',jsonEncode($res));
+
+                    break;
+
+                case 'wodeluapp.zuji100km':
+
+                    //100
+                    $res=(int)Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'FogPackage');
+
+                    $res+=100;
+
+                    Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'FogPackage',$res);
+
+                    break;
+
+                case 'wodeluapp.zuji200km':
+
+                    //200
+                    $res=(int)Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'FogPackage');
+
+                    $res+=200;
+
+                    Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'FogPackage',$res);
+
+                    break;
+
+                case 'wodeluapp.zuji300km':
+
+                    //300
+                    $res=(int)Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'FogPackage');
+
+                    $res+=300;
+
+                    Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'FogPackage',$res);
+
+                    break;
+
+                case 'wodeluapp.zuji500km':
+
+                    //500
+                    $res=(int)Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'FogPackage');
+
+                    $res+=500;
+
+                    Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'FogPackage',$res);
+
+                    break;
+
+                case 'wodeluapp.zuji750km':
+
+                    //750
+                    $res=(int)Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'FogPackage');
+
+                    $res+=750;
+
+                    Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'FogPackage',$res);
+
+                    break;
+
+                case 'wodeluapp.zuji1000km':
+
+                    //1000
+                    $res=(int)Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'FogPackage');
+
+                    $res+=1000;
+
+                    Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'FogPackage',$res);
+
+                    break;
+
+                default:
+
+                    break;
+            }
+
+            return true;
+        }
 
         $productId=(int)$productId;
 
@@ -238,6 +360,8 @@ class TrackUserController extends Controller
 
                 break;
         }
+
+        return true;
     }
 
 
