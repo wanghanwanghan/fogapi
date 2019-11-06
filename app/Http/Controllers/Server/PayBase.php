@@ -84,7 +84,7 @@ class PayBase
         }
     }
 
-    //我的路支付（苹果）
+    //我的路支付（苹果内购）
     public function wodeluApplePay(Request $request)
     {
         //创建
@@ -205,8 +205,6 @@ class PayBase
             // 4、验证app_id是否为该商户本身。
             // 5、其它业务逻辑情况
 
-            Redis::connection('default')->set('alipayTest1',jsonEncode($data));
-
             //是否支付成功
             if (!isset($data->trade_status) || $data->trade_status!='TRADE_SUCCESS') return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'fail']);
 
@@ -267,8 +265,82 @@ class PayBase
 //        }
     }
 
+    //我的路支付回调（苹果内购）
+    public function wodeluApplePayNotify(Request $request)
+    {
+        $receiptData=$request->receiptData;
 
+        $uid=$request->uid;
 
+        $productId=$request->productId;
+
+        $data=$this->acurl($receiptData);
+
+        $data=jsonDecode($data);
+
+        //支付失败
+        if (intval($data['status'])!==0) return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'fail']);
+
+        //验证$productId是否一致
+        if ($data['receipt']['product_id']!==$productId) return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'productIdFail']);
+
+        $price=$this->choseProduct($request->productId,'ios');
+
+        if (!$price) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        $subject=$price[1];
+
+        //生成订单号
+        $orderId=randomUUID();
+
+        event(new CreateWodeluOrderEvent([
+            'uid'=>$uid,
+            'price'=>$price[0],
+            'orderTime'=>time(),
+            'orderId'=>$orderId,
+            'subject'=>$subject,
+            'type'=>'ios',
+            'productId'=>$productId,
+        ]));
+
+        //修改订单状态
+        $suffix=Carbon::now()->year;
+
+        $res=DB::connection('userOrder')->table('wodelu'.$suffix)->where('orderId',$orderId)->first();
+
+        DB::connection('userOrder')->table('wodelu'.$suffix)->where(['uid'=>$uid,'orderId'=>$orderId])->update(['payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
+
+        //操作对应的$productId逻辑
+        (new TrackUserController())->modifyVipStatus($uid,$productId);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>'success']);
+    }
+
+    //苹果内购时候，验证收据用的
+    public function acurl($receiptData,$sandbox=0)
+    {
+        //小票信息
+        $POSTFIELDS = ["receipt-data" => $receiptData];
+        $POSTFIELDS = jsonEncode($POSTFIELDS);
+
+        //正式购买地址 沙盒购买地址
+        $urlBuy = "https://buy.itunes.apple.com/verifyReceipt";
+        $urlSandbox = "https://sandbox.itunes.apple.com/verifyReceipt";
+        $url = $sandbox ? $urlSandbox : $urlBuy;//向正式环境url发送请求(默认)
+
+        //简单的curl
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTFIELDS);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        $result = curl_exec($ch);
+
+        curl_close($ch);
+
+        return $result;
+    }
 
 
 
