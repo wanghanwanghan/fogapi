@@ -34,6 +34,7 @@ class CreateDataInMysql
         $insert=[
             'uid'=>$event->avg['uid'],
             'orderId'=>$event->avg['orderId'],
+            //'transactionId'
             'productId'=>$event->avg['productId'],
             'productSubject'=>$event->avg['subject'],
             'price'=>$event->avg['price'],

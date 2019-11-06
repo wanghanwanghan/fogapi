@@ -18,6 +18,8 @@ class PayBase
 {
     public function choseProduct($productId,$plant='android')
     {
+        $product=$productId;
+
         $arr=[
             '1'=>6,     //一个月vip
             '2'=>18,    //三个月vip
@@ -88,11 +90,10 @@ class PayBase
                 'wodeluapp.zuji1000km'=>9,
             ];
 
-            $productId=$productIdArr[$productId];
+            $product=$productIdArr[$productId];
         }
 
-
-        if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId],$productId];
+        if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId],$product];
 
         return false;
     }
@@ -122,6 +123,7 @@ class PayBase
                         $table->string('plant','10')->comment('ios android');
                         $table->timestamps();
                         $table->index(['uid','orderId']);
+                        $table->index(['uid','transactionId']);
                         $table->index('orderId');
                         $table->engine='InnoDB';
                     });
@@ -287,14 +289,13 @@ class PayBase
             'price'=>$price[0],
             'orderTime'=>time(),
             'orderId'=>$orderId,
-            'transactionId'=>$transactionId,
             'subject'=>$subject,
             'type'=>'ios',
             'productId'=>$price[2],
         ]));
 
         //修改订单状态
-        DB::connection('userOrder')->table('wodelu'.$suffix)->where(['uid'=>$uid,'orderId'=>$orderId])->update(['payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
+        DB::connection('userOrder')->table('wodelu'.$suffix)->where(['uid'=>$uid,'orderId'=>$orderId])->update(['transactionId'=>$transactionId,'payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
 
         //操作对应的$productId逻辑
         (new TrackUserController())->modifyVipStatus($uid,$price[2]);
