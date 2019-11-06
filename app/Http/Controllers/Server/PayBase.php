@@ -18,66 +18,33 @@ class PayBase
 {
     public function choseProduct($productId,$plant='android')
     {
-        if ($plant==='android')
-        {
-            $arr=[
-                '1'=>6,     //一个月vip
-                '2'=>18,    //三个月vip
-                '3'=>68,    //一年vip
-                '4'=>6,     //100km
-                '5'=>12,    //200km
-                '6'=>18,    //300km
-                '7'=>30,    //500km
-                '8'=>45,    //750km
-                '9'=>60,    //1000km
+        $arr=[
+            '1'=>6,     //一个月vip
+            '2'=>18,    //三个月vip
+            '3'=>68,    //一年vip
+            '4'=>6,     //100km
+            '5'=>12,    //200km
+            '6'=>18,    //300km
+            '7'=>30,    //500km
+            '8'=>45,    //750km
+            '9'=>60,    //1000km
 
-                '255'=>1,   //测试
-            ];
+            '255'=>1,   //测试
+        ];
 
-            $subject=[
-                '1'=>'一个月vip',
-                '2'=>'三个月vip',
-                '3'=>'一年vip',
-                '4'=>'100km',
-                '5'=>'200km',
-                '6'=>'300km',
-                '7'=>'500km',
-                '8'=>'750km',
-                '9'=>'1000km',
+        $subject=[
+            '1'=>'一个月vip',
+            '2'=>'三个月vip',
+            '3'=>'一年vip',
+            '4'=>'100km',
+            '5'=>'200km',
+            '6'=>'300km',
+            '7'=>'500km',
+            '8'=>'750km',
+            '9'=>'1000km',
 
-                '255'=>'测试',
-            ];
-
-        }else
-        {
-            $arr=[
-                '1'=>6,     //一个月vip
-                '2'=>18,    //三个月vip
-                '3'=>68,    //一年vip
-                '4'=>6,     //100km
-                '5'=>12,    //200km
-                '6'=>18,    //300km
-                '7'=>30,    //500km
-                '8'=>45,    //750km
-                '9'=>60,    //1000km
-
-                '255'=>1,   //测试
-            ];
-
-            $subject=[
-                '1'=>'一个月vip',
-                '2'=>'三个月vip',
-                '3'=>'一年vip',
-                '4'=>'100km',
-                '5'=>'200km',
-                '6'=>'300km',
-                '7'=>'500km',
-                '8'=>'750km',
-                '9'=>'1000km',
-
-                '255'=>'测试',
-            ];
-        }
+            '255'=>'测试',
+        ];
 
         if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId]];
 
@@ -103,7 +70,7 @@ class PayBase
                         $table->string('productSubject','100')->comment('产品名称');
                         $table->integer('price')->unsigned()->comment('订单金额');
                         $table->integer('orderTime')->unsigned()->comment('下单时间');
-                        $table->integer('alipayTime')->unsigned()->nullable()->comment('支付宝通知时间');
+                        $table->integer('payTime')->unsigned()->nullable()->comment('异步通知时间');
                         $table->tinyInteger('status')->unsigned()->comment('订单状态，0未付，1付款完成');
                         $table->string('plant','10')->comment('ios android');
                         $table->timestamps();
@@ -115,6 +82,43 @@ class PayBase
 
                 break;
         }
+    }
+
+    //我的路支付（苹果）
+    public function wodeluApplePay(Request $request)
+    {
+        //创建
+        $this->createTable('wodelu');
+
+        $uid=$request->uid;
+
+        if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        //ios
+        $type=$request->type;
+        $type='ios';
+
+        //需要付款多少钱
+        $price=$this->choseProduct($request->productId,$type);
+
+        if (!$price) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        $subject=$price[1];
+
+        //生成订单号
+        $orderId=randomUUID();
+
+        event(new CreateWodeluOrderEvent([
+            'uid'=>$uid,
+            'price'=>$price[0],
+            'orderTime'=>time(),
+            'orderId'=>$orderId,
+            'subject'=>$subject,
+            'type'=>$type,
+            'productId'=>$request->productId,
+        ]));
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'orderId'=>$orderId]);
     }
 
     //我的路支付（阿里）
@@ -216,7 +220,7 @@ class PayBase
             //金额不正确
             if ((int)$res->price!==(int)$data->total_amount) return response()->json(['resCode'=>Config::get('resCode.642'),'status'=>'fail']);
 
-            DB::connection('userOrder')->table('wodelu'.$suffix)->where('orderId',$orderId)->update(['alipayTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
+            DB::connection('userOrder')->table('wodelu'.$suffix)->where('orderId',$orderId)->update(['payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
 
         }catch (\Exception $e)
         {
@@ -228,7 +232,7 @@ class PayBase
         //如果都通过了
         $uid=$res->uid;
 
-        $productId=$res->productId;
+        $productId=(int)$res->productId;
 
         //操作对应的$productId逻辑
         (new TrackUserController())->modifyVipStatus($uid,$productId);

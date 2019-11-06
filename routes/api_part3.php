@@ -23,8 +23,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //我的路支付路由================================================================================
     //我的路安卓支付宝支付
     Route::match(['get','post'],'WodeluAlipay','Server\PayBase@wodeluAlipay');
-
-
+    //苹果内购生成订单号
+    Route::match(['get','post'],'WodeluApplePay','Server\PayBase@wodeluApplePay');
     //===========================================================================================
 
 

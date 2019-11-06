@@ -38,7 +38,7 @@ class CreateDataInMysql
             'productSubject'=>$event->avg['subject'],
             'price'=>$event->avg['price'],
             'orderTime'=>$event->avg['orderTime'],
-            //'alipayTime'
+            //'payTime'
             'status'=>0,
             'plant'=>$event->avg['type'],
             'created_at'=>Carbon::now()->format('Y-m-d H:i:s'),

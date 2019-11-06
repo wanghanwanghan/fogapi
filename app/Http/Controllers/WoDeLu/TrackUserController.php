@@ -123,9 +123,6 @@ class TrackUserController extends Controller
 
                 if ($vipInfo)
                 {
-                    //在当前时间上，再加一个月时间
-                    $vipInfo=jsonDecode($vipInfo);
-
                     $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(31)->timestamp;
                 }
 
@@ -145,9 +142,6 @@ class TrackUserController extends Controller
 
                 if ($vipInfo)
                 {
-                    //在当前时间上，再加一个月时间
-                    $vipInfo=jsonDecode($vipInfo);
-
                     $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(93)->timestamp;
                 }
 
@@ -167,9 +161,6 @@ class TrackUserController extends Controller
 
                 if ($vipInfo)
                 {
-                    //在当前时间上，再加一个月时间
-                    $vipInfo=jsonDecode($vipInfo);
-
                     $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(365)->timestamp;
                 }
 

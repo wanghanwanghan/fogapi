@@ -6,6 +6,7 @@ use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\Server\ContentCheckBase;
 use App\Http\Controllers\WoDeLu\TrackFogController;
+use App\Http\Controllers\WoDeLu\TrackUserController;
 use App\Model\Community\ArticleModel;
 use App\Model\Community\CommentsModel;
 use Carbon\Carbon;
@@ -23,7 +24,19 @@ class MyTempController extends BaseController
 {
     public function test()
     {
-        $res=Carbon::createFromTimestamp(time())->addDays(365)->format('Y-m-d H:i:s');
+        $uid=70893;
+        $productId=5;
+
+        //(new TrackUserController())->modifyVipStatus($uid,$productId);
+
+        $res=(new TrackUserController())->getVipInfo(70893);
+
+        //$res['expire']=Carbon::createFromTimestamp($res['expire'])->addDays(31)->timestamp;
+
+        //$res=Carbon::createFromTimestamp($res['expire'])->addDays(93)->format('Y-m-d H:i:s');
+
+
+
 
         dd($res);
 

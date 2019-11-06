@@ -6,7 +6,16 @@ http://newfogapi.wodeluapp.com/api/TrackUserInfo
 参数
 int    uid =17469    用户主键
 ==========================================================================
-我的路支付
+我的路支付 苹果内购
+
+post
+http://newfogapi.wodeluapp.com/api/WodeluApplePay
+
+参数
+int    uid =17469    用户主键
+int    productId=1   产品编号   1-9
+==========================================================================
+我的路支付 安卓支付宝
 
 post
 http://newfogapi.wodeluapp.com/api/WodeluAlipay
@@ -14,7 +23,7 @@ http://newfogapi.wodeluapp.com/api/WodeluAlipay
 参数
 int    uid =17469    用户主键
 string type=android  用户设备
-int    productId=255 产品编号
+int    productId=1   产品编号   1-9
 ==========================================================================
 我的路足迹下载
 
