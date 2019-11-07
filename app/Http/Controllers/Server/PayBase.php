@@ -21,13 +21,13 @@ class PayBase
         $product=$productId;
 
         $arr=[
-            '1'=>6,     //一个月vip
-            '2'=>18,    //三个月vip
-            '3'=>68,    //一年vip
+            '1'=>12,    //一个月vip
+            '2'=>30,    //三个月vip
+            '3'=>88,    //一年vip
             '4'=>6,     //100km
             '5'=>12,    //200km
             '6'=>18,    //300km
-            '7'=>30,    //500km
+            '7'=>30,    //550km
             '8'=>45,    //750km
             '9'=>60,    //1000km
 
@@ -41,7 +41,7 @@ class PayBase
             '4'=>'100km',
             '5'=>'200km',
             '6'=>'300km',
-            '7'=>'500km',
+            '7'=>'550km',
             '8'=>'750km',
             '9'=>'1000km',
 
@@ -51,13 +51,13 @@ class PayBase
         if ($plant==='ios')
         {
             $arr=[
-                'wodeluapp.zujiyigeyuehuiyuan'=>6,   //一个月vip
-                'wodeluapp.zujisangeyuehuiyuan'=>18, //三个月vip
-                'wodeluapp.zujinianhuiyuan'=>68,     //一年vip
+                'wodeluapp.zujiyigeyuehuiyuan'=>12,  //一个月vip
+                'wodeluapp.zujisangeyuehuiyuan'=>30, //三个月vip
+                'wodeluapp.zujinianhuiyuan'=>88,     //一年vip
                 'wodeluapp.zuji100km'=>6,            //100km
                 'wodeluapp.zuji200km'=>12,           //200km
                 'wodeluapp.zuji300km'=>18,           //300km
-                'wodeluapp.zuji500km'=>30,           //500km
+                'wodeluapp.zuji550km'=>30,           //550km
                 'wodeluapp.zuji750km'=>45,           //750km
                 'wodeluapp.zuji1000km'=>60,          //1000km
 
@@ -71,7 +71,7 @@ class PayBase
                 'wodeluapp.zuji100km'=>'100km',
                 'wodeluapp.zuji200km'=>'200km',
                 'wodeluapp.zuji300km'=>'300km',
-                'wodeluapp.zuji500km'=>'500km',
+                'wodeluapp.zuji550km'=>'550km',
                 'wodeluapp.zuji750km'=>'750km',
                 'wodeluapp.zuji1000km'=>'1000km',
 
@@ -85,7 +85,7 @@ class PayBase
                 'wodeluapp.zuji100km'=>4,
                 'wodeluapp.zuji200km'=>5,
                 'wodeluapp.zuji300km'=>6,
-                'wodeluapp.zuji500km'=>7,
+                'wodeluapp.zuji550km'=>7,
                 'wodeluapp.zuji750km'=>8,
                 'wodeluapp.zuji1000km'=>9,
             ];
@@ -241,10 +241,12 @@ class PayBase
         //创建
         $this->createTable('wodelu');
 
-        $receiptData=$request->receiptData;
+        $receiptData=jsonDecode($request->receiptData);
+        $receiptData=$receiptData[0];
 
         $uid=$request->uid;
 
+        //给苹果验证
         $data=$this->acurl($receiptData,1);
 
         $data=jsonDecode($data);

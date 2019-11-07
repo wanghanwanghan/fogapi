@@ -72,8 +72,18 @@ class TrackUserController extends Controller
         isset($vipInfo['level']) ? $level=$vipInfo['level'] : $level=0;
 
         //过期时间
-        isset($vipInfo['expire']) ? $expire=$vipInfo['expire'] : $expire=0;
-        if ($expire!==0) $expire=date('Y-m-d',$expire);
+        if (isset($vipInfo['expire']))
+        {
+            $expire=$vipInfo['expire'];
+
+            $expireLimit=Carbon::createFromTimestamp($expire)->diffInDays();
+
+        }else
+        {
+            $expire=0;
+
+            $expireLimit=0;
+        }
 
         //用户增加了多少迷雾点
         $fogPackage=$this->getFogPackage($uid);
@@ -84,7 +94,8 @@ class TrackUserController extends Controller
         return response()->json([
             'resCode'=>Config::get('resCode.200'),
             'vipLevel'=>$level,
-            'vipExpire'=>$expire,
+            'vipExpireDateTime'=>$expire ? date('Y-m-d',$expire) : 0,//到期时间Ymd
+            'vipExpireLimitDays'=>$expireLimit,//还有多少天到期
             'fogPackage'=>$fogPackage+200,//迷雾拓展包
             'fog'=>(int)($fogNum*0.0079),//目前有多少面积在服务器中
         ]);
@@ -188,12 +199,12 @@ class TrackUserController extends Controller
 
                     break;
 
-                case 'wodeluapp.zuji500km':
+                case 'wodeluapp.zuji550km':
 
-                    //500
+                    //550
                     $res=(int)Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'FogPackage');
 
-                    $res+=500;
+                    $res+=550;
 
                     Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'FogPackage',$res);
 
@@ -325,10 +336,10 @@ class TrackUserController extends Controller
 
             case 7:
 
-                //500
+                //550
                 $res=(int)Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'FogPackage');
 
-                $res+=500;
+                $res+=550;
 
                 Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'FogPackage',$res);
 

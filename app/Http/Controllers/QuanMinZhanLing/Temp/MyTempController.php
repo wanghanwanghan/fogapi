@@ -27,13 +27,12 @@ class MyTempController extends BaseController
         $uid=70893;
         $productId=5;
 
-        //(new TrackUserController())->modifyVipStatus($uid,$productId);
 
-        $res=(new TrackUserController())->getVipInfo(70893);
+        $expire=0;
 
-        //$res['expire']=Carbon::createFromTimestamp($res['expire'])->addDays(31)->timestamp;
+        $res=$expire ? date('Y-m-d',$expire) : 0;
 
-        //$res=Carbon::createFromTimestamp($res['expire'])->addDays(93)->format('Y-m-d H:i:s');
+
 
 
 
