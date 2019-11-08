@@ -6,6 +6,7 @@ use App\Console\Commands\TrackFogUpload0;
 use App\Console\Commands\TrackFogUploadForZUJI0;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Illuminate\Filesystem\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,35 @@ class TrackFogController extends Controller
         $table=$uid%900;
 
         return ['db'=>$db,'table'=>$table];
+    }
+
+    //有了会员规则加个判读
+    public function iCanUpload($uid)
+    {
+        //月底再加这个限制
+        if (Carbon::now()->format('Ymd') <= 20191130) return true;
+
+        //如果是会员，不做任何限制
+        $vipInfo=(new TrackUserController())->getVipInfo($uid);
+
+        //是会员都可以传
+        if (!empty($vipInfo)) return true;
+
+        //不是会员就看看空间是不是满了
+        //满了就不让上传
+
+        //先看有多少迷雾拓展包，加200
+        $fogPackage=(new TrackUserController())->getFogPackage($uid);
+        $fogPackage=$fogPackage+200;
+
+        //看看服务器上有多少面积
+        $fogNum=(new TrackUserController())->getFogNum($uid);
+        $fogNum=(int)($fogNum*0.0079);
+
+        //如果服务器上有的面积，超过了，拓展包中的面积，就不让传了，需要购买拓展包，或者买会员
+        if ($fogNum >= $fogPackage) return false;
+
+        return true;
     }
 
     //迷雾上传限流
@@ -199,6 +229,9 @@ class TrackFogController extends Controller
             return response()->json(['resCode'=>Config::get('resCode.604')]);
         }
 
+        //是不是会员，空间满没满
+        if (!$this->iCanUpload($uid)) return response()->json(['resCode'=>Config::get('resCode.631')]);
+
         $data=jsonDecode($request->data);
 
         $readyToHandle['uid']=$uid;
@@ -265,6 +298,9 @@ class TrackFogController extends Controller
         $uid=trim($request->uid);
 
         if (!is_numeric($uid) || $uid <= 0 || $request->data=='') return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        //是不是会员，空间满没满
+        if (!$this->iCanUpload($uid)) return response()->json(['resCode'=>Config::get('resCode.631')]);
 
         $date=trim($request->date);
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\WoDeLu;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -42,18 +43,23 @@ class TrackUserController extends Controller
     //现在服务器上有多少个迷雾点
     public function getFogNum($uid)
     {
-        $obj=new TrackFogController();
-
-        $suffix=$obj->getDatabaseNoOrTableNo($uid);
-
-        try
+        $res=Cache::remember('TrackGetFogNum_'.$uid,1,function () use ($uid)
         {
-            $res=DB::connection('TrackFog'.$suffix['db'])->table('user_fog_'.$suffix['table'])->where('uid',$uid)->count();
+            $obj=new TrackFogController();
 
-        }catch (\Exception $e)
-        {
-            return 0;
-        }
+            $suffix=$obj->getDatabaseNoOrTableNo($uid);
+
+            try
+            {
+                $res=DB::connection('TrackFog'.$suffix['db'])->table('user_fog_'.$suffix['table'])->where('uid',$uid)->count();
+
+            }catch (\Exception $e)
+            {
+                return 0;
+            }
+
+            return $res;
+        });
 
         return $res;
     }
