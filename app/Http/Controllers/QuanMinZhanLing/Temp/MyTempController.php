@@ -27,6 +27,11 @@ class MyTempController extends BaseController
         $uid=70893;
         $productId=5;
 
+        $res['level']=1;
+        $res['expire']=Carbon::now()->addDays(31)->timestamp;
+
+        Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'VipInfo',jsonEncode($res));
+
 
         $expire=0;
 

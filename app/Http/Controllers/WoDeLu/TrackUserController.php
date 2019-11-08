@@ -121,6 +121,8 @@ class TrackUserController extends Controller
 
                     if ($vipInfo)
                     {
+                        $vipInfo['level'] < $res['level'] ?: $res['level']=$vipInfo['level'];
+
                         $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(31)->timestamp;
                     }
 
@@ -140,6 +142,8 @@ class TrackUserController extends Controller
 
                     if ($vipInfo)
                     {
+                        $vipInfo['level'] < $res['level'] ?: $res['level']=$vipInfo['level'];
+
                         $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(93)->timestamp;
                     }
 
@@ -159,6 +163,8 @@ class TrackUserController extends Controller
 
                     if ($vipInfo)
                     {
+                        $vipInfo['level'] < $res['level'] ?: $res['level']=$vipInfo['level'];
+
                         $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(365)->timestamp;
                     }
 
@@ -256,6 +262,8 @@ class TrackUserController extends Controller
 
                 if ($vipInfo)
                 {
+                    $vipInfo['level'] < $res['level'] ?: $res['level']=$vipInfo['level'];
+
                     $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(31)->timestamp;
                 }
 
@@ -275,6 +283,8 @@ class TrackUserController extends Controller
 
                 if ($vipInfo)
                 {
+                    $vipInfo['level'] < $res['level'] ?: $res['level']=$vipInfo['level'];
+
                     $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(93)->timestamp;
                 }
 
@@ -294,6 +304,8 @@ class TrackUserController extends Controller
 
                 if ($vipInfo)
                 {
+                    $vipInfo['level'] < $res['level'] ?: $res['level']=$vipInfo['level'];
+
                     $res['expire']=Carbon::createFromTimestamp($vipInfo['expire'])->addDays(365)->timestamp;
                 }
 

@@ -114,12 +114,14 @@ class PayBase
                         $table->integer('uid')->unsigned()->comment('用户主键');
                         $table->string('orderId','50')->comment('订单号uuid');
                         $table->bigInteger('transactionId')->unsigned()->nullable()->comment('苹果的');
+                        $table->text('receiptData')->nullable()->comment('苹果receiptData');
                         $table->tinyInteger('productId')->unsigned()->comment('产品编号');
                         $table->string('productSubject','100')->comment('产品名称');
                         $table->integer('price')->unsigned()->comment('订单金额');
                         $table->integer('orderTime')->unsigned()->comment('下单时间');
                         $table->integer('payTime')->unsigned()->nullable()->comment('异步通知时间');
                         $table->tinyInteger('status')->unsigned()->comment('订单状态，0未付，1付款完成');
+                        $table->tinyInteger('autoPay')->unsigned()->nullable()->comment('自动订阅状态');
                         $table->string('plant','10')->comment('ios android');
                         $table->timestamps();
                         $table->index(['uid','orderId']);
@@ -242,7 +244,15 @@ class PayBase
         $this->createTable('wodelu');
 
         $receiptData=jsonDecode($request->receiptData);
-        $receiptData=$receiptData[0];
+
+        if ($receiptData!==null)
+        {
+            $receiptData=$receiptData[0];
+        }else
+        {
+            //这是直接传的，不是json格式
+            $receiptData=$request->receiptData;
+        }
 
         $uid=$request->uid;
 
@@ -259,6 +269,13 @@ class PayBase
         //* 21006 receipt合法，但是订阅已过期。服务器接收到这个状态码时，receipt数据仍然会解码并一起发送
         //* 21007 receipt是Sandbox receipt，但却发送至生产系统的验证服务
         //* 21008 receipt是生产receipt，但却发送至Sandbox环境的验证服务
+
+        if (intval($data['status'])!==0)
+        {
+            $data=$this->acurl($receiptData);
+
+            $data=jsonDecode($data);
+        }
 
         //支付失败
         if (intval($data['status'])!==0) return response()->json(['resCode'=>Config::get('resCode.641'),'msg'=>$data]);
@@ -309,7 +326,7 @@ class PayBase
     public function acurl($receiptData,$sandbox=0)
     {
         //小票信息
-        $POSTFIELDS = ["receipt-data" => $receiptData];
+        $POSTFIELDS = ["receipt-data" => $receiptData,'password'=>'8d681df8dd78403fbee2201fc99dc6dd'];
         $POSTFIELDS = jsonEncode($POSTFIELDS);
 
         //正式购买地址 沙盒购买地址
