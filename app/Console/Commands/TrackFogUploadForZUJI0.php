@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Http\Controllers\WoDeLu\TrackFogController;
 use Carbon\Carbon;
+use Geohash\GeoHash;
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -72,7 +73,7 @@ class TrackFogUploadForZUJI0 extends Command
 
     public function handle()
     {
-        $Geo=new \Geohash\GeoHash();
+        $Geo=new GeoHash();
 
         if (!$this->fogControllerObj->runWork) return true;
 

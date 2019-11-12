@@ -113,7 +113,7 @@ class PayBase
                         $table->increments('id')->unsigned()->comment('订单主键');
                         $table->integer('uid')->unsigned()->comment('用户主键');
                         $table->string('orderId','50')->comment('订单号uuid');
-                        $table->bigInteger('transactionId')->unsigned()->nullable()->comment('苹果的');
+                        $table->string('transactionId','50')->nullable()->comment('订单号');
                         $table->text('receiptData')->nullable()->comment('苹果receiptData');
                         $table->tinyInteger('productId')->unsigned()->comment('产品编号');
                         $table->string('productSubject','100')->comment('产品名称');
@@ -197,6 +197,8 @@ class PayBase
             //data返回的是laravel集合
             $data=$alipay->verify(); // 是的，验签就这么简单！
 
+            Redis::connection('default')->set('androidAlipayReturn',jsonEncode($data));
+
             // 请自行对 trade_status 进行判断及其它逻辑进行判断，在支付宝的业务通知中，只有交易通知状态为 TRADE_SUCCESS 或 TRADE_FINISHED 时，支付宝才会认定为买家付款成功。
             // 1、商户需要验证该通知数据中的out_trade_no是否为商户系统中创建的订单号；
             // 2、判断total_amount是否确实为该订单的实际金额（即商户订单创建时的金额）；
@@ -217,7 +219,7 @@ class PayBase
             //金额不正确
             if ((int)$res->price!==(int)$data->total_amount) return response()->json(['resCode'=>Config::get('resCode.642'),'status'=>'fail']);
 
-            DB::connection('userOrder')->table('wodelu'.$suffix)->where('orderId',$orderId)->update(['payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
+            DB::connection('userOrder')->table('wodelu'.$suffix)->where('orderId',$orderId)->update(['transactionId'=>$data->trade_no,'payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
 
         }catch (\Exception $e)
         {
@@ -234,7 +236,7 @@ class PayBase
         //操作对应的$productId逻辑
         (new TrackUserController())->modifyVipStatus($uid,$productId);
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>$alipay->success()]);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>$alipay->success()->send()]);
     }
 
     //我的路支付回调（苹果内购）

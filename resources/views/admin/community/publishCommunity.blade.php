@@ -100,7 +100,7 @@
                     <div class="form-group row mb-2">
                         <label class="col-md-2 col-form-label">格子编号</label>
                         <div class="col-md-10">
-                            <div class="input-group">
+                            <div class="input-group" id="changeGridNameInput" ondblclick="changeGridNameInput()">
                                 <input type="text" class="col-2 form-control" name="" id="gName" placeholder="">
                             </div>
                         </div>
@@ -121,6 +121,81 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function changeGridNameInput() {
+
+            //取得id
+            var id=$("#changeGridNameInput").children().eq(0).attr('id');
+
+            if (id==='gName')
+            {
+                //转换成下拉列表
+                $("#changeGridNameInput").children().remove();
+                $("#changeGridNameInput").append("<select type=\"text\" class=\"col-3 form-control\" id=\"selectGridName\"></select>");
+
+                $("#selectGridName").append("<option value=北京>北京</option>");
+                $("#selectGridName").append("<option value=上海>上海</option>");
+                $("#selectGridName").append("<option value=广州>广州</option>");
+                $("#selectGridName").append("<option value=深圳>深圳</option>");
+                $("#selectGridName").append("<option value=成都>成都</option>");
+
+                //绑定onchange事件
+                $("#selectGridName").on('change',function () {
+
+                    $("#gName").remove();
+
+                    var cond=$("#selectGridName").val();
+
+                    var url='/admin/community/ajax';
+
+                    var data={
+                        _token:$("input[name=_token]").val(),
+                        type  :'getTargetGridName',
+                        cond  : cond,
+                    };
+
+                    $.post(url,data,function (res) {
+
+                        if (res.data.length===0)
+                        {
+                            $("#selectGridName").after("<input type=\"text\" class=\"col-3 form-control ml-5\" id=\"gName\">");
+
+                        }else
+                        {
+                            $("#selectGridName").after("<select type=\"text\" class=\"col-3 form-control ml-5\" id=\"gName\"></select>");
+
+                            //随机发就选这个
+                            $("#gName").append("<option value=''></option>");
+
+                            $.each(res.data,function (k,v) {
+
+                                $("#gName").append("<option value="+k+">"+k+"---"+v+"</option>");
+
+                            });
+
+
+                        }
+
+                    },'json');
+
+
+
+
+                })
+
+            }else
+            {
+                //转换成输入框
+                $("#changeGridNameInput").children().remove();
+                $("#changeGridNameInput").append("<input type=\"text\" class=\"col-2 form-control\" name=\"\" id=\"gName\" placeholder=\"\">");
+            }
+
+
+
+
+        }
+    </script>
 
     <script type="text/javascript">
 

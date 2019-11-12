@@ -39,7 +39,7 @@ class TrackFogController extends Controller
     public function iCanUpload($uid)
     {
         //月底再加这个限制
-        if (Carbon::now()->format('Ymd') <= 20191130) return true;
+        if (Carbon::now()->format('Ymd') <= 20200330) return true;
 
         //如果是会员，不做任何限制
         $vipInfo=(new TrackUserController())->getVipInfo($uid);

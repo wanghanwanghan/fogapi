@@ -867,7 +867,21 @@ Eof;
 
                 $gName=trim($request->gName);
 
-                if ($gName=='') return response()->json(['resCode'=>Config::get('resCode.605')]);
+                if ($gName=='')
+                {
+                    //随机发一个
+                    //return response()->json(['resCode'=>Config::get('resCode.605')]);
+
+                    $res=DB::connection('masterDB')->table('grid')->where('price','>=',1000)->limit(500)->get(['name']);
+
+                    $res=jsonDecode($res);
+
+                    shuffle($res);
+
+                    $res=current($res);
+
+                    $gName=$res['name'];
+                }
 
                 $myself=0;
 
@@ -1077,6 +1091,70 @@ Eof;
                 unset($one);
 
                 return ['resCode'=>200,'res'=>$res,'count'=>$count];
+
+                break;
+
+            case 'getTargetGridName':
+
+                $cond=$request->cond;
+
+                if ($cond=='北京')
+                {
+                    $gName='n4w5,n4w4,n4w3,n4w2,n4w1,n4,n4e1,n4e2,n4e3,n4e4,n3w5,n3w4,n3w3,n3w2,n3w1,n3,n3e1,n3e2,n3e3,n3e4,n2w5,n2w4,n2w3,n2w2,n2w1,n2,n2e1,n2e2,n2e3,n2e4,n1w5,n1w4,n1w3,n1w2,n1w1,n1,n1e1,n1e2,n1e3,n1e4,w5,w4,w3,w2,w1,c0,e1,e2,e3,e4,s1w5,s1w4,s1w3,s1w2,s1w1,s1,s1e1,s1e2,s1e3,s1e4,s2w5,s2w4,s2w3,s2w2,s2w1,s2,s2e1,s2e2,s2e3,s2e4,s3w5,s3w4,s3w3,s3w2,s3w1,s3,s3e1,s3e2,s3e3,s3e4';
+                }elseif ($cond=='上海')
+                {
+                    $gName='s346e141,s346e142,s346e143,s346e144,s346e145,s346e146,s346e147,s346e148,s346e149,s346e150,s346e151,s346e152,s346e153,s347e141,s347e142,s347e143,s347e144,s347e145,s347e146,s347e147,s347e148,s347e149,s347e150,s347e151,s347e152,s347e153,s348e141,s348e142,s348e143,s348e144,s348e145,s348e146,s348e147,s348e148,s348e149,s348e150,s348e151,s348e152,s348e153,s348e154,s349e141,s349e142,s349e143,s349e144,s349e145,s349e146,s349e147,s349e148,s349e149,s349e150,s349e151,s349e152,s349e153,s349e154,s350e141,s350e142,s350e143,s350e144,s350e145,s350e146,s350e147,s350e148,s350e149,s350e150,s350e151,s350e152,s350e153,s350e154,s350e155,s351e141,s351e142,s351e143,s351e144,s351e145,s351e146,s351e147,s351e148,s351e149,s351e150,s351e151,s351e152,s351e153,s351e154,s351e155,s352e141,s352e142,s352e143,s352e144,s352e145,s352e146,s352e147,s352e148,s352e149,s352e150,s352e151,s352e152,s352e153,s352e154,s352e155,s353e141,s353e142,s353e143,s353e144,s353e145,s353e146,s353e147,s353e148,s353e149,s353e150,s353e151,s353e152,s353e153,s353e154,s353e155,s353e156,s354e141,s354e142,s354e143,s354e144,s354e145,s354e146,s354e147,s354e148,s354e149,s354e150,s354e151,s354e152,s354e153,s354e154,s354e155,s354e156,s355e141,s355e142,s355e143,s355e144,s355e145,s355e146,s355e147,s355e148,s355e149,s355e150,s355e151,s355e152,s355e153,s355e154,s355e155,s355e156,s355e157,s356e141,s356e142,s356e143,s356e144,s356e145,s356e146,s356e147,s356e148,s356e149,s356e150,s356e151,s356e152,s356e153,s356e154,s356e155,s356e156,s356e157,s357e141,s357e142,s357e143,s357e144,s357e145,s357e146,s357e147,s357e148,s357e149,s357e150,s357e151,s357e152,s357e153,s357e154,s357e155,s357e156,s357e157,s357e158,s358e141,s358e142,s358e143,s358e144,s358e145,s358e146,s358e147,s358e148,s358e149,s358e150,s358e151,s358e152,s358e153,s358e154,s358e155,s358e156,s358e157,s358e158';
+                }elseif ($cond=='广州')
+                {
+                    $gName='s669w94,s669w93,s669w92,s669w91,s669w90,s669w89,s669w88,s669w87,s669w86,s669w85,s670w94,s670w93,s670w92,s670w91,s670w90,s670w89,s670w88,s670w87,s670w86,s670w85,s671w94,s671w93,s671w92,s671w91,s671w90,s671w89,s671w88,s671w87,s671w86,s671w85,s672w94,s672w93,s672w92,s672w91,s672w90,s672w89,s672w88,s672w87,s672w86,s672w85,s673w94,s673w93,s673w92,s673w91,s673w90,s673w89,s673w88,s673w87,s673w86,s673w85,s674w94,s674w93,s674w92,s674w91,s674w90,s674w89,s674w88,s674w87,s674w86,s674w85,s675w94,s675w93,s675w92,s675w91,s675w90,s675w89,s675w88,s675w87,s675w86,s675w85,s676w94,s676w93,s676w92,s676w91,s676w90,s676w89,s676w88,s676w87,s676w86,s676w85,s677w94,s677w93,s677w92,s677w91,s677w90,s677w89,s677w88,s677w87,s677w86,s677w85,s678w94,s678w93,s678w92,s678w91,s678w90,s678w89,s678w88,s678w87,s678w86,s678w85,s679w94,s679w93,s679w92,s679w91,s679w90,s679w89,s679w88,s679w87,s679w86,s679w85,s680w94,s680w93,s680w92,s680w91,s680w90,s680w89,s680w88,s680w87,s680w86,s680w85,s681w94,s681w93,s681w92,s681w91,s681w90,s681w89,s681w88,s681w87,s681w86,s681w85,s682w94,s682w93,s682w92,s682w91,s682w90,s682w89,s682w88,s682w87,s682w86,s682w85,s683w94,s683w93,s683w92,s683w91,s683w90,s683w89,s683w88,s683w87,s683w86,s683w85,s684w94,s684w93,s684w92,s684w91,s684w90,s684w89,s684w88,s684w87,s684w86,s684w85';
+                }elseif ($cond=='深圳')
+                {
+                    $gName='s691w74,s691w73,s691w72,s691w71,s691w70,s691w69,s691w68,s691w67,s691w66,s691w65,s691w64,s691w63,s691w62,s692w74,s692w73,s692w72,s692w71,s692w70,s692w69,s692w68,s692w67,s692w66,s692w65,s692w64,s692w63,s692w62,s693w73,s693w72,s693w71,s693w70,s693w69,s693w68,s693w67,s693w66,s693w65,s693w64,s693w63,s693w62,s694w73,s694w72,s694w71,s694w70,s694w69,s694w68,s694w67,s694w66,s694w65,s694w64,s694w63,s694w62,s695w73,s695w72,s695w71,s695w70,s695w69,s695w68,s695w67,s695w66,s695w65,s695w64,s695w63,s695w62';
+                }elseif ($cond=='成都')
+                {
+                    $gName='s367w356,s367w355,s367w354,s367w353,s367w352,s367w351,s367w350,s368w356,s368w355,s368w354,s368w353,s368w352,s368w351,s368w350,s369w356,s369w355,s369w354,s369w353,s369w352,s369w351,s369w350,s370w356,s370w355,s370w354,s370w353,s370w352,s370w351,s370w350,s371w356,s371w355,s371w354,s371w353,s371w352,s371w351,s371w350,s372w356,s372w355,s372w354,s372w353,s372w352,s372w351,s372w350,s373w356,s373w355,s373w354,s373w353,s373w352,s373w351,s373w350,s374w356,s374w355,s374w354,s374w353,s374w352,s374w351,s374w350';
+                }else
+                {
+                    $gName='';
+                }
+
+                $myGridName=$gName;
+
+                $suffix=Carbon::now()->year;
+
+                $gName=explode(',',$gName);
+
+                $tmp='';
+                foreach ($gName as $one)
+                {
+                    $tmp.='"'.$one.'",';
+                }
+
+                $tmp=rtrim($tmp,',');
+
+                $gName=$tmp;
+
+                $sql="select gName,count(1) as total from community_article_{$suffix} where gName in ({$gName}) group by gName order by total asc";
+
+                $res=DB::connection('communityDB')->select($sql);
+
+                $gName=explode(',',$myGridName);
+
+                $gName=array_flip($gName);
+
+                foreach ($gName as &$row)
+                {
+                    $row=0;
+                }
+                unset($row);
+
+                //遍历sql返回的结果
+                foreach ($res as $one)
+                {
+                    $gName[$one->gName]+=$one->total;
+                }
+
+                return ['resCode'=>200,'data'=>$gName];
 
                 break;
         }
