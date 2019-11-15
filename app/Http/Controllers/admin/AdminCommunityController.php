@@ -1158,6 +1158,8 @@ Eof;
 
                 break;
         }
+
+        return true;
     }
 
     //置顶加精
@@ -1373,6 +1375,7 @@ Eof;
                     $constraint->upsize();
                 })->crop(200,200)->save(public_path("webAdmin/temp/{$uid}thum{$num}.jpg"));
 
+                //webAdmin目录不用删除图片，每次后台发布印象图片时候会覆盖
                 $url[]="/webAdmin/temp/{$uid}thum{$num}.jpg?".time();
 
                 $num++;

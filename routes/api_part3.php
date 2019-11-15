@@ -34,5 +34,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
 
 
+    //探索世界点亮地图
+    Route::match(['get','post'],'LightMap','TanSuoShiJie\LightMapController@lightMap');
+
 });
 

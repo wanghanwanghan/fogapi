@@ -23,7 +23,7 @@ class PayBase
         $arr=[
             '1'=>12,    //一个月vip
             '2'=>30,    //三个月vip
-            '3'=>88,    //一年vip
+            '3'=>60,    //一年vip
             '4'=>6,     //100km
             '5'=>12,    //200km
             '6'=>18,    //300km
@@ -53,7 +53,7 @@ class PayBase
             $arr=[
                 'wodeluapp.zujiyigeyuehuiyuan'=>12,  //一个月vip
                 'wodeluapp.zujisangeyuehuiyuan'=>30, //三个月vip
-                'wodeluapp.zujinianhuiyuan'=>88,     //一年vip
+                'wodeluapp.zujinianhuiyuan'=>60,     //一年vip
                 'wodeluapp.zuji100km'=>6,            //100km
                 'wodeluapp.zuji200km'=>12,           //200km
                 'wodeluapp.zuji300km'=>18,           //300km

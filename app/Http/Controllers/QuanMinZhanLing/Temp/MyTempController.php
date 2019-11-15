@@ -12,6 +12,7 @@ use App\Model\Community\CommentsModel;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
@@ -24,6 +25,11 @@ class MyTempController extends BaseController
 {
     public function test()
     {
+
+
+
+        dd('lightMap：'.Carbon::now()->format('Y-m-d H:i:s'));
+
         $uid=70893;
         $productId=5;
 
