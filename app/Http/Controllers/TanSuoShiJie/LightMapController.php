@@ -19,6 +19,10 @@ class LightMapController extends Controller
         //返回图片链接
         $mapZone==='china' ? $res=$this->lightChina($request) : $res=$this->lightWorld($request);
 
+        $suffix=$request->uid%10;
+
+        if ($res!='') $res="http://newfogapi.wodeluapp.com/lightMap/{$suffix}/{$request->uid}.png?".time();
+
         return response()->json(['resCode'=>Config::get('resCode.200'),'url'=>$res]);
     }
 
@@ -112,7 +116,6 @@ class LightMapController extends Controller
         $fileMap = public_path('lightMap/base/map.svg');
 
         $mapData = file_get_contents($fileMap);
-
 
         $CountryList = Config::get('lightMap.getCountry');
         $Contient = Config::get('lightMap.getContient');

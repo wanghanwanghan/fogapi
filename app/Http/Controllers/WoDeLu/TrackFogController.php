@@ -6,7 +6,6 @@ use App\Console\Commands\TrackFogUpload0;
 use App\Console\Commands\TrackFogUploadForZUJI0;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
-use Illuminate\Filesystem\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +38,7 @@ class TrackFogController extends Controller
     public function iCanUpload($uid)
     {
         //月底再加这个限制
-        if (Carbon::now()->format('Ymd') <= 20200330) return true;
+        //if (Carbon::now()->format('Ymd') <= 20191130) return true;
 
         //如果是会员，不做任何限制
         $vipInfo=(new TrackUserController())->getVipInfo($uid);

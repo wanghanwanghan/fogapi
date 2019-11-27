@@ -95,6 +95,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('Wodelu:TrackFogUploadForZUJI8')->everyMinute()->withoutOverlapping();
         $schedule->command('Wodelu:TrackFogUploadForZUJI9')->everyMinute()->withoutOverlapping();
 
+        //计算昨日繁荣度
+        $schedule->command('Aliance:Flourish')->cron('1 0 * * *')->withoutOverlapping();
+
+
 
 
         $schedule->command('Tssj:OneJoke')->everyFifteenMinutes()->withoutOverlapping();

@@ -1,0 +1,44 @@
+
+获取联盟信息
+
+任意get post
+http://newfogapi.wodeluapp.com/api/GetAlianceInfoByAlianceId
+
+参数
+int    aliance=1        联盟编号
+==========================================================================
+退出联盟
+
+任意get post
+http://newfogapi.wodeluapp.com/api/ExitAliance
+
+参数
+int    uid=17469        用户主键
+int    aliance=1        联盟编号
+==========================================================================
+加入联盟
+
+从联盟页面加入联盟只传uid和aliance
+
+接受别人邀请加入联盟要传tid
+
+任意get post
+http://newfogapi.wodeluapp.com/api/JoinAliance
+
+参数
+int    uid=17469        用户主键
+int    tid=22357        用户主键
+int    aliance=1        联盟编号
+==========================================================================
+获取用户的入盟请帖列表  寻找盟友页面
+
+任意get post
+http://newfogapi.wodeluapp.com/api/GetUserInviteList
+
+参数
+int    uid=17469        用户主键 (userId)
+int    tid=22357        用户主键 (targetId)
+int    aliance=1        联盟编号
+int    type=1           type=1是<入盟请帖> type=2是<寻找盟友> type=3是<邀请>
+                        只有type=3的时候需要tid和aliance
+==========================================================================

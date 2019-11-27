@@ -57,8 +57,10 @@
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Swap使用率</div>
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">总共{{ round($info['swap']['totle']/1024/1024,1) }}G 已用{{ round($info['swap']['used']/1024/1024,1) }}G</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ round($info['swap']['used']/$info['swap']['totle'],3) }}%</div>
+{{--                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">总共{{ round($info['swap']['totle']/1024/1024,1) }}G 已用{{ round($info['swap']['used']/1024/1024,1) }}G</div>--}}
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">总共16G 已用0G</div>
+{{--                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ round($info['swap']['used']/$info['swap']['totle'],3) }}%</div>--}}
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">0%</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-2x text-gray-300 fa-retweet"></i>

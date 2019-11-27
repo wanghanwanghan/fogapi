@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 
 class PVandUV
@@ -24,6 +25,15 @@ class PVandUV
 
         $count->recodePV();
         $count->recodeUV($request);
+
+        $uid=trim($request->uid);
+
+        if (is_numeric($uid) && $uid >= 1)
+        {
+            Redis::connection('UserInfo')->hset($uid,'lastLogin',time());
+        }
+
+
 
         //自己玩的
 //        $url='http://api.guaqb.cn/v1/onesaid/';
@@ -53,32 +63,32 @@ class PVandUV
 //        }
 
         //收集男女头像
-        $tar=array_random(['男','女','动漫男','动漫女']);
-        $url="https://api.uomg.com/api/rand.avatar?sort={$tar}&format=json";
-
-        try
-        {
-            $text=jsonDecode(trim((string)file_get_contents($url)));
-
-            $imgurl=$text['imgurl'];
-
-            $md5=md5($imgurl);
-
-            $sql="select * from oneAvatar where md5Index='{$md5}'";
-
-            $res=DB::connection('masterDB')->select($sql);
-
-            if (empty($res))
-            {
-                $sql="insert into oneAvatar values (null,'{$tar}','{$md5}','{$imgurl}')";
-
-                DB::connection('masterDB')->insert($sql);
-            }
-
-        }catch (\Exception $e)
-        {
-
-        }
+//        $tar=array_random(['男','女','动漫男','动漫女']);
+//        $url="https://api.uomg.com/api/rand.avatar?sort={$tar}&format=json";
+//
+//        try
+//        {
+//            $text=jsonDecode(trim((string)file_get_contents($url)));
+//
+//            $imgurl=$text['imgurl'];
+//
+//            $md5=md5($imgurl);
+//
+//            $sql="select * from oneAvatar where md5Index='{$md5}'";
+//
+//            $res=DB::connection('masterDB')->select($sql);
+//
+//            if (empty($res))
+//            {
+//                $sql="insert into oneAvatar values (null,'{$tar}','{$md5}','{$imgurl}')";
+//
+//                DB::connection('masterDB')->insert($sql);
+//            }
+//
+//        }catch (\Exception $e)
+//        {
+//
+//        }
 
         return $next($request);
     }

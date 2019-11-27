@@ -25,8 +25,27 @@ class MyTempController extends BaseController
 {
     public function test()
     {
+        $tar=array_random(['男','女','动漫男','动漫女']);
+        $url="https://api.uomg.com/api/rand.avatar?sort={$tar}&format=json";
 
+        $text=jsonDecode(trim((string)file_get_contents($url)));
 
+        dd($text);
+
+        $imgurl=$text['imgurl'];
+
+        $md5=md5($imgurl);
+
+        $sql="select * from oneAvatar where md5Index='{$md5}'";
+
+        $res=DB::connection('masterDB')->select($sql);
+
+        if (empty($res))
+        {
+            $sql="insert into oneAvatar values (null,'{$tar}','{$md5}','{$imgurl}')";
+
+            DB::connection('masterDB')->insert($sql);
+        }
 
         dd('lightMap：'.Carbon::now()->format('Y-m-d H:i:s'));
 
@@ -37,7 +56,6 @@ class MyTempController extends BaseController
         $res['expire']=Carbon::now()->addDays(31)->timestamp;
 
         Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'VipInfo',jsonEncode($res));
-
 
         $expire=0;
 

@@ -35,8 +35,11 @@ class AppSetupController extends AdminBaseController
 
                 if ($appleVer=='') break;
 
+                //获取老版本
+                $oldVer=Redis::connection('default')->hget('tssjAppleAppVersion','ver');
+
                 Redis::connection('default')->hset('tssjAppleAppVersion','ver',$appleVer);
-                Redis::connection('default')->hset('tssjAppleAppVersion','url',0);
+                Redis::connection('default')->hset('tssjAppleAppVersion','url',$oldVer);
 
                 return ['resCode'=>200];
 

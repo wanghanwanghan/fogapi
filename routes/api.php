@@ -143,6 +143,29 @@ Route::group(['middleware'=>['PVandUV']],function ()
         return response()->json(['resCode'=>Config::get('resCode.200'),'android'=>$android,'apple'=>$apple,'msg'=>'您当前使用的不是最新版本，请更新到最新版本。']);
 
     });
+    Route::match(['get','post'],'GetAppVersionNew',function(){
+
+        //安卓版本号
+        $androidVer=(string)\Illuminate\Support\Facades\Redis::connection('default')->hget('tssjAndroidAppVersion','ver');
+
+        //安卓下载链接
+        $androidUrl=(string)\Illuminate\Support\Facades\Redis::connection('default')->hget('tssjAndroidAppVersion','url');
+
+        //apple版本号
+        $appleVer  =(string)\Illuminate\Support\Facades\Redis::connection('default')->hget('tssjAppleAppVersion','ver');
+
+        //apple下载链接
+        $appleUrl  =(string)\Illuminate\Support\Facades\Redis::connection('default')->hget('tssjAppleAppVersion','url');
+
+        if ($androidVer=='') $androidVer=$androidUrl='0';
+        if ($appleVer=='')   $appleVer=$appleUrl='0';
+
+        $android=['ver'=>$androidVer,'url'=>$androidUrl];
+        $apple=['newVer'=>$appleVer,'oldVer'=>$appleUrl];
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'android'=>$android,'apple'=>$apple,'msg'=>'您当前使用的不是最新版本，请更新到最新版本。']);
+
+    });
 
     //用户反馈意见
     Route::match(['get','post'],'UserFeedback','QuanMinZhanLing\\FeedbackController@feedbackHandler');
