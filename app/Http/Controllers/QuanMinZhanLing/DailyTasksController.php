@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\Aliance\AlianceGroupModel;
 use App\Model\DailyTasksModel;
 use App\Model\UserTradeInfoModel;
 use Carbon\Carbon;
@@ -173,6 +174,8 @@ class DailyTasksController extends BaseController
     //获取当天的每日任务
     public function getDailyTasks(Request $request)
     {
+        $uid=$request->uid;
+
         //当天第一次请求时间
         $star=time();
 
@@ -191,6 +194,18 @@ class DailyTasksController extends BaseController
             //随机5个
             return array_random($res,5);
         });
+
+        if (is_numeric($uid) && $uid >= 1)
+        {
+            if (AlianceGroupModel::where(['uid'=>$uid,'alianceNum'=>3])->first() != null)
+            {
+                foreach ($dailyTasks as &$one)
+                {
+                    $one['price']=$one['price'] * 2;
+                }
+                unset($one);
+            }
+        }
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$dailyTasks]);
     }

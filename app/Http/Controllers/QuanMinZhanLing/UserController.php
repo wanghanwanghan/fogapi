@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\Aliance\AlianceGroupModel;
 use App\Model\AvatarCheckModel;
 use App\Model\GridInfoModel;
 use App\Model\GridModel;
@@ -89,7 +90,13 @@ class UserController extends BaseController
 
         if (time() - $wallet['lastUpdate'] >= 720)
         {
-            $timeMoney=intval((time() - $wallet['lastUpdate']) / 720);
+            if (AlianceGroupModel::where(['uid'=>$uid,'alianceNum'=>1])->first() != null)
+            {
+                $timeMoney=intval((time() - $wallet['lastUpdate']) / 720) * 2;
+            }else
+            {
+                $timeMoney=intval((time() - $wallet['lastUpdate']) / 720);
+            }
 
             //为这次存入redis做准备
             $wallet['lastUpdate']=time();
@@ -530,7 +537,13 @@ class UserController extends BaseController
             //如果这条记录的belong属于该uid，需要显示收税以后的价格
             if ($val['belong']==$uid && $uid!=0)
             {
-                $val['paymoney']=$gridTradeTax->gridTradeTax('SaleUser',$val['paymoney']);
+                if (AlianceGroupModel::where('uid',$uid)->where('alianceNum','>',0)->first() != null)
+                {
+                    $val['paymoney']=$gridTradeTax->gridTradeTaxAliance('SaleUser',$val['paymoney']);
+                }else
+                {
+                    $val['paymoney']=$gridTradeTax->gridTradeTax('SaleUser',$val['paymoney']);
+                }
             }
         }
         unset($val);
@@ -696,7 +709,13 @@ class UserController extends BaseController
     public function howMuchTaxDidIPay($uid,$target,$money)
     {
         //缴税后的金额
-        $money2=(new GridController())->gridTradeTax($target,$money);
+        if (AlianceGroupModel::where('uid',$uid)->where('alianceNum','>',0)->first() != null)
+        {
+            $money2=(new GridController())->gridTradeTaxAliance($target,$money);
+        }else
+        {
+            $money2=(new GridController())->gridTradeTax($target,$money);
+        }
 
         //不扣税，不记录
         if ($money==$money2) return $money2;
@@ -796,7 +815,87 @@ class UserController extends BaseController
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
 
+    //勋章
+    public function getTssjGridMedal(Request $request)
+    {
+        $uid=$request->uid;
 
+        $count=0;
+        $data=[];
+
+        //地产大亨，购买格子总价值超过xxx
+        for ($i=0;$i<100;$i++)
+        {
+            $mouth=Carbon::now()->subMonths($i)->format('Ym');
+
+            if ($mouth < 201905) break;
+
+            $sql="select sum(paymoney) as paymoney from buy_sale_info_{$mouth} where uid = {$uid}";
+
+            $count+=(int)current(DB::connection('masterDB')->select($sql))->paymoney;
+        }
+
+        $data[]=['title'=>'地产大亨','data'=>$count];
+        $count=0;
+
+        //迟早要还，卖出格子总价值超过xxx
+        for ($i=0;$i<100;$i++)
+        {
+            $mouth=Carbon::now()->subMonths($i)->format('Ym');
+
+            if ($mouth < 201905) break;
+
+            $sql="select sum(paymoney) as paymoney from buy_sale_info_{$mouth} where belong = {$uid}";
+
+            $count+=(int)current(DB::connection('masterDB')->select($sql))->paymoney;
+        }
+
+        $data[]=['title'=>'迟早要还','data'=>(int)($count * 0.92)];
+        $count=0;
+
+        //志在千里，购买格子总次数超过xxx
+        for ($i=0;$i<100;$i++)
+        {
+            $mouth=Carbon::now()->subMonths($i)->format('Ym');
+
+            if ($mouth < 201905) break;
+
+            $sql="select count(*) as paycount from buy_sale_info_{$mouth} where uid = {$uid}";
+
+            $count+=(int)current(DB::connection('masterDB')->select($sql))->paycount;
+        }
+
+        $data[]=['title'=>'志在千里','data'=>$count];
+        $count=0;
+
+        //征战四方，购买不同格子次数超过xxx
+        $sql="select count(*) as gridcount from grid_info where uid = {$uid}";
+
+        $count=(int)current(DB::connection('masterDB')->select($sql))->gridcount;
+
+        $data[]=['title'=>'征战四方','data'=>$count];
+        $count=0;
+
+        //感觉被掏空，卖出格子总次数超过xxx
+        for ($i=0;$i<100;$i++)
+        {
+            $mouth=Carbon::now()->subMonths($i)->format('Ym');
+
+            if ($mouth < 201905) break;
+
+            $sql="select count(*) as salecount from buy_sale_info_{$mouth} where belong = {$uid}";
+
+            $count+=(int)current(DB::connection('masterDB')->select($sql))->salecount;
+        }
+
+        $data[]=['title'=>'感觉被掏空','data'=>$count];
+        $count=0;
+
+        return response()->json([
+            'resCode'=>Config::get('resCode.200'),
+            'data'=>$data
+        ]);
+    }
 
 
 

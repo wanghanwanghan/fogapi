@@ -95,8 +95,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('Wodelu:TrackFogUploadForZUJI8')->everyMinute()->withoutOverlapping();
         $schedule->command('Wodelu:TrackFogUploadForZUJI9')->everyMinute()->withoutOverlapping();
 
-        //计算昨日繁荣度
+        //计算昨日繁荣度 联盟的
         $schedule->command('Aliance:Flourish')->cron('1 0 * * *')->withoutOverlapping();
+        //计算昨日繁荣度 用户的
+        $schedule->command('Aliance:FlourishForUser')->cron('1 0 * * *')->withoutOverlapping();
+
+        //每月第一天计算联盟战绩
+        $schedule->command('Aliance:PKinfo')->cron('30 0 1 */1 *')->withoutOverlapping();
 
 
 

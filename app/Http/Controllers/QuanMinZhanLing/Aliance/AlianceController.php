@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing\Aliance;
 
+use App\Http\Controllers\QuanMinZhanLing\UserController;
 use App\Model\Aliance\AlianceGroupModel;
 use App\Model\Aliance\AnnouncementModel;
 use App\Model\Aliance\InviteModel;
@@ -14,6 +15,28 @@ use Illuminate\Support\Facades\Redis;
 
 class AlianceController extends AlianceBaseController
 {
+    //联盟相关用户信息
+    public function getUserInfoForAliance(Request $request)
+    {
+        $uid=trim($request->uid);
+
+        //用户名 头像
+        $name=Redis::connection('UserInfo')->hget($uid,'name');
+        $avatar=Redis::connection('UserInfo')->hget($uid,'avatar');
+
+        //是否入盟
+        $res=AlianceGroupModel::where('uid',$uid)->where('alianceNum','<>',0)->first();
+
+        $res ? $isJoinAlance=1 : $isJoinAlance=0;
+
+        return response()->json([
+            'resCode'=>Config::get('resCode.200'),
+            'name'=>$name,
+            'avatar'=>$avatar,
+            'isJoinAlance'=>$isJoinAlance
+        ]);
+    }
+
     //是否可以进入联盟
     public function canJoin($uid)
     {
@@ -185,7 +208,7 @@ class AlianceController extends AlianceBaseController
 
                     $keyArr[]=$key;
 
-                    //取200人就退
+                    //取100人就退
                     if (count($keyArr) >= 100) break;
                 }
 
@@ -252,6 +275,7 @@ class AlianceController extends AlianceBaseController
         $this->createTable('alianceGroup');
         $this->createTable('announcement');
         $this->createTable('invite');
+        $this->createTable('flourishForUser');
 
         //判断一下是否可以进了
         //进了联盟，1天之内不能退，退出联盟，3天之内不能进
@@ -270,7 +294,7 @@ class AlianceController extends AlianceBaseController
             AnnouncementModel::create(['alianceNum'=>$alianceNum,'content'=>"恭喜: {$uName} 成功寻找盟友 {$tName}, 双方各得[地球币]200"]);
             AnnouncementModel::create(['alianceNum'=>$alianceNum,'content'=>"{$tName} 加入了联盟"]);
 
-            if (Carbon::now()->format('Ymd') > 20191225)
+            if (Carbon::now()->format('Ymd') > 20201212)
             {
                 Redis::connection('UserInfo')->hincrby($uid,'money',200);
                 Redis::connection('UserInfo')->hincrby($tid,'money',200);
@@ -386,10 +410,408 @@ class AlianceController extends AlianceBaseController
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
     }
 
+    //获取联盟成员
+    public function getAlianceMember(Request $request)
+    {
+        $uid=trim($request->uid);
 
+        $res=AlianceGroupModel::where('uid',$uid)->first();
 
+        //拿到用户的联盟编号
+        $alianceNum=$res->alianceNum;
 
+        //获取这个联盟中所有成员，不包括自己
+        $allMember=AlianceGroupModel::where('alianceNum',$alianceNum)->where('uid','<>',$uid)->get();
 
+        $star=Carbon::now()->startOfMonth()->format('Ymd');
+        $stop=Carbon::now()->endOfMonth()->format('Ymd');
+        $data=[];
+
+        //获取这些人的本月繁荣度，和该uid和他们的关系
+        foreach ($allMember as $one)
+        {
+            //我关注他没
+            Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$one->uid)!=null ? $followerNum=1 : $followerNum=0;
+
+            //他关注我没
+            Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$one->uid)!=null ? $fansNum=2 : $fansNum=0;
+
+            $relation=$followerNum + $fansNum;
+
+            //0：双方都没关注对方
+            //1：我关注他，他没关注我
+            //2：他关注我，我没关注他
+            //3：相互关注
+
+            $name=Redis::connection('UserInfo')->hget($one->uid,'name');
+
+            $avatar=Redis::connection('UserInfo')->hget($one->uid,'avatar');
+
+            //最后拿本月的繁荣度，从flourishForUser表中
+
+            $res=DB::connection($this->db)->table('flourishForUser')
+                ->where('uid',$one->uid)
+                ->whereBetween('date',[$star,$stop])
+                ->select(DB::connection($this->db)->raw('sum(flourish) as flourish'))->get();
+
+            $flourish=(int)current($res)[0]->flourish;
+
+            $data[]=[
+                'avatar'=>$avatar,
+                'name'=>$name,
+                'flourish'=>$flourish,
+                'relation'=>$relation
+            ];
+        }
+
+        //获取该uid繁荣度
+        $res=DB::connection($this->db)->table('flourishForUser')
+            ->where('uid',$uid)
+            ->whereBetween('date',[$star,$stop])
+            ->select(DB::connection($this->db)->raw('sum(flourish) as flourish'))->get();
+
+        $flourish=(int)current($res)[0]->flourish;
+
+        $name=Redis::connection('UserInfo')->hget($uid,'name');
+
+        $avatar=Redis::connection('UserInfo')->hget($uid,'avatar');
+
+        //夺冠次数放redis里得了，懒得链表
+        $winNum=0;
+        for ($i=1;$i<=4;$i++)
+        {
+            $winNum+=(int)Redis::connection('UserInfo')->hget($uid,"AlianceWinOrLose{$i}");
+        }
+
+        $my=[
+            'avatar'=>$avatar,
+            'name'=>$name,
+            'flourish'=>$flourish,
+            'winNum'=>$winNum
+        ];
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'all'=>$data,'my'=>$my]);
+    }
+
+    //关注和取消关注
+    public function follower(Request $request)
+    {
+        $uid=trim($request->uid);
+
+        if (!is_numeric($uid) || $uid <= 0) return response()->json(['resCode'=>Config::get('resCode.601')]);
+
+        $tid=trim($request->tid);
+
+        if (!is_numeric($tid) || $tid <= 0) return response()->json(['resCode'=>Config::get('resCode.601')]);
+
+        //我关注他没
+        if (Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$tid)!=null)
+        {
+            //我关注他了，那么就取消关注
+            Redis::connection('CommunityInfo')->zrem('follower_'.$uid,$tid);
+
+            //他的粉丝集合里也去掉我
+            Redis::connection('CommunityInfo')->zrem('fans_'.$tid,$uid);
+
+        }else
+        {
+            //我没关注他，那么就关注
+            Redis::connection('CommunityInfo')->zadd('follower_'.$uid,time(),$tid);
+
+            //他的粉丝集合里加上我
+            Redis::connection('CommunityInfo')->zadd('fans_'.$tid,time(),$uid);
+        }
+
+        //我关注他没
+        Redis::connection('CommunityInfo')->zscore('follower_'.$uid,$tid)!=null ? $followerNum=1 : $followerNum=0;
+        //他关注我没
+        Redis::connection('CommunityInfo')->zscore('fans_'.$uid,$tid)!=null ? $fansNum=2 : $fansNum=0;
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'relation'=>$followerNum+$fansNum]);
+    }
+
+    //战绩情况
+    public function getMilitaryExploits(Request $request)
+    {
+        $uid=$request->uid;
+
+        $winOrLose=jsonDecode(Redis::connection('UserInfo')->hget($uid,"AlianceWinOrLose"));
+
+        if (!is_array($winOrLose))
+        {
+            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>[]]);
+
+        }else
+        {
+            for ($i=1;$i<=4;$i++)
+            {
+                $count[]=[
+                    'aliance'=>$i,
+                    'count'=>(int)Redis::connection('UserInfo')->hget($uid,"AlianceWinOrLose{$i}")
+                ];
+            }
+
+            $winOrLose=arraySort1($winOrLose,['desc','mouth']);
+
+            foreach ($winOrLose as &$one)
+            {
+                $res=DB::connection($this->db)->table('flourishForUser')
+                    ->whereBetween('date',[$one['mouth'].'00',$one['mouth'].'32'])
+                    ->where('uid',$uid)
+                    ->select(DB::connection($this->db)->raw('sum(flourish) as flourish'))
+                    ->get();
+
+                $one['flourish']=(int)current($res)[0]->flourish;
+            }
+            unset($one);
+        }
+
+        $data=$winOrLose;
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'count'=>$count,'data'=>$data]);
+    }
+
+    //占领概况
+    public function getChartInfo(Request $request)
+    {
+        $uid=$request->uid;
+
+        $type=$request->type;
+
+        switch ($type)
+        {
+            case 1:
+
+                //繁荣度
+
+                //1-4号联盟各个的繁荣度
+
+                $userInAliance=[];
+                $flourishTotal=0;
+
+                $data=[];
+                for ($i=1;$i<=4;$i++)
+                {
+                    $res=AlianceGroupModel::where('alianceNum',$i)->get();
+
+                    if (empty($res))
+                    {
+                        $flourishTotal+=0;
+                        $data[]=['aliance'=>$i,'flourish'=>0];
+                        continue;
+                    }
+
+                    $cond=[];
+                    //组成cond
+                    foreach ($res as $one)
+                    {
+                        $cond[]=$one->uid;
+                        $userInAliance[]=$one->uid;
+                    }
+
+                    $res=GridModel::whereIn('belong',$cond)
+                        ->select(DB::connection('masterDB')->raw('sum(case when price / 30 > 0 then left(price / 30,1) + 1 else 1 end) as flourish'))
+                        ->get();
+
+                    $flourishTotal+=(int)current($res)[0]->flourish;
+                    $data[]=['aliance'=>$i,'flourish'=>(int)current($res)[0]->flourish];
+                }
+
+                //自由人的繁荣度
+                //先找到所有自由人
+                $res=DB::connection('masterDB')->table('grid')->where('belong','>',0)->whereNotIn('belong',$userInAliance)->groupBy('belong')->get(['belong']);
+
+                foreach ($res as $one)
+                {
+                    $freedomUser[]=$one->belong;
+                }
+
+                $res=GridModel::whereIn('belong',$freedomUser)
+                    ->select(DB::connection('masterDB')->raw('sum(case when price / 30 > 0 then left(price / 30,1) + 1 else 1 end) as flourish'))
+                    ->get();
+
+                //自由人的繁荣度
+                $freedomUserFlourish=(int)current($res)[0]->flourish;
+
+                //把自由人的加进去
+                $data[]=['aliance'=>999,'flourish'=>$freedomUserFlourish];
+
+                //总的繁荣度
+                $flourishTotal+=$freedomUserFlourish;
+
+                //做除法
+                foreach ($data as &$one)
+                {
+                    //小数点后2位
+                    $one['percent']=bcdiv($one['flourish'],$flourishTotal,2);
+                }
+                unset($one);
+
+                break;
+
+            case 2:
+
+                //格子数
+
+                //1-4号联盟各个的格子数
+
+                $userInAliance=[];
+                $gridNumTotal=0;
+
+                $data=[];
+                for ($i=1;$i<=4;$i++)
+                {
+                    $res=AlianceGroupModel::where('alianceNum',$i)->get();
+
+                    if (empty($res))
+                    {
+                        $gridNumTotal+=0;
+                        $data[]=['aliance'=>$i,'gridNum'=>0];
+                        continue;
+                    }
+
+                    $cond=[];
+                    //组成cond
+                    foreach ($res as $one)
+                    {
+                        $cond[]=$one->uid;
+                        $userInAliance[]=$one->uid;
+                    }
+
+                    $res=GridModel::whereIn('belong',$cond)
+                        ->select(DB::connection('masterDB')->raw('count(*) as gridNum'))
+                        ->get();
+
+                    $gridNumTotal+=(int)current($res)[0]->gridNum;
+                    $data[]=['aliance'=>$i,'gridNum'=>(int)current($res)[0]->gridNum];
+                }
+
+                //自由人的格子数
+                //先找到所有自由人
+                $res=DB::connection('masterDB')->table('grid')->where('belong','>',0)->whereNotIn('belong',$userInAliance)->groupBy('belong')->get(['belong']);
+
+                foreach ($res as $one)
+                {
+                    $freedomUser[]=$one->belong;
+                }
+
+                $res=GridModel::whereIn('belong',$freedomUser)
+                    ->select(DB::connection('masterDB')->raw('count(*) as gridNum'))
+                    ->get();
+
+                //自由人的繁荣度
+                $freedomUserGridNum=(int)current($res)[0]->gridNum;
+
+                //把自由人的加进去
+                $data[]=['aliance'=>999,'gridNum'=>$freedomUserGridNum];
+
+                //总的格子数
+                $gridNumTotal+=$freedomUserGridNum;
+
+                //做除法
+                foreach ($data as &$one)
+                {
+                    //小数点后2位
+                    $one['percent']=bcdiv($one['gridNum'],$gridNumTotal,2);
+                }
+                unset($one);
+
+                break;
+
+            case 3:
+
+                //格子总价
+
+                //1-4号联盟各个的格子总价
+
+                $userInAliance=[];
+                $gridPriceTotal=0;
+
+                $data=[];
+                for ($i=1;$i<=4;$i++)
+                {
+                    $res=AlianceGroupModel::where('alianceNum',$i)->get();
+
+                    if (empty($res))
+                    {
+                        $gridPriceTotal+=0;
+                        $data[]=['aliance'=>$i,'gridPrice'=>0];
+                        continue;
+                    }
+
+                    $cond=[];
+                    //组成cond
+                    foreach ($res as $one)
+                    {
+                        $cond[]=$one->uid;
+                        $userInAliance[]=$one->uid;
+                    }
+
+                    $res=GridModel::whereIn('belong',$cond)
+                        ->select(DB::connection('masterDB')->raw('sum(price) as gridPrice'))
+                        ->get();
+
+                    $gridPriceTotal+=(int)current($res)[0]->gridPrice;
+                    $data[]=['aliance'=>$i,'gridPrice'=>(int)current($res)[0]->gridPrice];
+                }
+
+                //自由人的格子总价
+                //先找到所有自由人
+                $res=DB::connection('masterDB')->table('grid')->where('belong','>',0)->whereNotIn('belong',$userInAliance)->groupBy('belong')->get(['belong']);
+
+                foreach ($res as $one)
+                {
+                    $freedomUser[]=$one->belong;
+                }
+
+                $res=GridModel::whereIn('belong',$freedomUser)
+                    ->select(DB::connection('masterDB')->raw('sum(price) as gridNum'))
+                    ->get();
+
+                //自由人的繁荣度
+                $freedomUserGridPrice=(int)current($res)[0]->gridNum;
+
+                //把自由人的加进去
+                $data[]=['aliance'=>999,'gridPrice'=>$freedomUserGridPrice];
+
+                //总的格子总价
+                $gridPriceTotal+=$freedomUserGridPrice;
+
+                //做除法
+                foreach ($data as &$one)
+                {
+                    //小数点后2位
+                    $one['percent']=bcdiv($one['gridPrice'],$gridPriceTotal,2);
+                }
+                unset($one);
+
+                break;
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$data]);
+    }
+
+    //aliance=2时候每天领取88地球币
+    public function getAlianceReward(Request $request)
+    {
+        $uid=$request->uid;
+
+        if (is_numeric($uid) && $uid >= 1 && AlianceGroupModel::where(['uid'=>$uid,'alianceNum'=>2])->first() != null)
+        {
+            $res=Redis::connection('UserInfo')->get("Aliance2Reward_{$uid}_".Carbon::now()->format('Ymd'));
+
+            if ($res!=null) return response()->json(['resCode'=>Config::get('resCode.603')]);
+
+            (new UserController())->exprUserMoney($uid,0,88,'+');
+
+            Redis::connection('UserInfo')->set("Aliance2Reward_{$uid}_".Carbon::now()->format('Ymd'),1);
+            Redis::connection('UserInfo')->expire("Aliance2Reward_{$uid}_".Carbon::now()->format('Ymd'),86400);
+
+            return response()->json(['resCode'=>Config::get('resCode.200')]);
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.604')]);
+    }
 
 
 

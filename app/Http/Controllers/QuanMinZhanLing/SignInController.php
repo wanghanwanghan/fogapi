@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\Aliance\AlianceGroupModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -10,6 +11,26 @@ use Illuminate\Support\Facades\Redis;
 class SignInController extends BaseController
 {
     public $key='ContinuousSignIn_';
+
+    public function signMoney(Request $request)
+    {
+        $uid=$request->uid;
+
+        $money=[
+            10,20,60,30,50,80,120
+        ];
+
+        if (AlianceGroupModel::where(['uid'=>$uid,'alianceNum'=>4])->first() != null)
+        {
+            foreach ($money as &$one)
+            {
+                $one=$one * 3.5;
+            }
+            unset($one);
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$money]);
+    }
 
     //用户签到
     public function signIn(Request $request)

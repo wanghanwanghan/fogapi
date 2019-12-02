@@ -30,6 +30,7 @@ class PVandUV
 
         if (is_numeric($uid) && $uid >= 1)
         {
+            //记录最后登陆时间
             Redis::connection('UserInfo')->hset($uid,'lastLogin',time());
         }
 

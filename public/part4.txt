@@ -1,5 +1,54 @@
+领取alianceNum=2的联盟88地球币奖励
 
-获取联盟信息
+任意get post
+http://newfogapi.wodeluapp.com/api/GetAlianceReward
+
+参数
+int    uid=17469        用户主键
+==========================================================================
+占领概况
+
+任意get post
+http://newfogapi.wodeluapp.com/api/GetChartInfo
+
+参数
+int    uid=17469        用户主键
+int    type=1           繁荣度1，格子数2，格子总价3
+==========================================================================
+战绩情况
+
+任意get post
+http://newfogapi.wodeluapp.com/api/GetMilitaryExploits
+
+参数
+int    uid=17469        用户主键
+==========================================================================
+获取联盟相关用户信息
+
+任意get post
+http://newfogapi.wodeluapp.com/api/GetUserInfoForAliance
+
+参数
+int    uid=17469        用户主键
+==========================================================================
+关注和取消关注
+
+任意get post
+http://newfogapi.wodeluapp.com/api/Follower
+
+参数
+int    uid=17469        用户主键
+int    tid=22357        用户主键
+==========================================================================
+获取联盟 成员
+
+任意get post
+http://newfogapi.wodeluapp.com/api/GetAlianceMember
+
+参数
+int    uid=17469        用户主键
+==========================================================================
+获取联盟 信息
 
 任意get post
 http://newfogapi.wodeluapp.com/api/GetAlianceInfoByAlianceId

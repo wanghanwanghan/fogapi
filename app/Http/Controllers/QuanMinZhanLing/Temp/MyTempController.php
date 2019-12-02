@@ -25,6 +25,55 @@ class MyTempController extends BaseController
 {
     public function test()
     {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $uid=18426;
+
+        //买格总花费
+        $key='BuyGridPayMoneyTotal_'.Carbon::now()->format('Ymd');
+
+        $paymoney=0;
+        for ($i=0;$i<=100;$i++)
+        {
+            $mouth=Carbon::now()->subMonths($i)->format('Ym');
+
+            if ($mouth < 201905) break;
+
+            $res=DB::connection('masterDB')->table('buy_sale_info_'.$mouth)
+                ->where('uid',$uid)
+                ->select(DB::connection('masterDB')->raw('sum(paymoney) as paymoney'))->get();
+
+            $tmp=(int)current($res)[0]->paymoney;
+
+            $paymoney+=$tmp;
+        }
+
+        //加入集合
+        Redis::connection('WriteLog')->zadd($key,$paymoney,$uid);
+
+        //取得前200
+        $limit200=Redis::connection('WriteLog')->zrevrange($key,0,199,'withscores');
+
+        //我的排名
+        $myRank=Redis::connection('WriteLog')->zrevrank($key,$uid)+1;
+
+
+        dd($limit200,$myRank);
+
+
         $tar=array_random(['男','女','动漫男','动漫女']);
         $url="https://api.uomg.com/api/rand.avatar?sort={$tar}&format=json";
 

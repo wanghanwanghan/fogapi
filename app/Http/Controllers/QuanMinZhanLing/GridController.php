@@ -109,6 +109,9 @@ class GridController extends BaseController
             //交易保护
             $this->setTradeGuard($name);
 
+            //用户买格子花费的总金额的排行榜用，用来确定都有哪些用户需要统计
+            $this->recodeUserId($uid);
+
         }catch (\Exception $e)
         {
             return response()->json(['resCode'=>Config::get('resCode.608')]);
@@ -596,17 +599,17 @@ class GridController extends BaseController
             //100起征，格子价格在100-1000的收取卖方10%，1001-5000收取20%，5001以上收取30%
             if ($money>5000)
             {
-                return intval($money*0.7);
+                return intval($money*0.7);// 0.76
             }
 
             if ($money>1000)
             {
-                return intval($money*0.8);
+                return intval($money*0.8);// 0.84
             }
 
             if ($money>100)
             {
-                return intval($money*0.9);
+                return intval($money*0.9);// 0.92
             }
         }
 
@@ -618,6 +621,47 @@ class GridController extends BaseController
         }
 
         return $money;
+    }
+
+    //加入联盟后的税
+    public function gridTradeTaxAliance($target,$money)
+    {
+        if ($target=='SaleUser')
+        {
+            //获取一个基数
+            $perInConfig=Config::get('myDefine.'.$target);
+
+            //100起征，格子价格在100-1000的收取卖方10%，1001-5000收取20%，5001以上收取30%
+            if ($money>5000)
+            {
+                return intval($money*0.76);
+            }
+
+            if ($money>1000)
+            {
+                return intval($money*0.84);
+            }
+
+            if ($money>100)
+            {
+                return intval($money*0.92);
+            }
+        }
+
+        if ($target=='BuyUser')
+        {
+            //获取一个基数
+            $perInConfig=Config::get('myDefine.'.$target);
+
+        }
+
+        return $money;
+    }
+
+    //用户买格子花费的总金额的排行榜用，用来确定都有哪些用户需要统计
+    public function recodeUserId($uid)
+    {
+        return true;
     }
 
 }

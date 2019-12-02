@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 
@@ -74,6 +75,62 @@ class RankListController extends BaseController
             case '7':
 
                 return response()->json($this->getFogWeek($uid,$fogArea));
+
+                break;
+
+            //买格总花费
+            case '8':
+
+                //买格总花费
+                $key='BuyGridPayMoneyTotal_'.Carbon::now()->format('Ymd');
+
+                $paymoney=0;
+                for ($i=0;$i<=100;$i++)
+                {
+                    $mouth=Carbon::now()->subMonths($i)->format('Ym');
+
+                    if ($mouth < 201905) break;
+
+                    $res=DB::connection('masterDB')->table('buy_sale_info_'.$mouth)
+                        ->where('uid',$uid)
+                        ->select(DB::connection('masterDB')->raw('sum(paymoney) as paymoney'))->get();
+
+                    $tmp=(int)current($res)[0]->paymoney;
+
+                    $paymoney+=$tmp;
+                }
+
+                //加入集合
+                Redis::connection('WriteLog')->zadd($key,$paymoney,$uid);
+                Redis::connection('WriteLog')->expire($key,86400);
+
+                //取得前200
+                $limit200=Redis::connection('WriteLog')->zrevrange($key,0,199,'withscores');
+
+                //整理数组
+                $i=1;
+                foreach ($limit200 as $k => $v)
+                {
+                    $uName=trim(Redis::connection('UserInfo')->hget($k,'name'));
+                    $uAvatar=trim(Redis::connection('UserInfo')->hget($k,'avatar'));
+
+                    $limit[]=['row'=>$i,'name'=>$uName,'avatar'=>$uAvatar,'payMoneyTotal'=>$v];
+
+                    $i++;
+                }
+
+                //我的排名
+                $myRank=Redis::connection('WriteLog')->zrevrank($key,$uid)+1;
+                $myPayMoneyTotal=Redis::connection('WriteLog')->zscore($key,$uid);
+
+                $my=[
+                    'row'=>$myRank,
+                    'name'=>trim(Redis::connection('UserInfo')->hget($uid,'name')),
+                    'avatar'=>trim(Redis::connection('UserInfo')->hget($uid,'avatar')),
+                    'payMoneyTotal'=>$myPayMoneyTotal
+                ];
+
+                return ['resCode'=>Config::get('resCode.200'),'all'=>$limit,'my'=>$my];
 
                 break;
 

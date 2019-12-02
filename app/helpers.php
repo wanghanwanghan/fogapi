@@ -80,17 +80,6 @@ function filter4($str)
 //二维数组按照某一列排序
 function arraySort1($array,$cond=['desc','id'])
 {
-    //$array=[
-    //    ['name'=>'张1','age'=>'23'],
-    //    ['name'=>'李2','age'=>'64'],
-    //    ['name'=>'王3','age'=>'55'],
-    //    ['name'=>'赵4','age'=>'66'],
-    //    ['name'=>'孙5','age'=>'17']
-    //];
-
-    //SORT_DESC降序，SORT_ASC升序，age排序字段
-    //$sort=['asc/desc','age'];
-
     if ($cond[0]=='asc')
     {
         $cond[0]='SORT_ASC';

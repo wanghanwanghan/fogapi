@@ -33,6 +33,9 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
     });
 
+    //每日签到给多少钱
+    Route::match(['get','post'],'SignMoney','QuanMinZhanLing\\SignInController@signMoney');
+
     //每日签到
     Route::match(['post'],'SignIn','QuanMinZhanLing\\SignInController@signIn');
 
@@ -168,8 +171,10 @@ Route::group(['middleware'=>['PVandUV']],function ()
     });
 
     //用户反馈意见
-    Route::match(['get','post'],'UserFeedback','QuanMinZhanLing\\FeedbackController@feedbackHandler');
+    Route::match(['get','post'],'UserFeedback','QuanMinZhanLing\FeedbackController@feedbackHandler');
 
+    //勋章
+    Route::match(['get','post'],'GetTssjGridMedal','QuanMinZhanLing\UserController@getTssjGridMedal');
 
 
 

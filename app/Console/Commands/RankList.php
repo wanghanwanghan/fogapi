@@ -54,6 +54,11 @@ class RankList extends Command
             //迷雾周排行
             $this->fogWeek();
 
+            //===================20191128之后更新的新排行榜===================
+            //用户买格子花费的总金额
+            $this->payMoneyTotalForBuyGrid();
+
+
         }catch (\Exception $e)
         {
 
@@ -353,6 +358,12 @@ class RankList extends Command
 
     //迷雾周排行
     public function fogWeek()
+    {
+
+    }
+
+    //用户买格子花费的总金额
+    public function payMoneyTotalForBuyGrid()
     {
 
     }
