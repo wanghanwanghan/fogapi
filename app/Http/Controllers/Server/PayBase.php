@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Server;
 
+use App\Events\CreateTssjOrderEvent;
 use App\Events\CreateWodeluOrderEvent;
+use App\Http\Controllers\TanSuoShiJie\AboutUserController;
 use App\Http\Controllers\WoDeLu\TrackUserController;
 use Carbon\Carbon;
 use Ignited\LaravelOmnipay\Facades\OmnipayFacade;
@@ -100,11 +102,40 @@ class PayBase
 
     public function createTable($type)
     {
+        $year=Carbon::now()->year;
+
         switch ($type)
         {
             case 'wodelu':
 
-                $year=Carbon::now()->year;
+                if (!Schema::connection('userOrder')->hasTable($type.$year))
+                {
+                    Schema::connection('userOrder')->create($type.$year, function (Blueprint $table)
+                    {
+                        $table->increments('id')->unsigned()->comment('订单主键');
+                        $table->integer('uid')->unsigned()->comment('用户主键');
+                        $table->string('orderId','50')->comment('订单号uuid');
+                        $table->string('transactionId','50')->nullable()->comment('订单号');
+                        $table->text('receiptData')->nullable()->comment('苹果receiptData');
+                        $table->tinyInteger('productId')->unsigned()->comment('产品编号');
+                        $table->string('productSubject','100')->comment('产品名称');
+                        $table->integer('price')->unsigned()->comment('订单金额');
+                        $table->integer('orderTime')->unsigned()->comment('下单时间');
+                        $table->integer('payTime')->unsigned()->nullable()->comment('异步通知时间');
+                        $table->tinyInteger('status')->unsigned()->comment('订单状态，0未付，1付款完成');
+                        $table->tinyInteger('autoPay')->unsigned()->nullable()->comment('自动订阅状态');
+                        $table->string('plant','10')->comment('ios android');
+                        $table->timestamps();
+                        $table->index(['uid','orderId']);
+                        $table->index(['uid','transactionId']);
+                        $table->index('orderId');
+                        $table->engine='InnoDB';
+                    });
+                }
+
+                break;
+
+            case 'tssj':
 
                 if (!Schema::connection('userOrder')->hasTable($type.$year))
                 {
@@ -351,6 +382,182 @@ class PayBase
     }
 
 
+
+
+
+
+
+
+
+    private function tssjAlipayConfig()
+    {
+        return [
+            // 支付宝分配的 APPID
+            'app_id' => '2021000197692091',
+            // 支付宝异步通知地址
+            'notify_url' => 'http://newfogapi.wodeluapp.com/tssj/alipay/notify',
+            // 支付成功后同步通知地址
+            'return_url' => '',
+            // 阿里公共密钥，验证签名时使用
+            'ali_public_key' => 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtOjdLtvmH8Rs9PhEkoSWe5e0LWyweflkTWCtCTiV8yMXh8NMLGrx4dCIpfj2pyBad7cSKOAlNYaXu4rjkY+EnUFgffsA5XVbQvpFFIAVCALLmSb0z2b0X+Za6ax8Igh8Y8kZo4RS7axsix5mIe1HncVyOY7vGBVOTQxfHBsU9/kch/xvjFKq/b+M/NXOcqgE/PIdfftjvoI9eRNk7OvMy3x1kt11eYhwILZRZ/khtBXWWPMcZ4BvQEDbokWgrWR7aaL2LfpmmBmdafWUXOgmk962PdFH0688W6UcVh7NChQrUyJY7KVq2e0JCfxwiyKm9JLJvDQrtjqgAvLDsLkoLwIDAQAB',
+            // 自己的私钥，签名时使用
+            'private_key' => 'MIIEpAIBAAKCAQEAhLB5b95lKKUaak1BwRsXTjQxyQr0o/X/PKCxOxXwVuzkddi2HH3mvJ4bQVG3UEt27ELbCm7he2uvdLCRHssaM0ha6IQFzVinCnSbQGJVd5qEcRE2b8uOBeRmq8qZgNnY1M4PFu/dyUtbHOf2SAuPjzIdhPqk8OCJlZ5bWLoqgOKxecMWDdm3zW2SBpFIeUBqLs1Au6TTw5nTSV+fmwieLYtqelOg8C11caOhcPhY69tiJHhC15MdNB8di2kZEbVWGCkoWQZzgfJH+kX3C6oajnDebWi6PH+gUnSki7d2Q/kF+aYENoMe7bdpzhtVY6oY99kimRXmyTNPAOPQkryvkQIDAQABAoIBAEBcjXr66ByQAUEg2k09w882OBPpkYLadwTEeVNMr/iqDaMwDB3D4CELm/LSHVYAVN4DC9aCtDK2qDO01Z+XKs1HQnlYWKwjXVsP9qKDUCuksqtZiwstNGWdRUP9EPpUMP4AOYeJsA3M1JQv2+FUYj02NOVk4o7Ii1QcrPhbzPQYztU5WgEHEehpzdVk1k6unpvikRWfpeIFNcpy5ESlkMfY+hjsP2qZhoJRr/iGA5nPczzUy7mio+So3fCfCyqMQt4OfeQ55XuJ1lYMONd4es/cKmBdB5G9XlrA3iWnuwquJeVmogdZDy1b39jtyJcC6tPEbdQmmu9d2a3khtdJggECgYEAvg6TxS17Bd9qIZPyyC4t1nRVEfqkwr5T1wQ9Nu8fMe+Knhj6CP76VrgXBpdm79if+bEVr1lv3BBxEfDeD2gECyQWbJqzWzuFht0CuNeMNlmYUC7F2qHiM/5KI3r4SWoCA8i+HIPNPySE/L6weRs+/49wedTsuYnYkWFK47VivbECgYEAsrpWVuOZPdk04A/mGonEO/IPAFekyd/HA4M108Hfu0OR2/rdCqK7ElMD/WC7OqyxB/0JU8Pbx2gDKWmOZckasDwUw188PALhgluAJkOh63OUap0OOMktr4XaFCKNnF4Q/9O6LRVw1KlGKZnaanhWmOxVKGtZBw9V5oLWjLpuJ+ECgYAppBn+TquwqrWfK8I619tVLGHjMY5d2MOXzab33UZxc3FkmEZYKD2DOIxa9lsoW8cZNxJwO+FFTxjm/GY66+hO5JZBL1fyukTUOqI5C4j9831qvAS/lU5xY9qskWnK8/4DBD2bE8mpdv/oPIN/1VdlOPFE0EEZmbkoiS+WWoyK0QKBgQCrfXXIq1vnZ1l/wGGWhyf+KNVSC8Z3WTuY2DY2uCjXgw8aVwvu35PGEleasE0WEItQ0e84K47fN6MJAlp6ucrc3NlDWUbvggglT2yXyn8770uyPH5f6FDowPMuLLVaGzwObHaQOalos/85fYGAdXUKCIHxZYcn6gQPSO1aXKvDoQKBgQCl9Te27RXodpkLSlRvat8ku6wVYIyzulBFBmhRMefpbzmyl8F9c67v7hVOvatNxORMlSFq+kIKNU3fikdnn3HmnhucoutrXC/89zZsaE+RBa9sGxVba5LX1eLzw8r7lvvJS7A86pY0nbiPVIUhQP/DnLC56lAptyQAm3ypq8ZsUw==',
+            // optional，默认 warning；日志路径为：sys_get_temp_dir().'/logs/yansongda.pay.log'
+            'log' => [
+                'file' => storage_path('logs/alipay.log'),
+                //  'level' => 'debug'
+                //  'type' => 'single', // optional, 可选 daily.
+                //  'max_file' => 30,
+            ],
+            // optional，设置此参数，将进入沙箱模式
+            // 'mode' => 'dev',
+        ];
+    }
+
+    public function choseProductForTssj($productId,$plant='android')
+    {
+        $product=$productId;
+
+        $arr=[
+            '1'=>6,    //300钻石
+            '2'=>30,   //1500钻石
+            '3'=>68,   //3400钻石
+            '4'=>128,  //6400钻石
+            '5'=>258,  //12900钻石
+            '6'=>648,  //32400钻石
+            '7'=>25,   //30天，2400钻石，每天80钻石
+        ];
+
+        $subject=[
+            '1'=>'300钻石',
+            '2'=>'1500钻石',
+            '3'=>'3400钻石',
+            '4'=>'6400钻石',
+            '5'=>'12900钻石',
+            '6'=>'32400钻石',
+            '7'=>'30天，2400钻石，每天80钻石',
+        ];
+
+        //送多少钻石
+        $gift=[
+            '1'=>0,
+            '2'=>66,
+            '3'=>188,
+            '4'=>388,
+            '5'=>888,
+            '6'=>3688,
+            '7'=>0,
+        ];
+
+        if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId],$product,$gift[$productId]];
+
+        return false;
+    }
+
+    //探索世界支付（阿里）
+    public function tssjAlipay(Request $request)
+    {
+        //创建
+        $this->createTable('tssj');
+
+        $uid=$request->uid;
+
+        if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        //安卓还是ios
+        $type=$request->type;
+
+        //需要付款多少钱
+        $price=$this->choseProductForTssj($request->productId,$type);
+
+        if (!$price) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
+        $subject=$price[1];
+
+        //送多少钻石
+        $gift=$price[3];
+
+        //生成订单号
+        $orderId=randomUUID();
+
+        if ($type=='android')
+        {
+            $res = \Yansongda\Pay\Pay::alipay($this->tssjAlipayConfig())->app([
+                'subject' => $subject,
+                'out_trade_no' => $orderId,
+                'total_amount' => sprintf("%.2f",$price[0]),
+            ]);
+
+            event(new CreateTssjOrderEvent([
+                'uid'=>$uid,
+                'price'=>$price[0],
+                'orderTime'=>time(),
+                'orderId'=>$orderId,
+                'subject'=>$subject,
+                'type'=>$type,
+                'productId'=>$request->productId,
+            ]));
+
+            return response()->json(['resCode'=>Config::get('resCode.200'),'str'=>$res->getContent()]);
+
+        }elseif ($type=='ios')
+        {
+
+        }else
+        {
+
+        }
+    }
+
+    //探索世界支付回调（阿里）
+    public function tssjAlipayNotify(Request $request)
+    {
+        $alipay=\Yansongda\Pay\Pay::alipay($this->tssjAlipayConfig());
+
+        try
+        {
+            //data返回的是laravel集合
+            $data=$alipay->verify(); // 是的，验签就这么简单！
+
+            Redis::connection('default')->set('androidAlipayReturn',jsonEncode($data));
+
+            // 请自行对 trade_status 进行判断及其它逻辑进行判断，在支付宝的业务通知中，只有交易通知状态为 TRADE_SUCCESS 或 TRADE_FINISHED 时，支付宝才会认定为买家付款成功。
+            // 1、商户需要验证该通知数据中的out_trade_no是否为商户系统中创建的订单号；
+            // 2、判断total_amount是否确实为该订单的实际金额（即商户订单创建时的金额）；
+            // 3、校验通知中的seller_id（或者seller_email) 是否为out_trade_no这笔单据的对应的操作方（有的时候，一个商户可能有多个seller_id/seller_email）；
+            // 4、验证app_id是否为该商户本身。
+            // 5、其它业务逻辑情况
+
+            //是否支付成功
+            if (!isset($data->trade_status) || $data->trade_status!='TRADE_SUCCESS') return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'fail']);
+
+            //找到找到订单，设置状态
+            $orderId=$data->out_trade_no;
+
+            $suffix=Carbon::now()->year;
+
+            $res=DB::connection('userOrder')->table('tssj'.$suffix)->where('orderId',$orderId)->first();
+
+            //金额不正确
+            if ((int)$res->price!==(int)$data->total_amount) return response()->json(['resCode'=>Config::get('resCode.642'),'status'=>'fail']);
+
+            DB::connection('userOrder')->table('tssj'.$suffix)->where('orderId',$orderId)->update(['transactionId'=>$data->trade_no,'payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
+
+        }catch (\Exception $e)
+        {
+            return response()->json(['resCode'=>Config::get('resCode.643'),'status'=>'fail']);
+        }
+
+        //如果都通过了
+        $uid=$res->uid;
+
+        $productId=(int)$res->productId;
+
+        //加多少钻石
+        (new AboutUserController())->addDiamond($uid,$productId);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>$alipay->success()->send()]);
+    }
 
 
 

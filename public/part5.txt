@@ -1,0 +1,87 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+购买碎片/下架碎片
+
+任意get post
+http://newfogapi.wodeluapp.com/api/BuyPatchOrCancel
+
+参数
+int    uid=17469        用户主键
+int    type=1           1是购买，2是下架
+int    ah=1             拍卖行id
+==========================================================================
+出售碎片
+
+任意get post
+http://newfogapi.wodeluapp.com/api/SaleUserPatch
+
+参数
+int    uid=17469        用户主键
+int    patchName=炸酱面A 碎片名称
+int    type=1           1是卖给拍卖行，2是卖给系统
+
+当type=1的时候才传下面的参数
+
+int    money=1          多少钱出售
+int    diamond=1        多少钻石出售
+int    num=1            出售几个碎片
+int    expire=3         过期时间，几天后
+==========================================================================
+拍卖行
+
+任意get post
+http://newfogapi.wodeluapp.com/api/AuctionHouse
+
+参数
+int    uid=17469        用户主键
+int    type=1           1是全部出售，2是我的出售，3是右上角的出售
+int    page=1           页码
+==========================================================================
+许愿池
+
+任意get post
+http://newfogapi.wodeluapp.com/api/WishPool
+
+参数
+int    uid=17469        用户主键
+int    num=1            许愿次数，1和5
+==========================================================================
+获取用户宝物页
+
+任意get post
+http://newfogapi.wodeluapp.com/api/GetUserTreasure
+
+参数
+int    uid=17469        用户主键
+int    type=地方美食     所属分类
+==========================================================================
+获取用户已经收集到宝物个数
+
+任意get post
+http://newfogapi.wodeluapp.com/api/GetUserTreasureNum
+
+参数
+int    uid=17469        用户主键
+int    type=地方美食     所属分类
+==========================================================================

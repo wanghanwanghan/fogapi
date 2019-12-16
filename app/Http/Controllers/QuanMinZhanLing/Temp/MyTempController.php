@@ -4,6 +4,9 @@ namespace App\Http\Controllers\QuanMinZhanLing\Temp;
 
 use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
+use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapBaseController;
+use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapController;
+use App\Http\Controllers\Server\Base64;
 use App\Http\Controllers\Server\ContentCheckBase;
 use App\Http\Controllers\WoDeLu\TrackFogController;
 use App\Http\Controllers\WoDeLu\TrackUserController;
@@ -14,19 +17,30 @@ use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
+use Overtrue\Pinyin\Pinyin;
 use Qiniu\Auth;
 use Qiniu\Sms\Sms;
+use Vinkla\Hashids\Facades\Hashids;
 use Ysnowflake\SnowflakeFacade;
 
 class MyTempController extends BaseController
 {
     public function test()
     {
+        // Redis::connection('TrackUserInfo')->hset('Track_10083','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
+        // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
+
+        $day=Carbon::parse('2019-12-16 22:30:00');
+
+        $res1=(new Carbon())->diffInDays($day,true);
+        $res2=(new Carbon())->diffInHours($day,true);
 
 
+        dd($res1,$res2);
 
 
 

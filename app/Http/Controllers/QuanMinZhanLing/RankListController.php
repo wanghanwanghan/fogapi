@@ -71,10 +71,10 @@ class RankListController extends BaseController
 
                 break;
 
-            //迷雾周排行
+            //迷雾月排行
             case '7':
 
-                return response()->json($this->getFogWeek($uid,$fogArea));
+                return response()->json($this->getFogMonth($uid,$fogArea));
 
                 break;
 
@@ -83,6 +83,7 @@ class RankListController extends BaseController
 
                 //买格总花费
                 $key='BuyGridPayMoneyTotal_'.Carbon::now()->format('Ymd');
+                $key='BuyGridPayMoneyTotal';
 
                 $paymoney=0;
                 for ($i=0;$i<=100;$i++)
@@ -102,7 +103,7 @@ class RankListController extends BaseController
 
                 //加入集合
                 Redis::connection('WriteLog')->zadd($key,$paymoney,$uid);
-                Redis::connection('WriteLog')->expire($key,86400);
+                // Redis::connection('WriteLog')->expire($key,86400);
 
                 //取得前200
                 $limit200=Redis::connection('WriteLog')->zrevrange($key,0,199,'withscores');
@@ -400,6 +401,75 @@ class RankListController extends BaseController
         Redis::connection('WriteLog')->expireat("GetUserFogWeekRank_{$startOfWeek}_first",Carbon::now()->endOfWeek()->timestamp);
         Redis::connection('WriteLog')->expireat("GetUserFogWeekRank_{$startOfWeek}_more",Carbon::now()->endOfWeek()->timestamp);
         Redis::connection('WriteLog')->expireat("GetUserFogWeekRank",Carbon::now()->endOfWeek()->timestamp);
+
+        return ['resCode'=>Config::get('resCode.200'),'all'=>$all,'my'=>$my];
+    }
+
+    //迷雾月排行
+    public function getFogMonth($uid,$fogArea)
+    {
+        $this->addFogObj($uid);
+
+        //有序集合，返回前200和自己的当前排名
+
+        //当月开始时间
+        $startOfMonth=Carbon::now()->startOfMonth()->format('Ymd');
+
+        if (Redis::connection('WriteLog')->zscore("GetUserFogMonthRank_{$startOfMonth}_first",$uid)===null)
+        {
+            //当月第一次进
+            Redis::connection('WriteLog')->zadd("GetUserFogMonthRank_{$startOfMonth}_first",sprintf("%.2f",0-$fogArea),$uid);
+        }
+
+        //先更改或添加
+        Redis::connection('WriteLog')->zadd("GetUserFogMonthRank_{$startOfMonth}_more",$fogArea,$uid);
+
+        //求并集，分数相加，组成新key
+        Redis::connection('WriteLog')->zunionstore('GetUserFogMonthRank',2,"GetUserFogMonthRank_{$startOfMonth}_first","GetUserFogMonthRank_{$startOfMonth}_more");
+
+        //前200
+        $limit200=Redis::connection('WriteLog')->zrevrange('GetUserFogMonthRank',0,199,'withscores');
+
+        //我的排名
+        $myRank=Redis::connection('WriteLog')->zrevrank('GetUserFogMonthRank',$uid)+1;
+
+        //整理数组
+        $userObj=new UserController();
+
+        $my['row']=$myRank;
+        $a=sprintf("%.2f",Redis::connection('WriteLog')->zscore('GetUserFogMonthRank',$uid));
+        $a < 0 ? $a = 0 : null;
+        $my['fogArea']=sprintf("%.2f",$a);
+        $my['uid']=$uid;
+        $userInfo=$userObj->getUserNameAndAvatar($uid);
+        $my['uName']=$userInfo['name'];
+        $my['uAvatar']=$userInfo['avatar'];
+
+        $num=1;
+        $all=[];
+        foreach ($limit200 as $k=>$v)
+        {
+            $one['row']=$num;
+
+            $v < 0 ? $v = 0 : null;
+
+            $one['fogArea']=sprintf("%.2f",$v);
+            $one['uid']=$k;
+
+            $userInfo=$userObj->getUserNameAndAvatar($k);
+
+            $one['uName']=$userInfo['name'];
+            $one['uAvatar']=$userInfo['avatar'];
+
+            $all[]=$one;
+
+            $num++;
+        }
+
+        //设置过期
+        Redis::connection('WriteLog')->expireat("GetUserFogMonthRank_{$startOfMonth}_first",Carbon::now()->endOfMonth()->timestamp);
+        Redis::connection('WriteLog')->expireat("GetUserFogMonthRank_{$startOfMonth}_more",Carbon::now()->endOfMonth()->timestamp);
+        Redis::connection('WriteLog')->expireat("GetUserFogMonthRank",Carbon::now()->endOfMonth()->timestamp);
 
         return ['resCode'=>Config::get('resCode.200'),'all'=>$all,'my'=>$my];
     }

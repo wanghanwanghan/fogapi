@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\TanSuoShiJie;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Server\PayBase;
 use App\Model\RankListModel;
 use App\Model\Tssj\AssociatedAccountModel;
 use Carbon\Carbon;
@@ -10,6 +11,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 
 class AboutUserController extends Controller
@@ -145,5 +147,89 @@ class AboutUserController extends Controller
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
 
+    //加钻石
+    public function addDiamond($uid,$productId,$plant='android')
+    {
+        $gift=(new PayBase())->choseProductForTssj($productId,$plant);
+        $gift=$gift[3];
+
+        switch ($productId)
+        {
+            case 1:
+
+                //300
+                //送0
+
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',300+$gift);
+
+                break;
+
+            case 2:
+
+                //1500
+                //送66
+
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',1500+$gift);
+
+                break;
+
+            case 3:
+
+                //3400
+                //送188
+
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',3400+$gift);
+
+                break;
+
+            case 4:
+
+                //6400
+                //送388
+
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',6400+$gift);
+
+                break;
+
+            case 5:
+
+                //12900
+                //送888
+
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',12900+$gift);
+
+                break;
+
+            case 6:
+
+                //32400
+                //送3688
+
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',32400+$gift);
+
+                break;
+
+            case 7:
+
+                //每天给80
+                //送0
+                //更新一下最后可以领取日期
+
+                $unixTime=Redis::connection('UserInfo')->hget($uid,'DiamondUntil');
+
+                if (!$unixTime) $unixTime=time();
+
+                //如果$unixTime与现在时间差大于30天，就重新记
+                time() - $unixTime > 86400 * 30 ? $unixTime = time() : null;
+
+                $timeInRedis=Carbon::parse(date('Y-m-d H:i:s',$unixTime))->addDays(30)->endOfDay()->timestamp;
+
+                Redis::connection('UserInfo')->hset($uid,'DiamondUntil',$timeInRedis);
+
+                break;
+        }
+
+        return true;
+    }
 
 }

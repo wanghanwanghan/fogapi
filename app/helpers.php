@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Redis;
@@ -132,6 +133,49 @@ function arraySort2($array)
     $right_arr=arraySort2($right_arr);
 
     return array_merge($left_arr,[$key],$right_arr);
+}
+
+//无限极分类
+function traverseMenu($menus,&$result,$pid=0)
+{
+    //数据样子
+    //$menus = [
+    //    ['id' => 1, 'pid' => 0, 'name' => '商品管理'],
+    //    ['id' => 2, 'pid' => 1, 'name' => '平台自营'],
+    //    ['id' => 3, 'pid' => 2, 'name' => '图书品类'],
+    //    ['id' => 4, 'pid' => 2, 'name' => '3C品类'],
+    //    ['id' => 5, 'pid' => 0, 'name' => '第三方'],
+    //    ['id' => 6, 'pid' => 5, 'name' => '家私用品'],
+    //    ['id' => 7, 'pid' => 5, 'name' => '书法品赏'],
+    //    ['id' => 8, 'pid' => 7, 'name' => '行书'],
+    //    ['id' => 9, 'pid' => 8, 'name' => '行楷'],
+    //    ['id' => 10, 'pid' => 9, 'name' => '张山行楷字帖'],
+    //    ['id' => 11, 'pid' => 22, 'name' => '李四行楷字帖'],
+    //];
+
+    //使用方式
+    //$result = [];
+    //traverseMenu($menus,$result,0);
+    //dd($result);
+
+    foreach ($menus as $child_menu)
+    {
+        if ($child_menu['pid']==$pid)
+        {
+            $item=[
+                'id'=>$child_menu['id'],
+                'name'=>$child_menu['name'],
+                'children'=>[]
+            ];
+
+            traverseMenu($menus,$item['children'],$child_menu['id']);
+
+            $result[]=$item;
+        }else
+        {
+            continue;
+        }
+    }
 }
 
 //encode
@@ -738,9 +782,29 @@ function storeReadyToSourceSqlFile($DB_target,$Table_target)
 }
 
 //多少小时前，多少分钟前
-function formatDate($timestamp)
+function formatDate($timestamp,$type='')
 {
     $todaytimestamp = time();
+
+    if ($type!='')
+    {
+        //几天几小时后到期
+        $target=Carbon::parse(date('Y-m-d H:i:s',$timestamp));
+
+        $day=(new Carbon)->diffInDays($target,true);
+
+        if ($day===0)
+        {
+            $hours=(new Carbon)->diffInHours($target,true);
+
+            return "剩余 0 天 {$hours} 小时";
+        }else
+        {
+            return "剩余 {$day} 天";
+        }
+    }
+
+    //==========================================
 
     if(intval($todaytimestamp-$timestamp) < 3600)
     {
@@ -1060,3 +1124,13 @@ function randomUUID()
     return md5(uniqid(mt_rand(),true));
 }
 
+//redis锁
+function redisLock($key,$lockTime)
+{
+    return Redis::connection('RequestToken')->set($key,1,"nx","ex",$lockTime);
+}
+
+function redisUnlock($key)
+{
+    return Redis::connection('RequestToken')->del($key);
+}

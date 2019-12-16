@@ -129,6 +129,20 @@ return [
             'strict' => false,
             'engine' => null,
         ],
+        'FoodMap' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.236',
+            'port' => '3306',
+            'database' => 'food_map',
+            'username' => 'chinaiiss',
+            'password' => 'chinaiiss',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
         //=============================================================================================================================
         //以下是探索世界用户迷雾点数据库
         'TssjFog0' => [

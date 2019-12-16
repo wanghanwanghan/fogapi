@@ -27,13 +27,13 @@ class AlianceController extends AlianceBaseController
         //是否入盟
         $res=AlianceGroupModel::where('uid',$uid)->where('alianceNum','<>',0)->first();
 
-        $res ? $isJoinAlance=1 : $isJoinAlance=0;
+        $res ? $alianceNum=$res->alianceNum : $alianceNum=0;
 
         return response()->json([
             'resCode'=>Config::get('resCode.200'),
             'name'=>$name,
             'avatar'=>$avatar,
-            'isJoinAlance'=>$isJoinAlance
+            'alianceNum'=>$alianceNum
         ]);
     }
 
@@ -457,6 +457,7 @@ class AlianceController extends AlianceBaseController
             $flourish=(int)current($res)[0]->flourish;
 
             $data[]=[
+                'uid'=>$one->uid,
                 'avatar'=>$avatar,
                 'name'=>$name,
                 'flourish'=>$flourish,
@@ -537,9 +538,24 @@ class AlianceController extends AlianceBaseController
 
         $winOrLose=jsonDecode(Redis::connection('UserInfo')->hget($uid,"AlianceWinOrLose"));
 
+        //$winOrLose[]=['mouth'=>$mouth,'alianceNum'=>$one['alianceNum'],'winOrLose'=>1];
+        if (Carbon::now()->format('Ymd') < 20201212)
+        {
+            $winOrLose=[
+                ['mouth'=>201904,'alianceNum'=>mt_rand(1,4),'winOrLose'=>mt_rand(0,1)],
+                ['mouth'=>201905,'alianceNum'=>mt_rand(1,4),'winOrLose'=>mt_rand(0,1)],
+                ['mouth'=>201906,'alianceNum'=>mt_rand(1,4),'winOrLose'=>mt_rand(0,1)],
+                ['mouth'=>201907,'alianceNum'=>mt_rand(1,4),'winOrLose'=>mt_rand(0,1)],
+                ['mouth'=>201908,'alianceNum'=>mt_rand(1,4),'winOrLose'=>mt_rand(0,1)],
+                ['mouth'=>201909,'alianceNum'=>mt_rand(1,4),'winOrLose'=>mt_rand(0,1)],
+                ['mouth'=>201910,'alianceNum'=>mt_rand(1,4),'winOrLose'=>mt_rand(0,1)],
+                ['mouth'=>201911,'alianceNum'=>mt_rand(1,4),'winOrLose'=>mt_rand(0,1)],
+            ];
+        }
+
         if (!is_array($winOrLose))
         {
-            return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>[]]);
+            return response()->json(['resCode'=>Config::get('resCode.200'),'count'=>[],'data'=>[]]);
 
         }else
         {

@@ -236,7 +236,7 @@ class UserController extends BaseController
     //获取用户钻石
     public function getUserDiamond($uid)
     {
-        return (int)Redis::connection('UserInfo')->hget($uid,'diamond');
+        return (int)Redis::connection('UserInfo')->hget($uid,'Diamond');
     }
 
     //充值成功后增加钻石或者购买东西减少钻石
@@ -244,6 +244,8 @@ class UserController extends BaseController
     {
         if ($expr==='-')
         {
+            Redis::connection('UserInfo')->hincrby($uid,'Diamond',-$diamond);
+
             return true;
         }
 
@@ -835,7 +837,7 @@ class UserController extends BaseController
             $count+=(int)current(DB::connection('masterDB')->select($sql))->paymoney;
         }
 
-        $data[]=['title'=>'地产大亨','data'=>$count];
+        $data[]=['title'=>'地产大亨','data'=>$count,'detail'=>[10000,100000,500000,1000000,3000000]];
         $count=0;
 
         //迟早要还，卖出格子总价值超过xxx
@@ -845,12 +847,12 @@ class UserController extends BaseController
 
             if ($mouth < 201905) break;
 
-            $sql="select sum(paymoney) as paymoney from buy_sale_info_{$mouth} where belong = {$uid}";
+            $sql="SELECT sum(case when paymoney > 5000 then floor(paymoney * 0.7) when paymoney > 1000 then floor(paymoney * 0.8) when paymoney > 100 then floor(paymoney * 0.9) else paymoney end ) as paymoney from buy_sale_info_{$mouth} where belong = {$uid}";
 
             $count+=(int)current(DB::connection('masterDB')->select($sql))->paymoney;
         }
 
-        $data[]=['title'=>'迟早要还','data'=>(int)($count * 0.92)];
+        $data[]=['title'=>'迟早要还','data'=>$count,'detail'=>[10000,100000,500000,1000000,3000000]];
         $count=0;
 
         //志在千里，购买格子总次数超过xxx
@@ -865,7 +867,7 @@ class UserController extends BaseController
             $count+=(int)current(DB::connection('masterDB')->select($sql))->paycount;
         }
 
-        $data[]=['title'=>'志在千里','data'=>$count];
+        $data[]=['title'=>'志在千里','data'=>$count,'detail'=>[50,500,2000,5000,10000]];
         $count=0;
 
         //征战四方，购买不同格子次数超过xxx
@@ -873,7 +875,7 @@ class UserController extends BaseController
 
         $count=(int)current(DB::connection('masterDB')->select($sql))->gridcount;
 
-        $data[]=['title'=>'征战四方','data'=>$count];
+        $data[]=['title'=>'征战四方','data'=>$count,'detail'=>[50,500,2000,5000,10000]];
         $count=0;
 
         //感觉被掏空，卖出格子总次数超过xxx
@@ -888,12 +890,12 @@ class UserController extends BaseController
             $count+=(int)current(DB::connection('masterDB')->select($sql))->salecount;
         }
 
-        $data[]=['title'=>'感觉被掏空','data'=>$count];
+        $data[]=['title'=>'感觉被掏空','data'=>$count,'detail'=>[50,300,1500,3000,5000]];
         $count=0;
 
         return response()->json([
             'resCode'=>Config::get('resCode.200'),
-            'data'=>$data
+            'data'=>$data,
         ]);
     }
 

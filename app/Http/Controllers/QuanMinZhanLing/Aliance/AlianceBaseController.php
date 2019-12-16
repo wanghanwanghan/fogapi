@@ -18,19 +18,19 @@ class AlianceBaseController extends Controller
         $arr=[
             '1'=>['name'=>'风相联盟',
                 'constellation'=>['双子座','天秤座','水瓶座'],
-                'welfare'=>['public'=>'20% 税收减免','private'=>'钱袋增长速度翻倍'],
+                'welfare'=>['publicWelfare'=>'20% 税收减免','privateWelfare'=>'钱袋增长速度翻倍'],
             ],
             '2'=>['name'=>'土相联盟',
                 'constellation'=>['金牛座','处女座','摩羯座'],
-                'welfare'=>['public'=>'20% 税收减免','private'=>'每天给88地球币'],
+                'welfare'=>['publicWelfare'=>'20% 税收减免','privateWelfare'=>'每天给88地球币'],
             ],
             '3'=>['name'=>'水相联盟',
                 'constellation'=>['巨蟹座','天蝎座','双鱼座'],
-                'welfare'=>['public'=>'20% 税收减免','private'=>'每日任务奖励翻倍'],
+                'welfare'=>['publicWelfare'=>'20% 税收减免','privateWelfare'=>'每日任务奖励翻倍'],
             ],
             '4'=>['name'=>'火相联盟',
                 'constellation'=>['白羊座','狮子座','射手座'],
-                'welfare'=>['public'=>'20% 税收减免','private'=>'签到奖励3.5倍'],
+                'welfare'=>['publicWelfare'=>'20% 税收减免','privateWelfare'=>'签到奖励3.5倍'],
             ],
         ];
 

@@ -105,6 +105,11 @@ class Kernel extends ConsoleKernel
 
 
 
+        //每分钟刷拍卖行物品，过期的返回给用户
+        $schedule->command('FoodMap:AuctionHouse')->everyMinute()->withoutOverlapping();
+
+
+
 
         $schedule->command('Tssj:OneJoke')->everyFifteenMinutes()->withoutOverlapping();
     }

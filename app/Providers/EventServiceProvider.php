@@ -27,6 +27,10 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\CreateDataInRedis',
         ],
 
+        'App\Events\CreateTssjOrderEvent' => [
+            'App\Listeners\CreateTssjDataInMysql',
+        ],
+
     ];
 
     /**

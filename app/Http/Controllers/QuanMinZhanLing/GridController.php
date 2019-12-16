@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\QuanMinZhanLing;
 
 use App\Http\Controllers\Server\ContentCheckBase;
+use App\Model\Aliance\AlianceGroupModel;
 use App\Model\GridModel;
 use App\Model\GridTradeInfoModel;
 use App\Model\GridInfoModel;
@@ -296,6 +297,9 @@ class GridController extends BaseController
         $info['price']=$this->nextNeedToPayOrGirdworth($gridInfo);//价格
         $info['gName']=$gridInfo->name;//格子坐标例如w1n1
         $info['belong']=$gridInfo->belong;//所有者uid
+        $alianceNum=AlianceGroupModel::where(['uid'=>$gridInfo->belong])->first();
+        $info['belongAliance']=$alianceNum==null ? 0 : $alianceNum->alianceNum;
+        $info['flourish']=intval($info['price'] / 30 + 1);
         $info['belongName']=$userInfo['name'];//所有者名字
         $info['belongAvatar']=$userInfo['avatar'];//所有者头像
         $info['currentCount']=$this->getBuyLimit($gridInfo->name);//当天交易几次
@@ -308,6 +312,9 @@ class GridController extends BaseController
 
         foreach ($nearUid as $row)
         {
+            $alianceNum=AlianceGroupModel::where(['uid'=>$row->belong])->first();
+            $tmpAliance[$row->name]=$alianceNum==null ? 0 : $alianceNum->alianceNum;
+
             if ($row->belong==0)
             {
                 $one=$uObj->getUserNameAndAvatar($row->belong);
@@ -353,8 +360,9 @@ class GridController extends BaseController
         }
 
         $near=$tmp;
+        $aliance=$tmpAliance;
 
-        return response()->json(['resCode' => Config::get('resCode.200'),'current'=>$info,'near'=>$near]);
+        return response()->json(['resCode' => Config::get('resCode.200'),'current'=>$info,'near'=>$near,'aliance'=>$aliance]);
     }
 
     //this grid show which pic ?
