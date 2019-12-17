@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Overtrue\Pinyin\Pinyin;
 
 class FoodMapController extends FoodMapBaseController
 {
@@ -39,6 +40,19 @@ class FoodMapController extends FoodMapBaseController
 
         //钻石个数
         $diamond=(new UserController())->getUserDiamond($uid);
+
+
+        //获取今日概率提高的是哪个碎片
+        if (!is_numeric($num) || $num=='' || empty($num))
+        {
+            return response()->json([
+                'resCode'=>Config::get('resCode.200'),
+                'wishPoolForFree'=>(int)$wishPoolForFree,
+                'diamondNum'=>Redis::connection('UserInfo')->hget($uid,'Diamond'),
+                'epicPatch'=>(new FoodMapBaseController())->choseEpicPatch(),
+            ]);
+        }
+
 
         if ($num==5 && $diamond >= 300)
         {
@@ -153,12 +167,27 @@ class FoodMapController extends FoodMapBaseController
             $successName[]=$one->subject;
         }
 
+        $my=[];
+
+        $pinyin=new Pinyin();
+
         foreach ($res as $key=>$one)
         {
-            if (in_array(substr($one->patch->subject,0,-1),$successName)) unset($res[$key]);
+            if (in_array(substr($one->patch->subject,0,-1),$successName)) continue;
+
+            $pinyinContent=$pinyin->convert(substr($one->patch->subject,0,-1));
+
+            foreach ($pinyinContent as $k=>$v)
+            {
+                if ($v=='lyu') $pinyinContent[$k]='lv';
+            }
+
+            $tmp=$one->toArray();
+            $tmp['patch']['pinyin']=implode('',$pinyinContent);
+            $my[]=$tmp;
         }
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'my'=>$res,'all'=>$success]);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'my'=>$my,'all'=>$success]);
     }
 
     //拍卖行
@@ -269,36 +298,34 @@ class FoodMapController extends FoodMapBaseController
         return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>$res]);
     }
 
-
-
-
-
-
-
-
-
-
-    public function randomPatch()
+    //根据碎片中文名称换取碎片详细信息
+    public function getPatchInfoByPatchName(Request $request)
     {
-        $sql="select * from patch order by rand() limit 1";
+        $patchName=trim($request->patchName);
 
-        $res=DB::connection($this->db)->select($sql);
+        $res=FoodMapPatchController::getInstance()->getPatchInfo($patchName);
 
-        $res=current($res);
+        if (!$res) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>[]]);
 
-        $sql="select * from userPatch where uid=22357 and pid={$res->id}";
+        $res=$res->toArray();
 
-        $ddd=DB::connection($this->db)->select($sql);
+        $pinyin=(new Pinyin())->convert(substr($res['subject'],0,-1));
 
-        if (empty($ddd))
+        foreach ($pinyin as $key => $value)
         {
-            DB::connection($this->db)->table('userPatch')->insert(['uid'=>22357,'pid'=>$res->id,'num'=>1,'belongType'=>$res->belongType]);
-
-        }else
-        {
-            DB::connection($this->db)->table('userPatch')->where(['uid'=>22357,'pid'=>$res->id])->increment('num');
+            if ($value=='lyu') $pinyin[$key]='lv';
         }
 
-        return $res;
+        $res['pinyin']=implode('',$pinyin);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
     }
+
+
+
+
+
+
+
+
 }

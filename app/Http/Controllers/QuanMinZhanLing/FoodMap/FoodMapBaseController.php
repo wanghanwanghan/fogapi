@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\QuanMinZhanLing\FoodMap;
 
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
+use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +14,26 @@ class FoodMapBaseController extends BaseController
 {
     //已经开放的类别
     public $treasureType=[
-        '地方美食',
+        [
+            'typeName'=>'地方美食',
+            'openMonth'=>[1,5,9],
+            'open'=>1,
+        ],
+        [
+            'typeName'=>'地方景点',
+            'openMonth'=>[2,6,10],
+            'open'=>0,
+        ],
+        [
+            'typeName'=>'地方电影',
+            'openMonth'=>[3,7,11],
+            'open'=>0,
+        ],
+        [
+            'typeName'=>'地方人物',
+            'openMonth'=>[4,8,12],
+            'open'=>0,
+        ],
     ];
 
     public $rate=[
@@ -531,10 +551,26 @@ class FoodMapBaseController extends BaseController
         return true;
     }
 
-    //获取开放了哪些类别
+    //获取现在进行时的类别
     public function getTreasureType()
     {
-        return $this->treasureType;
+        //当月
+        $month=Carbon::now()->format('m');
+
+        $open=[];
+
+        foreach ($this->treasureType as $one)
+        {
+            if ($one['open']!=1) continue;
+
+            if (!in_array($month,$one['openMonth'])) continue;
+
+            $open[]=$one['typeName'];
+        }
+
+        if (empty($open)) $open=['地方美食'];
+
+        return $open;
     }
 
 

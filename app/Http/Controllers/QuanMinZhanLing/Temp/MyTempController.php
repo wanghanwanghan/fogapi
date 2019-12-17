@@ -34,13 +34,17 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_10083','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
+
         $day=Carbon::parse('2019-12-16 22:30:00');
 
         $res1=(new Carbon())->diffInDays($day,true);
         $res2=(new Carbon())->diffInHours($day,true);
 
 
-        dd($res1,$res2);
+        $res=(new FoodMapBaseController())->getTreasureType();
+
+
+        dd($res,$res1,$res2);
 
 
 

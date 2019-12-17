@@ -10,6 +10,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
 
 
+    //根据碎片中文名称换取碎片详细信息
+    Route::match(['get','post'],'GetPatchInfoByPatchName','QuanMinZhanLing\FoodMap\FoodMapController@getPatchInfoByPatchName');
 
     //购买碎片或者下架碎片
     Route::match(['get','post'],'BuyPatchOrCancel','QuanMinZhanLing\FoodMap\FoodMapController@buyPatchOrCancel');

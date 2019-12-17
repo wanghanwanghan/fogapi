@@ -20,7 +20,14 @@
 
 
 
+根据碎片中文名称换取碎片详细信息
 
+任意get post
+http://newfogapi.wodeluapp.com/api/GetPatchInfoByPatchName
+
+参数
+string patchName=炸酱面A 碎片中文名称
+==========================================================================
 购买碎片/下架碎片
 
 任意get post
@@ -65,7 +72,7 @@ http://newfogapi.wodeluapp.com/api/WishPool
 
 参数
 int    uid=17469        用户主键
-int    num=1            许愿次数，1和5
+int    num=1            许愿次数，1和5，不传这个参数是进入许愿池页面时候的数据
 ==========================================================================
 获取用户宝物页
 

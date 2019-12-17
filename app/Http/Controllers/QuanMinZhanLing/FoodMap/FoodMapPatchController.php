@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\QuanMinZhanLing\FoodMap;
 
 use App\Http\Traits\Singleton;
+use App\Model\FoodMap\Patch;
 
 class FoodMapPatchController
 {
@@ -31,6 +32,11 @@ class FoodMapPatchController
         return true;
     }
 
+    //根据碎片中文名称换取碎片详细信息
+    public function getPatchInfo($patchName)
+    {
+        return Patch::where('subject',$patchName)->first();
+    }
 
 
 
