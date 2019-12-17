@@ -356,11 +356,23 @@ class PayBase
     }
 
     //苹果内购时候，验证收据用的
-    public function acurl($receiptData,$sandbox=0)
+    public function acurl($receiptData,$sandbox=0,$app='wodelu')
     {
         //小票信息
-        $POSTFIELDS = ["receipt-data" => $receiptData,'password'=>'8d681df8dd78403fbee2201fc99dc6dd'];
-        $POSTFIELDS = jsonEncode($POSTFIELDS);
+        if ($app=='wodelu')
+        {
+            $POSTFIELDS = ["receipt-data" => $receiptData,'password'=>'8d681df8dd78403fbee2201fc99dc6dd'];
+            $POSTFIELDS = jsonEncode($POSTFIELDS);
+
+        }elseif ($app=='tssj')
+        {
+            $POSTFIELDS = ["receipt-data" => $receiptData,'password'=>'8d681df8dd78403fbee2201fc99dc6dd'];
+            $POSTFIELDS = jsonEncode($POSTFIELDS);
+
+        }else
+        {
+
+        }
 
         //正式购买地址 沙盒购买地址
         $urlBuy = "https://buy.itunes.apple.com/verifyReceipt";
@@ -559,6 +571,89 @@ class PayBase
         return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>$alipay->success()->send()]);
     }
 
+    //探索世界支付回调（苹果内购）
+    public function tssjApplePayNotify(Request $request)
+    {
+        //创建
+        $this->createTable('tssj');
 
+        $receiptData=jsonDecode($request->receiptData);
+
+        if ($receiptData!==null)
+        {
+            $receiptData=$receiptData[0];
+        }else
+        {
+            //这是直接传的，不是json格式
+            $receiptData=$request->receiptData;
+        }
+
+        $uid=$request->uid;
+
+        //给苹果验证
+        $data=$this->acurl($receiptData,1,'tssj');
+
+        $data=jsonDecode($data);
+
+        //* 21000 App Store不能读取你提供的JSON对象
+        //* 21002 receipt-data域的数据有问题
+        //* 21003 receipt无法通过验证
+        //* 21004 提供的shared secret不匹配你账号中的shared secret
+        //* 21005 receipt服务器当前不可用
+        //* 21006 receipt合法，但是订阅已过期。服务器接收到这个状态码时，receipt数据仍然会解码并一起发送
+        //* 21007 receipt是Sandbox receipt，但却发送至生产系统的验证服务
+        //* 21008 receipt是生产receipt，但却发送至Sandbox环境的验证服务
+
+        if (intval($data['status'])!==0)
+        {
+            $data=$this->acurl($receiptData,0,'tssj');
+
+            $data=jsonDecode($data);
+        }
+
+        //支付失败
+        if (intval($data['status'])!==0) return response()->json(['resCode'=>Config::get('resCode.641'),'msg'=>$data]);
+
+        //根据最新的一单transaction_id查询是否处理了
+        isset($data['receipt']['in_app']) ? $in_app=$data['receipt']['in_app'] : $in_app=[];
+
+        if (empty($in_app)) return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'in_app empty']);
+
+        //整理好，取第一个
+        $in_app=current(arraySort1($in_app,['desc','purchase_date_ms']));
+
+        $product_id=$in_app['product_id'];
+        $price=$this->choseProductForTssj($product_id,'ios');
+        $transactionId=$in_app['transaction_id'];
+
+        //查看这个订单是不是处理了
+        $suffix=Carbon::now()->year;
+        $res=DB::connection('userOrder')->table('tssj'.$suffix)->where(['uid'=>$uid,'transactionId'=>$transactionId,'productId'=>$price[2]])->first();
+
+        if ($res) return response()->json(['resCode'=>Config::get('resCode.641'),'status'=>'exist order']);
+
+        $subject=$price[1];
+
+        //生成订单号
+        $orderId=randomUUID();
+
+        event(new CreateTssjOrderEvent([
+            'uid'=>$uid,
+            'price'=>$price[0],
+            'orderTime'=>time(),
+            'orderId'=>$orderId,
+            'subject'=>$subject,
+            'type'=>'ios',
+            'productId'=>$price[2],
+        ]));
+
+        //修改订单状态
+        DB::connection('userOrder')->table('tssj'.$suffix)->where(['uid'=>$uid,'orderId'=>$orderId])->update(['transactionId'=>$transactionId,'payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
+
+        //加多少钻石
+        (new AboutUserController())->addDiamond($uid,$price[2],'ios');
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>'success']);
+    }
 
 }
