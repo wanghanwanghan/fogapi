@@ -6,6 +6,7 @@ use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapBaseController;
 use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapController;
+use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapPatchController;
 use App\Http\Controllers\Server\Base64;
 use App\Http\Controllers\Server\ContentCheckBase;
 use App\Http\Controllers\WoDeLu\TrackFogController;
@@ -44,7 +45,16 @@ class MyTempController extends BaseController
         $res=(new FoodMapBaseController())->getTreasureType();
 
 
-        dd($res,$res1,$res2);
+
+        $res=FoodMapPatchController::getInstance()->getOnePatch(1,'18.345873','-63.67063996');
+
+
+
+        $res=(new Pinyin())->convert('胡辣汤A');
+
+
+
+        dd($res);
 
 
 

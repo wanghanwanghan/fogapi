@@ -10,6 +10,12 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
 
 
+
+
+
+    //有几率得到一个碎片
+    Route::match(['get','post'],'GetOnePatch','QuanMinZhanLing\FoodMap\FoodMapController@getOnePatch');
+
     //根据碎片中文名称换取碎片详细信息
     Route::match(['get','post'],'GetPatchInfoByPatchName','QuanMinZhanLing\FoodMap\FoodMapController@getPatchInfoByPatchName');
 

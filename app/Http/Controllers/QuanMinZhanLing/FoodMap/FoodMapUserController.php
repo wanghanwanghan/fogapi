@@ -5,6 +5,7 @@ namespace App\Http\Controllers\QuanMinZhanLing\FoodMap;
 use App\Http\Traits\Singleton;
 use App\Model\FoodMap\AuctionHouse;
 use App\Model\FoodMap\Patch;
+use App\Model\FoodMap\UserGetPatchByWay;
 use App\Model\FoodMap\UserPatch;
 use App\Model\FoodMap\UserSuccess;
 use Carbon\Carbon;
@@ -228,8 +229,115 @@ class FoodMapUserController
         return true;
     }
 
+    //每天获取的碎片记录到mysql表中
+    public function userGetPatchByWay($uid,$way,$ymd,$num=1)
+    {
+        $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way,'date'=>$ymd])->first();
 
+        if ($res===null)
+        {
+            try
+            {
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$ymd,'num'=>$num]);
 
+            }catch (\Exception $e)
+            {
+                return true;
+            }
+        }
+
+        $sql="update userGetPatchByWay set num=num+{$num} where uid={$uid} and way={$way} and `date`={$ymd}";
+
+        try
+        {
+            DB::connection(self::$db)->update($sql);
+
+        }catch (\Exception $e)
+        {
+            return true;
+        }
+
+        return true;
+    }
+
+    //用户得到哪个碎片
+    public function choseOnePatchGiveUser($uid,$patchBelong)
+    {
+        $patchName=null;
+        $treasureType=$this->getTreasureType();
+
+        //用户的前4个碎片，必定得到一个宝物
+        $res=UserPatch::with('patch')->where('uid',$uid)->limit(5)->get()->toArray();
+
+        if (empty($res))
+        {
+            //第一次获得碎片
+            //通过传进来的$patchBelong，随机一个碎片给
+            $patchArr=Patch::where('belongCity','like',$patchBelong.'%')->whereIn('belongType',$treasureType)->get()->toArray();
+            $patchArr=array_random($patchArr);
+
+            UserPatch::create([
+                'uid'=>$uid,
+                'pid'=>$patchArr['id'],
+                'num'=>1,
+                'belongType'=>$patchArr['belongType'],
+            ]);
+
+            $patchName=$patchArr['subject'];
+
+        }elseif (count($res) < 4)
+        {
+            //第一个宝物进行中
+            //拿到已有宝物碎片的pid，和宝物名称
+            $pid=[];
+            $subject=null;
+            foreach ($res as $one)
+            {
+                if (empty($pid)) $subject=mb_substr($one['patch']['subject'],0,-1);
+                $pid[]=$one['pid'];
+            }
+
+            //然后取出宝物的所有碎片，id不在pid中的
+            $patch=Patch::where('subject','like',$subject.'%')->whereNotIn('id',$pid)->first();
+
+            UserPatch::create([
+                'uid'=>$uid,
+                'pid'=>$patch->id,
+                'num'=>1,
+                'belongType'=>$patch->belongType,
+            ]);
+
+            $patchName=$patch->subject;
+
+        }else
+        {
+            //随意了
+            $quality=['绿'];
+
+            if (time() % 5 === 0) $quality=['绿','蓝'];
+
+            if (time() % 2 === 0)
+            {
+                $patchArr=Patch::whereIn('quality',$quality)->where('belongCity','like',$patchBelong.'%')->whereIn('belongType',$treasureType)->get()->toArray();
+            }else
+            {
+                $patchArr=Patch::whereIn('quality',$quality)->whereIn('belongType',$treasureType)->get()->toArray();
+            }
+
+            $patchArr=array_random($patchArr);
+
+            UserPatch::create([
+                'uid'=>$uid,
+                'pid'=>$patchArr['id'],
+                'num'=>1,
+                'belongType'=>$patchArr['belongType'],
+            ]);
+
+            $patchName=$patchArr['subject'];
+        }
+
+        return $patchName;
+    }
 
 
 

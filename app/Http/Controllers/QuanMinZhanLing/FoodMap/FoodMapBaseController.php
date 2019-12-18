@@ -546,6 +546,27 @@ class FoodMapBaseController extends BaseController
                 }
 
                 break;
+
+            case 'userGetPatchByWay':
+
+                //用户获得碎片途径
+                //今天通过那个途径，获取了几个碎片
+
+                if (!Schema::connection($this->db)->hasTable($type))
+                {
+                    Schema::connection($this->db)->create($type, function (Blueprint $table)
+                    {
+                        $table->integer('uid')->unsigned()->comment('用户主键');
+                        $table->integer('way')->unsigned()->comment('途径编号');
+                        $table->integer('date')->unsigned()->comment('Ymd');
+                        $table->integer('num')->unsigned()->comment('获取个数');
+                        $table->primary(['uid','way','date']);
+                        $table->timestamps();
+                        $table->engine = 'InnoDB';
+                    });
+                }
+
+                break;
         }
 
         return true;

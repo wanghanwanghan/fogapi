@@ -5,7 +5,9 @@ namespace App\Http\Controllers\QuanMinZhanLing\FoodMap;
 use App\Http\Controllers\QuanMinZhanLing\UserController;
 use App\Model\FoodMap\AuctionHouse;
 use App\Model\FoodMap\Patch;
+use App\Model\FoodMap\UserGetPatchByWay;
 use App\Model\FoodMap\UserPatch;
+use App\Model\GridModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -23,6 +25,168 @@ class FoodMapController extends FoodMapBaseController
         $this->createTable('auctionHouse');
 
         return true;
+    }
+
+    //通过经纬度，判断用户得到哪里的碎片
+    public function getOnePatch(Request $request)
+    {
+        $wayArray=FoodMapPatchController::$way;
+
+        $uid=$request->uid;
+        $way=(int)trim($request->type);
+        $lng=$request->lng;
+        $lat=$request->lat;
+
+        $res=FoodMapPatchController::getInstance()->getOnePatchBelong($way,$lng,$lat);
+
+        //得到坐标转后的地理位置，比如 北京上海
+        if ($res===null) return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>[]]);
+
+        $patchBelong=$res;
+
+        // '进app'=>1,//只送一次
+        // '签到'=>2,//每天一次
+        // '每日任务'=>3,//？？？
+        // '领钱袋'=>4,//每天一次
+        // '进入寻宝首页'=>5,//每天一次
+        // '买格子'=>6,//概率给
+        // '许愿池'=>7,//只是记录一下
+        // '交易所'=>8,//只是记录一下
+
+        //判断以上状态，用户本次能不能得到碎片，能得到哪个碎片
+        $patchName=null;
+        $date=Carbon::now()->format('Ymd');
+        switch ($way)
+        {
+            case 1:
+
+                //进入app，只送一次
+                $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way])->first();
+
+                //已经有了
+                if ($res!=null) break;
+
+                //选择一个碎片给用户
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+
+                break;
+
+            case 2:
+
+                //签到，每天一次
+                $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way,'date'=>$date])->first();
+
+                //已经有了
+                if ($res!=null) break;
+
+                //选择一个碎片给用户
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+
+                break;
+
+            case 3:
+
+                //每日任务，？？？
+                $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way,'date'=>$date])->first();
+
+                //已经有了
+                if ($res!=null) break;
+
+                //选择一个碎片给用户
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+
+                break;
+
+            case 4:
+
+                //领钱袋，每天一次
+                $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way,'date'=>$date])->first();
+
+                //已经有了
+                if ($res!=null) break;
+
+                //选择一个碎片给用户
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+
+                break;
+
+            case 5:
+
+                //进入寻宝首页，每天一次
+                $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way,'date'=>$date])->first();
+
+                //已经有了
+                if ($res!=null) break;
+
+                //选择一个碎片给用户
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+
+                break;
+
+            case 6:
+
+                //买格子，有几率给
+                //选择一个碎片给用户
+                $gName=$request->gName;
+
+                //格子价格
+                $price=GridModel::where('gName',$gName)->first()->price;
+
+                //5001以上100%
+                if ($price > 5000) $havePatch=1;
+                //1001-5000区间80%
+                if ($price > 1000 && $price <= 5000) $havePatch=random_int(0,100) < 80 ? 1 : 0;
+                //501-1000区间60%
+                if ($price > 500 && $price <= 1000) $havePatch=random_int(0,100) < 60 ? 1 : 0;
+                //101-500区间40%
+                if ($price > 100 && $price <= 500) $havePatch=random_int(0,100) < 40 ? 1 : 0;
+                //100以下20%
+                if ($price <= 100) $havePatch=random_int(0,100) < 20 ? 1 : 0;
+
+                if (!$havePatch) break;
+
+                //给碎片
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way,'date'=>$date])->first();
+
+                if ($res==null)
+                {
+                    UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+                }else
+                {
+                    $res->num++;
+                    $res->save();
+                }
+
+                break;
+
+            case 7:
+                //这里什么都不做，调用userGetPatchByWay记录
+                break;
+
+            case 8:
+                //这里记录一下就行，调用userGetPatchByWay
+                break;
+        }
+
+        //判断是否得到碎片
+        if ($patchName==null) return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>[]]);
+
+        //合成
+        $new=FoodMapUserController::getInstance()->composeTreasure($uid,$patchName);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>[$new]]);
     }
 
     //许愿池
@@ -48,6 +212,7 @@ class FoodMapController extends FoodMapBaseController
             return response()->json([
                 'resCode'=>Config::get('resCode.200'),
                 'wishPoolForFree'=>(int)$wishPoolForFree,
+                'luckNum'=>(new FoodMapBaseController())->setUid($uid)->getLuckNum(),
                 'diamondNum'=>Redis::connection('UserInfo')->hget($uid,'Diamond'),
                 'epicPatch'=>(new FoodMapBaseController())->choseEpicPatch(),
             ]);
@@ -86,6 +251,7 @@ class FoodMapController extends FoodMapBaseController
         return response()->json([
             'resCode'=>Config::get('resCode.200'),
             'wishPoolForFree'=>(int)$wishPoolForFree,
+            'luckNum'=>(new FoodMapBaseController())->setUid($uid)->getLuckNum(),
             'diamondNum'=>Redis::connection('UserInfo')->hget($uid,'Diamond'),
             'data'=>$res,
             'new'=>$new
@@ -144,7 +310,16 @@ class FoodMapController extends FoodMapBaseController
 
         $type=$this->getTreasureType();
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'type'=>$type,'data'=>$res]);
+        $type=current($type);
+
+        $lastMonthStart=Carbon::now()->addMonth()->startOfMonth();
+
+        $time=(new Carbon)->diffInDays($lastMonthStart,true);
+
+        $tmp['typeName']=$type;
+        $tmp['expire']="剩余 {$time} 天";
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'type'=>$tmp,'data'=>$res]);
     }
 
     //获取用户宝物页
@@ -179,7 +354,14 @@ class FoodMapController extends FoodMapBaseController
 
             foreach ($pinyinContent as $k=>$v)
             {
-                if ($v=='lyu') $pinyinContent[$k]='lv';
+                if ($v=='lyu')
+                {
+                    $pinyinContent[$k]='lv';
+                }else
+                {
+                    $tmp=str_replace('ɑ','a',$v);
+                    $pinyinContent[$k]=$tmp;
+                }
             }
 
             $tmp=$one->toArray();
@@ -313,7 +495,14 @@ class FoodMapController extends FoodMapBaseController
 
         foreach ($pinyin as $key => $value)
         {
-            if ($value=='lyu') $pinyin[$key]='lv';
+            if ($value=='lyu')
+            {
+                $pinyinContent[$key]='lv';
+            }else
+            {
+                $tmp=str_replace('ɑ','a',$value);
+                $pinyinContent[$key]=$tmp;
+            }
         }
 
         $res['pinyin']=implode('',$pinyin);
