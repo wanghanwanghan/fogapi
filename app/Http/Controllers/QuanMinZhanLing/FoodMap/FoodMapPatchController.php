@@ -11,7 +11,7 @@ class FoodMapPatchController
     use Singleton;
 
     public static $way=[
-        '进app'=>1,//只送一次
+        '进app'=>1,//只送三次
         '签到'=>2,//每天一次
         '每日任务'=>3,//？？？
         '领钱袋'=>4,//每天一次

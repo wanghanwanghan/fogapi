@@ -1124,12 +1124,13 @@ function randomUUID()
     return md5(uniqid(mt_rand(),true));
 }
 
-//redis锁
+//redis加锁
 function redisLock($key,$lockTime)
 {
-    return Redis::connection('RequestToken')->set($key,1,"nx","ex",$lockTime);
+    return Redis::connection('RequestToken')->set($key,'Locking...','ex',$lockTime,'nx');
 }
 
+//redis解锁
 function redisUnlock($key)
 {
     return Redis::connection('RequestToken')->del($key);

@@ -64,6 +64,7 @@ http://newfogapi.wodeluapp.com/api/AuctionHouse
 参数
 int    uid=17469        用户主键
 int    type=1           1是全部出售，2是我的出售，3是右上角的出售
+string keyword=烤鸭      搜索关键词，当type=3时传入
 int    page=1           页码
 ==========================================================================
 许愿池

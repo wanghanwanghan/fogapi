@@ -63,11 +63,13 @@ class MyTempController extends BaseController
         unset($one);
 
 
-        return response()->json(['code'=>200,'data'=>$res])->setEncodingOptions(256);
+        //return response()->json(['code'=>200,'data'=>$res])->setEncodingOptions(256);
 
 
+        $res=array_random(['a','b']);
 
-        dd($tmp);
+
+        dd($res);
 
 
 

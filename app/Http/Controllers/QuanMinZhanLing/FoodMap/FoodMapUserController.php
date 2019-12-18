@@ -11,6 +11,7 @@ use App\Model\FoodMap\UserSuccess;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Overtrue\Pinyin\Pinyin;
 
 class FoodMapUserController
 {
@@ -137,7 +138,7 @@ class FoodMapUserController
             $belongType=[$belongType];
         }
 
-        return UserPatch::with('patch')->where('uid',$uid)->whereIn('belongType',$belongType)->get();
+        return UserPatch::with('patch')->where('uid',$uid)->where('num','>',0)->whereIn('belongType',$belongType)->get();
     }
 
     //获取用户所有宝物
@@ -173,7 +174,7 @@ class FoodMapUserController
     }
 
     //拍卖行出售页面
-    public function getAuctionHouseSale($uid,$type,$page)
+    public function getAuctionHouseSale($uid,$type,$seachKeyWord,$page)
     {
         $res=[];
         $limit=10;
@@ -200,11 +201,38 @@ class FoodMapUserController
         }elseif ($type==3)
         {
             //我的全部碎片
-            $res=UserPatch::with('patch')->where('uid',$uid)
-                ->orderBy('num','desc')
-                ->limit($limit)
-                ->offset($offset)
-                ->get()->toArray();
+            //$res=UserPatch::with(['patch'=>function ($query) use ($seachKeyWord){
+            //    $query->where('subject','like',"%{$seachKeyWord}%");
+            //}])->where('uid',$uid)
+            //    ->orderBy('num','desc')
+            //    ->limit($limit)
+            //    ->offset($offset)
+            //    ->get()->toArray();
+
+            $sql=<<<Eof
+select uid,pid,num,up.belongType,id,subject,place,quality,belongCity from userPatch as up left join patch as p on up.pid = p.id where up.uid = {$uid} and up.num > 0 and p.subject like '%{$seachKeyWord}%' order by num desc limit {$offset},{$limit}
+Eof;
+
+            $res=DB::connection(self::$db)->select($sql);
+
+            if (!empty($res))
+            {
+                $pinyin=new Pinyin();
+
+                //整理数组
+                foreach ($res as &$one)
+                {
+                    $tmp=$pinyin->convert(mb_substr($one->subject,0,-1));
+
+                    $tmp=implode('',$tmp);
+
+                    $tmp=str_replace('lyu','lv',$tmp);
+                    $tmp=str_replace('ɑ','a',$tmp);
+
+                    $one->pinyin=$tmp;
+                }
+                unset($one);
+            }
 
         }else
         {
@@ -213,6 +241,8 @@ class FoodMapUserController
 
         foreach ($res as &$one)
         {
+            if (is_object($one)) continue;
+
             $one['userInfo']['name']=Redis::connection('UserInfo')->hget($one['uid'],'name');
             $one['userInfo']['avatar']=Redis::connection('UserInfo')->hget($one['uid'],'avatar');
         }
@@ -364,28 +394,53 @@ class FoodMapUserController
         }else
         {
             //随意了
-            $quality=['绿'];
+            for ($i=1;$i<=95;$i++)
+            {
+                $tmp[]='绿';
+            }
 
-            if (time() % 5 === 0) $quality=['绿','蓝'];
+            for ($i=1;$i<=5;$i++)
+            {
+                $tmp[]='蓝';
+            }
+
+            shuffle($tmp);
+
+            $quality=[array_random($tmp)];
 
             if (time() % 2 === 0)
             {
+                //本地碎片
                 $patchArr=Patch::whereIn('quality',$quality)->where('belongCity','like',$patchBelong.'%')->whereIn('belongType',$treasureType)->get()->toArray();
             }else
             {
+                //全部碎片
                 $patchArr=Patch::whereIn('quality',$quality)->whereIn('belongType',$treasureType)->get()->toArray();
             }
 
-            $patchArr=array_random($patchArr);
+            if (!empty($patchArr))
+            {
+                $patchArr=array_random($patchArr);
 
-            UserPatch::create([
-                'uid'=>$uid,
-                'pid'=>$patchArr['id'],
-                'num'=>1,
-                'belongType'=>$patchArr['belongType'],
-            ]);
+                $tmp=UserPatch::where(['uid'=>$uid,'pid'=>$patchArr['id']])->first();
 
-            $patchName=$patchArr['subject'];
+                if ($tmp==null)
+                {
+                    UserPatch::create([
+                        'uid'=>$uid,
+                        'pid'=>$patchArr['id'],
+                        'num'=>1,
+                        'belongType'=>$patchArr['belongType'],
+                    ]);
+
+                }else
+                {
+                    $tmp->num++;
+                    $tmp->save();
+                }
+
+                $patchName=$patchArr['subject'];
+            }
         }
 
         return $patchName;

@@ -43,7 +43,7 @@ class FoodMapController extends FoodMapBaseController
 
         $patchBelong=$res;
 
-        // '进app'=>1,//只送一次
+        // '进app'=>1,//只送三次
         // '签到'=>2,//每天一次
         // '每日任务'=>3,//？？？
         // '领钱袋'=>4,//每天一次
@@ -59,14 +59,16 @@ class FoodMapController extends FoodMapBaseController
         {
             case 1:
 
-                //进入app，只送一次
+                //进入app，只送三次
                 $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way])->first();
 
                 //已经有了
-                if ($res!=null) break;
+                if ($res!=null && $res->num >= 3) break;
 
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                if ($patchName==null) break;
 
                 UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
 
@@ -83,6 +85,8 @@ class FoodMapController extends FoodMapBaseController
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
 
+                if ($patchName==null) break;
+
                 UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
 
                 break;
@@ -97,6 +101,8 @@ class FoodMapController extends FoodMapBaseController
 
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                if ($patchName==null) break;
 
                 UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
 
@@ -113,6 +119,8 @@ class FoodMapController extends FoodMapBaseController
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
 
+                if ($patchName==null) break;
+
                 UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
 
                 break;
@@ -127,6 +135,8 @@ class FoodMapController extends FoodMapBaseController
 
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                if ($patchName==null) break;
 
                 UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
 
@@ -156,6 +166,8 @@ class FoodMapController extends FoodMapBaseController
 
                 //给碎片
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+
+                if ($patchName==null) break;
 
                 $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way,'date'=>$date])->first();
 
@@ -210,7 +222,7 @@ class FoodMapController extends FoodMapBaseController
         {
             return response()->json([
                 'resCode'=>Config::get('resCode.200'),
-                'wishPoolForFree'=>(int)$wishPoolForFree,
+                'wishPoolForFree'=>(int)$wishPoolForFree > 100 ? 100 : (int)$wishPoolForFree,
                 'luckNum'=>(new FoodMapBaseController())->setUid($uid)->getLuckNum(),
                 'diamondNum'=>Redis::connection('UserInfo')->hget($uid,'Diamond'),
                 'epicPatch'=>(new FoodMapBaseController())->choseEpicPatch(),
@@ -230,8 +242,7 @@ class FoodMapController extends FoodMapBaseController
 
             if ($wishPoolForFree > 0)
             {
-                $wishPoolForFree--;
-                Redis::connection('UserInfo')->set($key,$wishPoolForFree);
+                Redis::connection('UserInfo')->set($key,$wishPoolForFree--);
                 Redis::connection('UserInfo')->expire($key,86400);
 
             }else
@@ -249,7 +260,7 @@ class FoodMapController extends FoodMapBaseController
 
         return response()->json([
             'resCode'=>Config::get('resCode.200'),
-            'wishPoolForFree'=>(int)$wishPoolForFree,
+            'wishPoolForFree'=>(int)$wishPoolForFree > 100 ? 100 : (int)$wishPoolForFree,
             'luckNum'=>(new FoodMapBaseController())->setUid($uid)->getLuckNum(),
             'diamondNum'=>Redis::connection('UserInfo')->hget($uid,'Diamond'),
             'data'=>$res,
@@ -377,6 +388,30 @@ class FoodMapController extends FoodMapBaseController
             $my[]=$tmp;
         }
 
+        //把$success里的宝物，多余的碎片添加进来
+        foreach ($success as &$one)
+        {
+            $pinyinContent=$pinyin->convert($one->subject);
+
+            foreach ($pinyinContent as $k=>$v)
+            {
+                if ($v=='lyu')
+                {
+                    $pinyinContent[$k]='lv';
+                }else
+                {
+                    $pinyinContent[$k]=str_replace('ɑ','a',$v);
+                }
+            }
+
+            $one->pinyin=implode('',$pinyinContent);
+
+            $pidArr=Patch::where('subject','like',$one->subject.'%')->pluck('id')->toArray();
+
+            $one->patch=UserPatch::with('patch')->where('uid',$uid)->whereIn('pid',$pidArr)->get()->toArray();
+        }
+        unset($one);
+
         return response()->json(['resCode'=>Config::get('resCode.200'),'my'=>$my,'all'=>$success]);
     }
 
@@ -385,10 +420,11 @@ class FoodMapController extends FoodMapBaseController
     {
         $uid=$request->uid;
         $type=$request->type;
+        $seachKeyWord=trim($request->keyword);
         $page=(int)$request->page;
         if ($page < 1) $page=1;
 
-        $res=FoodMapUserController::getInstance()->getAuctionHouseSale($uid,$type,$page);
+        $res=FoodMapUserController::getInstance()->getAuctionHouseSale($uid,$type,$seachKeyWord,$page);
 
         //我的剩余钻石
         $diamond=(int)Redis::connection('UserInfo')->hget($uid,'Diamond');
@@ -398,6 +434,13 @@ class FoodMapController extends FoodMapBaseController
 
         foreach ($res as &$one)
         {
+            //type=3过来的数据，都是obj
+            if (is_object($one))
+            {
+                $sort=1;
+                continue;
+            }
+
             if (!isset($one['expireTime']))
             {
                 $sort=1;
@@ -457,13 +500,16 @@ class FoodMapController extends FoodMapBaseController
 
         $ahInfo=AuctionHouse::find($ahId);
 
-        //加锁
-        if (redisLock("buyPatchOrCancel_$buyUid",3)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
-
         if ($type==2)
         {
+            //加锁
+            if (redisLock("buyPatchOrCancel_{$ahId}",10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
+
             //下架
             FoodMapUserController::getInstance()->cancelPatch($ahInfo);
+
+            //解锁
+            redisUnlock("buyPatchOrCancel_{$ahId}");
 
             return response()->json(['resCode'=>Config::get('resCode.200')]);
         }
@@ -476,6 +522,9 @@ class FoodMapController extends FoodMapBaseController
 
         if ($diamond < $ahInfo->diamond) return response()->json(['resCode'=>Config::get('resCode.700')]);
 
+        //加锁
+        if (redisLock("buyPatchOrCancel_{$ahId}",10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
+
         //购买碎片
         $res=FoodMapUserController::getInstance()->buyPatch($buyUid,$ahInfo);
 
@@ -484,6 +533,9 @@ class FoodMapController extends FoodMapBaseController
 
         //删除ah记录
         $ahInfo->delete();
+
+        //解锁
+        redisUnlock("buyPatchOrCancel_{$ahId}");
 
         $way=8;
         $ymd=Carbon::now()->format('Ymd');
@@ -511,11 +563,10 @@ class FoodMapController extends FoodMapBaseController
         {
             if ($value=='lyu')
             {
-                $pinyinContent[$key]='lv';
+                $pinyin[$key]='lv';
             }else
             {
-                $tmp=str_replace('ɑ','a',$value);
-                $pinyinContent[$key]=$tmp;
+                $pinyin[$key]=str_replace('ɑ','a',$value);
             }
         }
 
