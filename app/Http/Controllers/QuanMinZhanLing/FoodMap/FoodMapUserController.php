@@ -56,7 +56,7 @@ class FoodMapUserController
         $count=UserPatch::where('uid',$uid)->whereIn('pid',$patchId)->where('num','>',0)->count();
 
         //没有足够的碎片用来合成，或者已经合成过了，不再合成新的
-        if (UserSuccess::where(['uid'=>$uid,'subject'=>$substr])->first() || $count < 4) return '';
+        if (UserSuccess::where(['uid'=>$uid,'subject'=>$substr])->first() || $count < 4) return [];
 
         //合成
         $id=implode(',',$patchId);
@@ -68,10 +68,62 @@ class FoodMapUserController
         //加宝物
         $res=UserSuccess::create(['uid'=>$uid,'subject'=>$substr,'belongType'=>$pid->belongType]);
 
-        //加地球币
-        Redis::connection('UserInfo')->hincrby($uid,'money',1000);
+        //合成奖励
+        //白：500地球币
+        //绿：1000地球币
+        //蓝：500钻石
+        //紫：1000钻石
+        //橙：3000钻石
+        $this->composeReward($uid,$substr);
 
-        return $res->subject;
+        $res=Patch::where('subject',$res->subject.'A')->first();
+
+        return [
+            'subject'=>mb_substr($res->subject,0,-1),
+            'quality'=>$res->quality,
+            'belongType'=>$res->belongType,
+            'belongCity'=>$res->belongCity,
+        ];
+    }
+
+    //合成奖励
+    private function composeReward($uid,$subject)
+    {
+        //subject是不带字母的名字
+
+        $quality=Patch::where('subject',$subject.'A')->first()->quality;
+
+        //合成奖励
+        //白：500地球币
+        //绿：1000地球币
+        //蓝：500钻石
+        //紫：1000钻石
+        //橙：3000钻石
+
+        switch ($quality)
+        {
+            case '白':
+                Redis::connection('UserInfo')->hincrby($uid,'money',500);
+                break;
+
+            case '绿':
+                Redis::connection('UserInfo')->hincrby($uid,'money',1000);
+                break;
+
+            case '蓝':
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',500);
+                break;
+
+            case '紫':
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',1000);
+                break;
+
+            case '橙':
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',3000);
+                break;
+        }
+
+        return true;
     }
 
     //获取用户所有碎片
@@ -212,7 +264,7 @@ class FoodMapUserController
 
         $res=$this->composeTreasure($buyUid,$patchInfo->subject);
 
-        return $res=='' ? [] : [$res];
+        return empty($res) ? [] : $res;
     }
 
     //下架碎片

@@ -36,6 +36,31 @@ class FoodMapBaseController extends BaseController
         ],
     ];
 
+    //获取现在进行时的类别
+    public function getTreasureType()
+    {
+        //每月只返回一个类别
+        //顺序从上至下
+
+        //当月
+        $month=Carbon::now()->format('m');
+
+        $open=[];
+
+        foreach ($this->treasureType as $one)
+        {
+            if ($one['open']!=1) continue;
+
+            if (!in_array($month,$one['openMonth'])) continue;
+
+            $open[]=$one['typeName'];
+        }
+
+        if (empty($open)) $open=['地方美食'];
+
+        return $open;
+    }
+
     public $rate=[
         'epicPatch'=>4,
         'commonPatch'=>30,
@@ -570,28 +595,6 @@ class FoodMapBaseController extends BaseController
         }
 
         return true;
-    }
-
-    //获取现在进行时的类别
-    public function getTreasureType()
-    {
-        //当月
-        $month=Carbon::now()->format('m');
-
-        $open=[];
-
-        foreach ($this->treasureType as $one)
-        {
-            if ($one['open']!=1) continue;
-
-            if (!in_array($month,$one['openMonth'])) continue;
-
-            $open[]=$one['typeName'];
-        }
-
-        if (empty($open)) $open=['地方美食'];
-
-        return $open;
     }
 
 

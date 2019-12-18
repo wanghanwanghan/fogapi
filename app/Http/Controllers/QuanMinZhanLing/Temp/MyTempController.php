@@ -13,6 +13,7 @@ use App\Http\Controllers\WoDeLu\TrackFogController;
 use App\Http\Controllers\WoDeLu\TrackUserController;
 use App\Model\Community\ArticleModel;
 use App\Model\Community\CommentsModel;
+use App\Model\FoodMap\Patch;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
@@ -45,16 +46,28 @@ class MyTempController extends BaseController
         $res=(new FoodMapBaseController())->getTreasureType();
 
 
+        $pinyin=new Pinyin();
 
-        $res=FoodMapPatchController::getInstance()->getOnePatch(1,'18.345873','-63.67063996');
+        $res=Patch::all()->toArray();
+
+        foreach ($res as &$one)
+        {
+            $one['pinyin']=mb_substr($one['subject'],0,-1);
+
+            $one['pinyin']=$pinyin->convert($one['pinyin'],PINYIN_UMLAUT_V);
+
+            $one['pinyin']=implode('',$one['pinyin']);
+
+            $one['pinyin']=str_replace('ɑ','a',$one['pinyin']);
+        }
+        unset($one);
+
+
+        return response()->json(['code'=>200,'data'=>$res])->setEncodingOptions(256);
 
 
 
-        $res=(new Pinyin())->convert('胡辣汤A');
-
-
-
-        dd($res);
+        dd($tmp);
 
 
 

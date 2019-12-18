@@ -23,6 +23,7 @@ class FoodMapController extends FoodMapBaseController
         $this->createTable('userPatch');
         $this->createTable('userSuccess');
         $this->createTable('auctionHouse');
+        $this->createTable('userGetPatchByWay');
 
         return true;
     }
@@ -30,8 +31,6 @@ class FoodMapController extends FoodMapBaseController
     //通过经纬度，判断用户得到哪里的碎片
     public function getOnePatch(Request $request)
     {
-        $wayArray=FoodMapPatchController::$way;
-
         $uid=$request->uid;
         $way=(int)trim($request->type);
         $lng=$request->lng;
@@ -291,12 +290,21 @@ class FoodMapController extends FoodMapBaseController
             //普通碎片
             if ($arr[0]=='commonPatch' || $arr[0]=='epicPatch')
             {
-                $new[]=FoodMapUserController::getInstance()->composeTreasure($uid,$arr[1]);
+                $wanghan=FoodMapUserController::getInstance()->composeTreasure($uid,$arr[1]);
+
+                if (!empty($wanghan)) $new[]=$wanghan;
+
+                $way=7;
+                $ymd=Carbon::now()->format('Ymd');
+                $num=1;
+
+                FoodMapUserController::getInstance()->userGetPatchByWay($uid,$way,$ymd,$num);
+
                 continue;
             }
         }
 
-        return array_filter($new);
+        return $new;
     }
 
     //获取用户已经收集到宝物个数
@@ -319,7 +327,7 @@ class FoodMapController extends FoodMapBaseController
         $tmp['typeName']=$type;
         $tmp['expire']="剩余 {$time} 天";
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'type'=>$tmp,'data'=>$res]);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'allType'=>(new FoodMapBaseController())->treasureType,'type'=>$tmp,'data'=>$res]);
     }
 
     //获取用户宝物页
@@ -477,7 +485,13 @@ class FoodMapController extends FoodMapBaseController
         //删除ah记录
         $ahInfo->delete();
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>$res]);
+        $way=8;
+        $ymd=Carbon::now()->format('Ymd');
+        $num=$ahInfo->num;
+
+        FoodMapUserController::getInstance()->userGetPatchByWay($buyUid,$way,$ymd,$num);
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>[$res]]);
     }
 
     //根据碎片中文名称换取碎片详细信息
