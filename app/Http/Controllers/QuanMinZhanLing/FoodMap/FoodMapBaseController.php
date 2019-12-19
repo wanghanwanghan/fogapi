@@ -49,9 +49,7 @@ class FoodMapBaseController extends BaseController
 
         foreach ($this->treasureType as $one)
         {
-            if ($one['open']!=1) continue;
-
-            if (!in_array($month,$one['openMonth'])) continue;
+            if ($one['open']!=1 || !in_array($month,$one['openMonth'])) continue;
 
             $open[]=$one['typeName'];
         }
@@ -194,7 +192,9 @@ class FoodMapBaseController extends BaseController
     //获取uid的幸运值
     public function getLuckNum()
     {
-        return (int)Redis::connection('UserInfo')->hget($this->uid,'FoodMapLuckNum') > 10 ? (int)Redis::connection('UserInfo')->hget($this->uid,'FoodMapLuckNum') : 10;
+        $luck=(int)Redis::connection('UserInfo')->hget($this->uid,'FoodMapLuckNum') > 10 ? (int)Redis::connection('UserInfo')->hget($this->uid,'FoodMapLuckNum') : 10;
+
+        return $luck > 100 ? 100 : $luck;
     }
 
     //清空幸运值

@@ -394,11 +394,7 @@ class PayBase
     }
 
 
-
-
-
-
-
+    //  上面是我的路支付   下面是探索世界支付
 
 
     private function tssjAlipayConfig()

@@ -408,14 +408,19 @@ Eof;
 
             $quality=[array_random($tmp)];
 
-            if (time() % 2 === 0)
+            if (time() % 3 != 0)
             {
                 //本地碎片
-                $patchArr=Patch::whereIn('quality',$quality)->where('belongCity','like',$patchBelong.'%')->whereIn('belongType',$treasureType)->get()->toArray();
+                $patchArr=Patch::whereIn('quality',$quality)
+                    ->where('belongCity','like',$patchBelong.'%')
+                    ->whereIn('belongType',$treasureType)
+                    ->get()->toArray();
             }else
             {
                 //全部碎片
-                $patchArr=Patch::whereIn('quality',$quality)->whereIn('belongType',$treasureType)->get()->toArray();
+                $patchArr=Patch::whereIn('quality',$quality)
+                    ->whereIn('belongType',$treasureType)
+                    ->get()->toArray();
             }
 
             if (!empty($patchArr))

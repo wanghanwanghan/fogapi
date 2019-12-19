@@ -61,8 +61,11 @@ class FoodMapController extends FoodMapBaseController
                 //进入app，只送三次
                 $res=UserGetPatchByWay::where(['uid'=>$uid,'way'=>$way])->first();
 
-                //已经有了
+                //已经有三个了
                 if ($res!=null && $res->num >= 3) break;
+
+                //今天已经给过了
+                if ($res!=null && $res->date == $date) break;
 
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
@@ -166,7 +169,7 @@ class FoodMapController extends FoodMapBaseController
                 //101-500区间40%
                 if ($price > 100 && $price <= 500) $havePatch=random_int(1,100) < 40 ? 1 : 0;
                 //100以下20%
-                if ($price <= 100) $havePatch=random_int(0,100) < 20 ? 1 : 0;
+                if ($price <= 100) $havePatch=random_int(1,100) < 20 ? 1 : 0;
 
                 if (!$havePatch) break;
 
@@ -249,7 +252,7 @@ class FoodMapController extends FoodMapBaseController
         {
             return response()->json([
                 'resCode'=>Config::get('resCode.200'),
-                'wishPoolForFree'=>(int)$wishPoolForFree > 100 ? 100 : (int)$wishPoolForFree,
+                'wishPoolForFree'=>(int)$wishPoolForFree,
                 'luckNum'=>(new FoodMapBaseController())->setUid($uid)->getLuckNum(),
                 'diamondNum'=>Redis::connection('UserInfo')->hget($uid,'Diamond'),
                 'epicPatch'=>(new FoodMapBaseController())->choseEpicPatch(),
@@ -287,7 +290,7 @@ class FoodMapController extends FoodMapBaseController
 
         return response()->json([
             'resCode'=>Config::get('resCode.200'),
-            'wishPoolForFree'=>(int)$wishPoolForFree > 100 ? 100 : (int)$wishPoolForFree,
+            'wishPoolForFree'=>(int)$wishPoolForFree,
             'luckNum'=>(new FoodMapBaseController())->setUid($uid)->getLuckNum(),
             'diamondNum'=>Redis::connection('UserInfo')->hget($uid,'Diamond'),
             'data'=>$res,
@@ -555,6 +558,8 @@ class FoodMapController extends FoodMapBaseController
         //购买碎片
         $res=FoodMapUserController::getInstance()->buyPatch($buyUid,$ahInfo);
 
+        empty($res) ? $new=[] : $new=[$res];
+
         //扣钻石
         Redis::connection('UserInfo')->hincrby($buyUid,'Diamond',-$ahInfo->diamond);
 
@@ -570,7 +575,7 @@ class FoodMapController extends FoodMapBaseController
 
         FoodMapUserController::getInstance()->userGetPatchByWay($buyUid,$way,$ymd,$num);
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>[$res]]);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>$new]);
     }
 
     //根据碎片中文名称换取碎片详细信息

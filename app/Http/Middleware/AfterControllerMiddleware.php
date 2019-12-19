@@ -19,4 +19,10 @@ class AfterControllerMiddleware
 
         return $response;
     }
+
+    public function terminate($request, $response)
+    {
+        //善后中间件
+        //响应到达用户后做的事情
+    }
 }

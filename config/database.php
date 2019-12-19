@@ -581,7 +581,7 @@ return [
             'database' => 0,
         ],
 
-        //计算广场热门选择卡
+        //我的路用户信息
         'TrackUserInfo' => [
             'host' => '183.136.232.236',
             'password' => 'wanghan123',
@@ -613,7 +613,7 @@ return [
             'database' => 11,
         ],
 
-        //存用户的金币（hash），购地卡数量
+        //探索世界用户信息
         'UserInfo' => [
             'host' => '183.136.232.236',
             'password' => 'wanghan123',

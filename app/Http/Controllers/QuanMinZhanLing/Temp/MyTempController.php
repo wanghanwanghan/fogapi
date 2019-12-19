@@ -5,29 +5,14 @@ namespace App\Http\Controllers\QuanMinZhanLing\Temp;
 use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapBaseController;
-use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapController;
-use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapPatchController;
-use App\Http\Controllers\Server\Base64;
-use App\Http\Controllers\Server\ContentCheckBase;
-use App\Http\Controllers\WoDeLu\TrackFogController;
-use App\Http\Controllers\WoDeLu\TrackUserController;
-use App\Model\Community\ArticleModel;
-use App\Model\Community\CommentsModel;
-use App\Model\FoodMap\Patch;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
-use Overtrue\Pinyin\Pinyin;
 use Qiniu\Auth;
 use Qiniu\Sms\Sms;
-use Vinkla\Hashids\Facades\Hashids;
-use Ysnowflake\SnowflakeFacade;
 
 class MyTempController extends BaseController
 {
@@ -37,41 +22,9 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
 
-        $day=Carbon::parse('2019-12-16 22:30:00');
-
-        $res1=(new Carbon())->diffInDays($day,true);
-        $res2=(new Carbon())->diffInHours($day,true);
 
 
-        $res=(new FoodMapBaseController())->getTreasureType();
-
-
-        $pinyin=new Pinyin();
-
-        $res=Patch::all()->toArray();
-
-        foreach ($res as &$one)
-        {
-            $one['pinyin']=mb_substr($one['subject'],0,-1);
-
-            $one['pinyin']=$pinyin->convert($one['pinyin'],PINYIN_UMLAUT_V);
-
-            $one['pinyin']=implode('',$one['pinyin']);
-
-            $one['pinyin']=str_replace('ɑ','a',$one['pinyin']);
-        }
-        unset($one);
-
-
-        //return response()->json(['code'=>200,'data'=>$res])->setEncodingOptions(256);
-
-
-        $res=array_random(['a','b']);
-
-        (new FoodMapBaseController())->createTable('userSuccess');
-
-
-        dd($res);
+        dd(123);
 
 
 
