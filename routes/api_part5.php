@@ -35,7 +35,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
     Route::match(['get','post'],'GetUserTreasureNum','QuanMinZhanLing\FoodMap\FoodMapController@getUserTreasureNum');
 
     //获取用户宝物页
-    Route::match(['get','post'],'GetUserTreasure','QuanMinZhanLing\FoodMap\FoodMapController@getUserTreasure');
+    Route::match(['get','post'],'GetUserTreasure','QuanMinZhanLing\FoodMap\FoodMapController@getUserTreasure')->middleware('AfterControllerMiddleware');
 
 
 

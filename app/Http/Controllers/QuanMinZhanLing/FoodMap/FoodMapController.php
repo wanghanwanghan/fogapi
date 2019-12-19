@@ -11,7 +11,6 @@ use App\Model\GridModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Overtrue\Pinyin\Pinyin;
 
@@ -39,7 +38,7 @@ class FoodMapController extends FoodMapBaseController
         $res=FoodMapPatchController::getInstance()->getOnePatchBelong($way,$lng,$lat);
 
         //得到坐标转后的地理位置，比如 北京上海
-        if ($res===null) return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>[]]);
+        if ($res===null) return response()->json(['resCode'=>Config::get('resCode.200'),'patch'=>new \stdClass(),'new'=>[]]);
 
         $patchBelong=$res;
 
@@ -70,7 +69,14 @@ class FoodMapController extends FoodMapBaseController
 
                 if ($patchName==null) break;
 
-                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+                if ($res==null)
+                {
+                    UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+                }else
+                {
+                    $res->num++;
+                    $res->save();
+                }
 
                 break;
 
@@ -154,11 +160,11 @@ class FoodMapController extends FoodMapBaseController
                 //5001以上100%
                 if ($price > 5000) $havePatch=1;
                 //1001-5000区间80%
-                if ($price > 1000 && $price <= 5000) $havePatch=random_int(0,100) < 80 ? 1 : 0;
+                if ($price > 1000 && $price <= 5000) $havePatch=random_int(1,100) < 80 ? 1 : 0;
                 //501-1000区间60%
-                if ($price > 500 && $price <= 1000) $havePatch=random_int(0,100) < 60 ? 1 : 0;
+                if ($price > 500 && $price <= 1000) $havePatch=random_int(1,100) < 60 ? 1 : 0;
                 //101-500区间40%
-                if ($price > 100 && $price <= 500) $havePatch=random_int(0,100) < 40 ? 1 : 0;
+                if ($price > 100 && $price <= 500) $havePatch=random_int(1,100) < 40 ? 1 : 0;
                 //100以下20%
                 if ($price <= 100) $havePatch=random_int(0,100) < 20 ? 1 : 0;
 
@@ -192,12 +198,33 @@ class FoodMapController extends FoodMapBaseController
         }
 
         //判断是否得到碎片
-        if ($patchName==null) return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>[]]);
+        if ($patchName==null) return response()->json(['resCode'=>Config::get('resCode.200'),'patch'=>new \stdClass(),'new'=>[]]);
 
         //合成
         $new=FoodMapUserController::getInstance()->composeTreasure($uid,$patchName);
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'new'=>[$new]]);
+        $patch=Patch::where('subject',$patchName)->get()->toArray();
+
+        $patch=current($patch);
+
+        $pinyinContent=(new Pinyin())->convert(substr($patch['subject'],0,-1));
+
+        foreach ($pinyinContent as $k=>$v)
+        {
+            if ($v=='lyu')
+            {
+                $pinyinContent[$k]='lv';
+            }else
+            {
+                $pinyinContent[$k]=str_replace('ɑ','a',$v);
+            }
+        }
+
+        $patch['pinyin']=implode('',$pinyinContent);
+
+        empty($new) ? $new=[] : $new=[$new];
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'patch'=>$patch,'new'=>$new]);
     }
 
     //许愿池

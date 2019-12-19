@@ -358,12 +358,12 @@ Eof;
             $patchArr=Patch::where('belongCity','like',$patchBelong.'%')->whereIn('belongType',$treasureType)->get()->toArray();
             $patchArr=array_random($patchArr);
 
-            UserPatch::create([
-                'uid'=>$uid,
-                'pid'=>$patchArr['id'],
-                'num'=>1,
-                'belongType'=>$patchArr['belongType'],
-            ]);
+            //UserPatch::create([
+            //    'uid'=>$uid,
+            //    'pid'=>$patchArr['id'],
+            //    'num'=>1,
+            //    'belongType'=>$patchArr['belongType'],
+            //]);
 
             $patchName=$patchArr['subject'];
 
@@ -382,12 +382,12 @@ Eof;
             //然后取出宝物的所有碎片，id不在pid中的
             $patch=Patch::where('subject','like',$subject.'%')->whereNotIn('id',$pid)->first();
 
-            UserPatch::create([
-                'uid'=>$uid,
-                'pid'=>$patch->id,
-                'num'=>1,
-                'belongType'=>$patch->belongType,
-            ]);
+            //UserPatch::create([
+            //    'uid'=>$uid,
+            //    'pid'=>$patch->id,
+            //    'num'=>1,
+            //    'belongType'=>$patch->belongType,
+            //]);
 
             $patchName=$patch->subject;
 
@@ -422,22 +422,22 @@ Eof;
             {
                 $patchArr=array_random($patchArr);
 
-                $tmp=UserPatch::where(['uid'=>$uid,'pid'=>$patchArr['id']])->first();
+                //$tmp=UserPatch::where(['uid'=>$uid,'pid'=>$patchArr['id']])->first();
 
-                if ($tmp==null)
-                {
-                    UserPatch::create([
-                        'uid'=>$uid,
-                        'pid'=>$patchArr['id'],
-                        'num'=>1,
-                        'belongType'=>$patchArr['belongType'],
-                    ]);
+                //if ($tmp==null)
+                //{
+                    //UserPatch::create([
+                    //    'uid'=>$uid,
+                    //    'pid'=>$patchArr['id'],
+                    //    'num'=>1,
+                    //    'belongType'=>$patchArr['belongType'],
+                    //]);
 
-                }else
-                {
-                    $tmp->num++;
-                    $tmp->save();
-                }
+                //}else
+                //{
+                    //$tmp->num++;
+                    //$tmp->save();
+                //}
 
                 $patchName=$patchArr['subject'];
             }

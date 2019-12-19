@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\AdminLogin;
+use App\Http\Middleware\AfterControllerMiddleware;
 use App\Http\Middleware\CheckRequestToken;
 use App\Http\Middleware\init;
 use App\Http\Middleware\PVandUV;
@@ -71,5 +72,6 @@ class Kernel extends HttpKernel
         'AdminLogin'=>AdminLogin::class,
         'PVandUV'=>PVandUV::class,
         'CheckRequestToken'=>CheckRequestToken::class,
+        'AfterControllerMiddleware'=>AfterControllerMiddleware::class,
     ];
 }

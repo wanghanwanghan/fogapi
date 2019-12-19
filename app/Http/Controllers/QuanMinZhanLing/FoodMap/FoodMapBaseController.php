@@ -542,6 +542,7 @@ class FoodMapBaseController extends BaseController
                         $table->integer('uid')->unsigned()->comment('用户主键')->index();
                         $table->string('subject','50')->comment('菜名');
                         $table->string('belongType','50')->comment('所属类别');
+                        $table->tinyInteger('isShow')->unsigned()->default(0)->comment('是否已展示');
                         $table->timestamps();
                         $table->engine = 'InnoDB';
                     });

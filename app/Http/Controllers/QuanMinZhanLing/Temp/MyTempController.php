@@ -68,6 +68,8 @@ class MyTempController extends BaseController
 
         $res=array_random(['a','b']);
 
+        (new FoodMapBaseController())->createTable('userSuccess');
+
 
         dd($res);
 
