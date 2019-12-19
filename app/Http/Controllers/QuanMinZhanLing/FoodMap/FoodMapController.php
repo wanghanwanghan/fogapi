@@ -16,17 +16,6 @@ use Overtrue\Pinyin\Pinyin;
 
 class FoodMapController extends FoodMapBaseController
 {
-    public function init()
-    {
-        $this->createTable('patch');
-        $this->createTable('userPatch');
-        $this->createTable('userSuccess');
-        $this->createTable('auctionHouse');
-        $this->createTable('userGetPatchByWay');
-
-        return true;
-    }
-
     //通过经纬度，判断用户得到哪里的碎片
     public function getOnePatch(Request $request)
     {
