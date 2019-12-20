@@ -597,8 +597,80 @@ class FoodMapController extends FoodMapBaseController
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
     }
 
+    //充值页面
+    public function getPayPage(Request $request)
+    {
+        $uid=$request->uid;
 
+        $money=(int)Redis::connection('UserInfo')->hget($uid,'money');
 
+        $diamond=(int)Redis::connection('UserInfo')->hget($uid,'Diamond');
+
+        $unixTime=(int)Redis::connection('UserInfo')->hget($uid,'DiamondUntil');
+
+        if (!$unixTime) $unixTime=time();
+
+        $expireDate=formatDate($unixTime,'date');
+
+        return response()->json([
+            'resCode'=>Config::get('resCode.200'),
+            'money'=>$money,
+            'diamond'=>$diamond,
+            'expireDate'=>$expireDate
+        ]);
+    }
+
+    //每天领取钻石
+    public function getDiamondEveryday(Request $request)
+    {
+        $uid=$request->uid;
+
+        //如果没领，就自动领了
+
+        $unixTime=(int)Redis::connection('UserInfo')->hget($uid,'DiamondUntil');
+
+        if (!$unixTime)
+        {
+            //不含有时间，压根不是月卡会员
+            $status=0;
+
+        }else
+        {
+            //是会员，先判断到没到期
+            if ($unixTime < time())
+            {
+                //过期了
+                $status=0;
+
+            }else
+            {
+                //看看今天领没领
+                $date=Carbon::now()->format('Ymd');
+
+                $check=(int)Redis::connection('UserInfo')->get("getDiamondEveryday_{$date}_{$uid}");
+
+                if ($check===1)
+                {
+                    //已经领取了
+                    $status=0;
+                }else
+                {
+                    //今天还没领取
+                    (new UserController())->exprUserDiamond($uid,80);
+
+                    Redis::connection('UserInfo')->set("getDiamondEveryday_{$date}_{$uid}",1);
+                    Redis::connection('UserInfo')->expire("getDiamondEveryday_{$date}_{$uid}",86400);
+
+                    $status=1;
+                }
+            }
+        }
+
+        return response()->json([
+            'resCode'=>Config::get('resCode.200'),
+            'data'=>$status
+        ]);
+    }
 
 
 

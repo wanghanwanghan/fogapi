@@ -53,7 +53,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
         $diamond=$user->getUserDiamond(trim($request->uid));
 
-        return response()->json(['resCode'=>Config::get('resCode.200'),'money'=>$money,'card'=>$card]);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'money'=>$money,'card'=>$card,'diamond'=>$diamond]);
 
     });
 

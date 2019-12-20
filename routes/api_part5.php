@@ -37,6 +37,12 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //获取用户宝物页
     Route::match(['get','post'],'GetUserTreasure','QuanMinZhanLing\FoodMap\FoodMapController@getUserTreasure')->middleware('AfterControllerMiddleware');
 
+    //充值页面
+    Route::match(['get','post'],'GetPayPage','QuanMinZhanLing\FoodMap\FoodMapController@getPayPage');
+
+    //每天领取80钻石
+    Route::match(['get','post'],'GetDiamondEveryday','QuanMinZhanLing\FoodMap\FoodMapController@getDiamondEveryday');
+
 
 
 

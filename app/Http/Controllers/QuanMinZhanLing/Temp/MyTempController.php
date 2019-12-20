@@ -9,6 +9,7 @@ use App\Http\Controllers\Server\PayBase;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,26 +23,22 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_10083','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
+        //高德查询
+        $lng=sprintf("%.5f",116.46);
 
+        $lat=sprintf("%.5f",39.92);
 
-        $arr=[
-            'com.wodelu.fogMap6RMB300Z',
-            'com.wodelu.fogMap30RMB1500Z',
-            'com.wodelu.fogMap68RMB3400Zs',
-            'com.wodelu.fogMap128RMB6400Z',
-            'com.wodelu.fogMap258RMB12900Z',
-            'com.wodelu.fogMap648RMB32400Z',
-            'com.wodelu.fogMap25RMBDAY80Z',
-        ];
+        $url=Config::get('myDefine.AmapUrl');
 
-        foreach ($arr as $one)
-        {
-            dump((new PayBase())->choseProductForTssj($one,'ios'));
-        }
+        $key=array_random(Config::get('myDefine.AmapKey'));
 
+        $fullUrl=$url.'?'.'key='.$key.'&location='.$lng.','.$lat;
 
+        $res=file_get_contents($fullUrl);
 
-        dd('wanghan',123);
+        $res=jsonDecode($res);
+
+        dd($res);
 
 
 

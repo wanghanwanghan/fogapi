@@ -1,9 +1,23 @@
+每天领取80钻石
+任意get post
+http://newfogapi.wodeluapp.com/api/GetDiamondEveryday
+
+参数
+int    uid=17469        用户主键
+==========================================================================
+充值页面
+任意get post
+http://newfogapi.wodeluapp.com/api/GetPayPage
+
+参数
+int    uid=17469        用户主键
+==========================================================================
 有几率得到一个碎片
 任意get post
 http://newfogapi.wodeluapp.com/api/GetOnePatch
 
 参数
-int    uid=17469        碎片中文名称
+int    uid=17469        用户主键
 int    type=1           1是进入app，2是签到成功，3是每日任务，4是领钱袋，5是进入寻宝首页，6是买格子
 string gName=n2e1       如果type是6，就把这个格子编号传过来
 string lng=123.123123   经纬度
