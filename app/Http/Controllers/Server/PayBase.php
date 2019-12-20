@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Server;
 
 use App\Events\CreateTssjOrderEvent;
 use App\Events\CreateWodeluOrderEvent;
+use App\Http\Controllers\QuanMinZhanLing\UserController;
 use App\Http\Controllers\TanSuoShiJie\AboutUserController;
 use App\Http\Controllers\WoDeLu\TrackUserController;
 use Carbon\Carbon;
@@ -366,7 +367,7 @@ class PayBase
 
         }elseif ($app=='tssj')
         {
-            $POSTFIELDS = ["receipt-data" => $receiptData,'password'=>'8d681df8dd78403fbee2201fc99dc6dd'];
+            $POSTFIELDS = ["receipt-data" => $receiptData,'password'=>'8b8d1b9679d44232b9f84a45e1b996a1'];
             $POSTFIELDS = jsonEncode($POSTFIELDS);
 
         }else
@@ -457,7 +458,42 @@ class PayBase
             '7'=>0,
         ];
 
-        if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId],$product,$gift[$productId]];
+        if ($plant==='ios')
+        {
+            $arr=[
+                'com.wodelu.fogMap6RMB300Z'=>6,   //300钻石
+                'com.wodelu.fogMap30RMB1500Z'=>30, //1500钻石
+                'com.wodelu.fogMap68RMB3400Zs'=>68,     //3400钻石
+                'com.wodelu.fogMap128RMB6400Z'=>128,          //6400钻石
+                'com.wodelu.fogMap258RMB12900Z'=>258,          //12900钻石
+                'com.wodelu.fogMap648RMB32400Z'=>648,          //32400钻石
+                'com.wodelu.fogMap25RMBDAY80Z'=>25,           //30天，2400钻石，每天80钻石
+            ];
+
+            $subject=[
+                'com.wodelu.fogMap6RMB300Z'=>'300钻石',
+                'com.wodelu.fogMap30RMB1500Z'=>'1500钻石',
+                'com.wodelu.fogMap68RMB3400Zs'=>'3400钻石',
+                'com.wodelu.fogMap128RMB6400Z'=>'6400钻石',
+                'com.wodelu.fogMap258RMB12900Z'=>'12900钻石',
+                'com.wodelu.fogMap648RMB32400Z'=>'32400钻石',
+                'com.wodelu.fogMap25RMBDAY80Z'=>'钻石月卡',
+            ];
+
+            $productIdArr=[
+                'com.wodelu.fogMap6RMB300Z'=>1,
+                'com.wodelu.fogMap30RMB1500Z'=>2,
+                'com.wodelu.fogMap68RMB3400Zs'=>3,
+                'com.wodelu.fogMap128RMB6400Z'=>4,
+                'com.wodelu.fogMap258RMB12900Z'=>5,
+                'com.wodelu.fogMap648RMB32400Z'=>6,
+                'com.wodelu.fogMap25RMBDAY80Z'=>7,
+            ];
+
+            $product=$productIdArr[$productId];
+        }
+
+        if (isset($arr[$productId])) return [$arr[$productId],$subject[$productId],$product,$gift[$product]];
 
         return false;
     }
@@ -562,7 +598,7 @@ class PayBase
         $productId=(int)$res->productId;
 
         //加多少钻石
-        (new AboutUserController())->addDiamond($uid,$productId);
+        (new UserController())->exprUserDiamond($uid,$productId,'+');
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>$alipay->success()->send()]);
     }
@@ -647,7 +683,7 @@ class PayBase
         DB::connection('userOrder')->table('tssj'.$suffix)->where(['uid'=>$uid,'orderId'=>$orderId])->update(['transactionId'=>$transactionId,'payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
 
         //加多少钻石
-        (new AboutUserController())->addDiamond($uid,$price[2],'ios');
+        (new UserController())->exprUserDiamond($uid,$price[2],'+');
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>'success']);
     }

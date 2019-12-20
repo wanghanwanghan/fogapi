@@ -36,12 +36,12 @@ http://newfogapi.wodeluapp.com/api/SaleUserPatch
 int    uid=17469        用户主键
 int    patchName=炸酱面A 碎片名称
 int    type=1           1是卖给拍卖行，2是卖给系统
+int    num=1            出售几个碎片
 
 当type=1的时候才传下面的参数
 
 int    money=1          多少钱出售
 int    diamond=1        多少钻石出售
-int    num=1            出售几个碎片
 int    expire=3         过期时间，几天后
 ==========================================================================
 拍卖行

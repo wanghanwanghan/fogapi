@@ -258,12 +258,12 @@ Eof;
 
         //拍卖行中创建一条记录
         $arr=[
-            'uid'=>$request->uid,
-            'pid'=>$patchInfo->id,
-            'expireTime'=>$expireTime,
-            'money'=>$request->money,
-            'diamond'=>$request->diamond,
-            'num'=>$request->num,
+            'uid'=>(int)$request->uid,
+            'pid'=>(int)$patchInfo->id,
+            'expireTime'=>(int)$expireTime,
+            'money'=>(int)$request->money,
+            'diamond'=>(int)$request->diamond,
+            'num'=>(int)$request->num,
         ];
 
         AuctionHouse::create($arr);

@@ -399,7 +399,10 @@ class FoodMapBaseController extends BaseController
 
         $sql="select * from patch where quality in ('蓝') and belongType in ({$belongType}) order by rand({$date}) limit 1";
 
-        $res=DB::connection($this->db)->select($sql);
+        $res=Cache::remember('choseEpicPatch',60,function () use ($sql)
+        {
+            return DB::connection($this->db)->select($sql);
+        });
 
         return current($res)->subject;
     }

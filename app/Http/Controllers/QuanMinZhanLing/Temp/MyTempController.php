@@ -5,6 +5,7 @@ namespace App\Http\Controllers\QuanMinZhanLing\Temp;
 use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapBaseController;
+use App\Http\Controllers\Server\PayBase;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
@@ -23,11 +24,24 @@ class MyTempController extends BaseController
 
 
 
+        $arr=[
+            'com.wodelu.fogMap6RMB300Z',
+            'com.wodelu.fogMap30RMB1500Z',
+            'com.wodelu.fogMap68RMB3400Zs',
+            'com.wodelu.fogMap128RMB6400Z',
+            'com.wodelu.fogMap258RMB12900Z',
+            'com.wodelu.fogMap648RMB32400Z',
+            'com.wodelu.fogMap25RMBDAY80Z',
+        ];
 
-        dd(123);
+        foreach ($arr as $one)
+        {
+            dump((new PayBase())->choseProductForTssj($one,'ios'));
+        }
 
 
 
+        dd('wanghan',123);
 
 
 

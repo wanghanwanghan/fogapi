@@ -261,7 +261,8 @@ class FoodMapController extends FoodMapBaseController
 
             if ($wishPoolForFree > 0)
             {
-                Redis::connection('UserInfo')->set($key,$wishPoolForFree--);
+                $wishPoolForFree--;
+                Redis::connection('UserInfo')->set($key,$wishPoolForFree);
                 Redis::connection('UserInfo')->expire($key,86400);
 
             }else

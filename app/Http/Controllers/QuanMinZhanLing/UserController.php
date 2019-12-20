@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Http\Controllers\Server\PayBase;
 use App\Model\Aliance\AlianceGroupModel;
 use App\Model\AvatarCheckModel;
 use App\Model\GridInfoModel;
@@ -240,7 +241,7 @@ class UserController extends BaseController
     }
 
     //充值成功后增加钻石或者购买东西减少钻石
-    public function exprUserDiamond($uid,$diamond,$expr='-')
+    public function exprUserDiamond($uid,$diamond,$expr='-',$productId=0)
     {
         if ($expr==='-')
         {
@@ -251,6 +252,92 @@ class UserController extends BaseController
 
         if ($expr==='+')
         {
+            if ($productId)
+            {
+                $info=(new PayBase())->choseProductForTssj($productId,'android');
+
+                $gift=$info[3];
+
+                switch ($productId)
+                {
+                    case 1:
+
+                        //300
+                        //送0
+
+                        Redis::connection('UserInfo')->hincrby($uid,'Diamond',300+$gift);
+
+                        break;
+
+                    case 2:
+
+                        //1500
+                        //送66
+
+                        Redis::connection('UserInfo')->hincrby($uid,'Diamond',1500+$gift);
+
+                        break;
+
+                    case 3:
+
+                        //3400
+                        //送188
+
+                        Redis::connection('UserInfo')->hincrby($uid,'Diamond',3400+$gift);
+
+                        break;
+
+                    case 4:
+
+                        //6400
+                        //送388
+
+                        Redis::connection('UserInfo')->hincrby($uid,'Diamond',6400+$gift);
+
+                        break;
+
+                    case 5:
+
+                        //12900
+                        //送888
+
+                        Redis::connection('UserInfo')->hincrby($uid,'Diamond',12900+$gift);
+
+                        break;
+
+                    case 6:
+
+                        //32400
+                        //送3688
+
+                        Redis::connection('UserInfo')->hincrby($uid,'Diamond',32400+$gift);
+
+                        break;
+
+                    case 7:
+
+                        //每天给80
+                        //送0
+                        //更新一下最后可以领取日期
+
+                        $unixTime=Redis::connection('UserInfo')->hget($uid,'DiamondUntil');
+
+                        if (!$unixTime) $unixTime=time();
+
+                        //如果$unixTime与现在时间差大于30天，就重新记
+                        time() - $unixTime > 86400 * 30 ? $unixTime = time() : null;
+
+                        $timeInRedis=Carbon::parse(date('Y-m-d H:i:s',$unixTime))->addDays(30)->endOfDay()->timestamp;
+
+                        Redis::connection('UserInfo')->hset($uid,'DiamondUntil',$timeInRedis);
+
+                        break;
+                }
+            }else
+            {
+                Redis::connection('UserInfo')->hincrby($uid,'Diamond',$diamond);
+            }
+
             return true;
         }
 
