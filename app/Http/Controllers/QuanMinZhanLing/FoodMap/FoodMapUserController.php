@@ -326,17 +326,19 @@ Eof;
             {
                 return true;
             }
-        }
 
-        $sql="update userGetPatchByWay set num=num+{$num} where uid={$uid} and way={$way} and `date`={$ymd}";
-
-        try
+        }else
         {
-            DB::connection(self::$db)->update($sql);
+            $sql="update userGetPatchByWay set num=num+{$num} where uid={$uid} and way={$way} and `date`={$ymd}";
 
-        }catch (\Exception $e)
-        {
-            return true;
+            try
+            {
+                DB::connection(self::$db)->update($sql);
+
+            }catch (\Exception $e)
+            {
+                return true;
+            }
         }
 
         return true;
