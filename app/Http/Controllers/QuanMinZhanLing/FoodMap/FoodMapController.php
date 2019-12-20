@@ -24,6 +24,8 @@ class FoodMapController extends FoodMapBaseController
         $lng=$request->lng;
         $lat=$request->lat;
 
+        if (!is_numeric($uid) || $uid < 1) return response()->json(['resCode'=>Config::get('resCode.604')]);
+
         $res=FoodMapPatchController::getInstance()->getOnePatchBelong($way,$lng,$lat);
 
         //得到坐标转后的地理位置，比如 北京上海
@@ -520,16 +522,18 @@ class FoodMapController extends FoodMapBaseController
 
         $ahInfo=AuctionHouse::find($ahId);
 
+        $key="buyPatchOrCancel_{$ahId}";
+
         if ($type==2)
         {
             //加锁
-            if (redisLock("buyPatchOrCancel_{$ahId}",10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
+            if (redisLock($key,10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
 
             //下架
             FoodMapUserController::getInstance()->cancelPatch($ahInfo);
 
             //解锁
-            redisUnlock("buyPatchOrCancel_{$ahId}");
+            redisUnlock($key);
 
             return response()->json(['resCode'=>Config::get('resCode.200')]);
         }
@@ -543,7 +547,7 @@ class FoodMapController extends FoodMapBaseController
         if ($diamond < $ahInfo->diamond) return response()->json(['resCode'=>Config::get('resCode.700')]);
 
         //加锁
-        if (redisLock("buyPatchOrCancel_{$ahId}",10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
+        if (redisLock($key,10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
 
         //购买碎片
         $res=FoodMapUserController::getInstance()->buyPatch($buyUid,$ahInfo);
@@ -553,11 +557,14 @@ class FoodMapController extends FoodMapBaseController
         //扣钻石
         Redis::connection('UserInfo')->hincrby($buyUid,'Diamond',-$ahInfo->diamond);
 
+        //给对方加钻石
+        Redis::connection('UserInfo')->hincrby($ahInfo->uid,'Diamond',$ahInfo->diamond);
+
         //删除ah记录
         $ahInfo->delete();
 
         //解锁
-        redisUnlock("buyPatchOrCancel_{$ahId}");
+        redisUnlock($key);
 
         $way=8;
         $ymd=Carbon::now()->format('Ymd');
@@ -616,7 +623,7 @@ class FoodMapController extends FoodMapBaseController
             'resCode'=>Config::get('resCode.200'),
             'money'=>$money,
             'diamond'=>$diamond,
-            'expireDate'=>$expireDate
+            'expireDate'=>'月卡生效中 '.$expireDate
         ]);
     }
 
@@ -647,7 +654,9 @@ class FoodMapController extends FoodMapBaseController
                 //看看今天领没领
                 $date=Carbon::now()->format('Ymd');
 
-                $check=(int)Redis::connection('UserInfo')->get("getDiamondEveryday_{$date}_{$uid}");
+                $key="getDiamondEveryday_{$date}_{$uid}";
+
+                $check=(int)Redis::connection('UserInfo')->get($key);
 
                 if ($check===1)
                 {
@@ -656,10 +665,10 @@ class FoodMapController extends FoodMapBaseController
                 }else
                 {
                     //今天还没领取
-                    (new UserController())->exprUserDiamond($uid,80);
+                    (new UserController())->exprUserDiamond($uid,80,'+');
 
-                    Redis::connection('UserInfo')->set("getDiamondEveryday_{$date}_{$uid}",1);
-                    Redis::connection('UserInfo')->expire("getDiamondEveryday_{$date}_{$uid}",86400);
+                    Redis::connection('UserInfo')->set($key,1);
+                    Redis::connection('UserInfo')->expire($key,86400);
 
                     $status=1;
                 }

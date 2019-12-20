@@ -23,22 +23,12 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_10083','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
-        //高德查询
-        $lng=sprintf("%.5f",116.46);
 
-        $lat=sprintf("%.5f",39.92);
 
-        $url=Config::get('myDefine.AmapUrl');
 
-        $key=array_random(Config::get('myDefine.AmapKey'));
 
-        $fullUrl=$url.'?'.'key='.$key.'&location='.$lng.','.$lat;
 
-        $res=file_get_contents($fullUrl);
-
-        $res=jsonDecode($res);
-
-        dd($res);
+        dd(123);
 
 
 

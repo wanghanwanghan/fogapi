@@ -598,7 +598,7 @@ class PayBase
         $productId=(int)$res->productId;
 
         //加多少钻石
-        (new UserController())->exprUserDiamond($uid,$productId,'+');
+        (new UserController())->exprUserDiamond($uid,0,'+',$productId);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>$alipay->success()->send()]);
     }
@@ -683,7 +683,7 @@ class PayBase
         DB::connection('userOrder')->table('tssj'.$suffix)->where(['uid'=>$uid,'orderId'=>$orderId])->update(['transactionId'=>$transactionId,'payTime'=>time(),'status'=>1,'updated_at'=>date('Y-m-d H:i:s',time())]);
 
         //加多少钻石
-        (new UserController())->exprUserDiamond($uid,$price[2],'+');
+        (new UserController())->exprUserDiamond($uid,0,'+',$price[2]);
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>'success']);
     }

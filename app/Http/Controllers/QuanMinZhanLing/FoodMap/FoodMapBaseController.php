@@ -20,17 +20,17 @@ class FoodMapBaseController extends BaseController
             'open'=>1,
         ],
         [
-            'typeName'=>'地方景点',
+            'typeName'=>'地方电影',
             'openMonth'=>[2,6,10],
             'open'=>0,
         ],
         [
-            'typeName'=>'地方电影',
+            'typeName'=>'地方品牌',
             'openMonth'=>[3,7,11],
             'open'=>0,
         ],
         [
-            'typeName'=>'地方人物',
+            'typeName'=>'地方景点',
             'openMonth'=>[4,8,12],
             'open'=>0,
         ],

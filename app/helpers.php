@@ -820,6 +820,25 @@ function formatDate($timestamp,$type='')
     }
 }
 
+//多少天，多少小时，多少分钟，多少秒
+function formatDateNew($second)
+{
+    $day = floor($second/(3600*24));
+
+    $second = $second%(3600*24);//除去整天之后剩余的时间
+
+    $hour = floor($second/3600);
+
+    $second = $second%3600;//除去整小时之后剩余的时间
+
+    $minute = floor($second/60);
+
+    $second = $second%60;//除去整分钟之后剩余的时间
+
+    //返回字符串
+    return $day.'天'.$hour.'小时'.$minute.'分'.$second.'秒';
+}
+
 //encode for AES
 function encodeForAES($str)
 {

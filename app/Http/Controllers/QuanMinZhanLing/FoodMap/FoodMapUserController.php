@@ -239,9 +239,18 @@ Eof;
             return $res;
         }
 
+        $pinyin=new Pinyin();
+
         foreach ($res as &$one)
         {
             if (is_object($one)) continue;
+
+            //整理拼音
+            $tmp=$pinyin->convert(mb_substr($one['patch']['subject'],0,-1));
+            $tmp=implode('',$tmp);
+            $tmp=str_replace('lyu','lv',$tmp);
+            $tmp=str_replace('ɑ','a',$tmp);
+            $one['patch']['pinyin']=$tmp;
 
             $one['userInfo']['name']=Redis::connection('UserInfo')->hget($one['uid'],'name');
             $one['userInfo']['avatar']=Redis::connection('UserInfo')->hget($one['uid'],'avatar');
