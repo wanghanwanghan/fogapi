@@ -7,7 +7,6 @@ use App\Model\DailyTasksModel;
 use App\Model\UserTradeInfoModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
 
@@ -33,36 +32,65 @@ class DailyTasksController extends BaseController
         $uid=$request->uid;
 
         //每日任务id数组
-        $dailyTasksId=Cache::remember($this->KeyForDB.'_1',120,function()
-        {
-            return DailyTasksModel::pluck('id')->toArray();
-        });
+        $dailyTasksId=DailyTasksModel::pluck('id')->toArray();
 
         if (!is_array($dailyTasksId)) return response()->json(['resCode' => Config::get('resCode.604')]);
 
-        try
-        {
-            $res=Redis::connection('UserInfo')->hgetall($this->getRedisKey($uid));
+        $res=Redis::connection('UserInfo')->hgetall($this->getRedisKey($uid));
 
-        }catch (\Exception $e)
-        {
-            return response()->json(['resCode'=>Config::get('resCode.630')]);
-        }
+        $count=count($dailyTasksId);
 
         //处理数组
-        $count=count($dailyTasksId);
-        for ($i=0;$i<$count;$i++)
+        if ((int)trim($request->isNew))
         {
-            //看看这个key在redis hash里有没有
-            $key=$dailyTasksId[$i];
-
-            if (array_key_exists($key,$res))
+            for ($i=0;$i<$count;$i++)
             {
-                $tmp[$key]=$res[$key];
+                //看看这个key在redis hash里有没有
+                $key=$dailyTasksId[$i];
 
-            }else
+                if (array_key_exists($key,$res))
+                {
+                    if ($key==7)
+                    {
+                        $tmp[$key]['status']=$res[$key];
+                        $tmp[$key]['num']=$this->wishPoolForFreeByLookAd($uid);
+
+                    }else
+                    {
+                        $tmp[$key]=$res[$key];
+                    }
+
+                }else
+                {
+                    if ($key==7)
+                    {
+                        $tmp[$key]['status']=0;
+                        $tmp[$key]['num']=$this->wishPoolForFreeByLookAd($uid);
+
+                    }else
+                    {
+                        $tmp[$key]=0;
+                    }
+                }
+            }
+
+            $this->tid_7($uid,$tmp);
+
+        }else
+        {
+            for ($i=0;$i<5;$i++)
             {
-                $tmp[$key]=0;
+                //看看这个key在redis hash里有没有
+                $key=$dailyTasksId[$i];
+
+                if (array_key_exists($key,$res))
+                {
+                    $tmp[$key]=$res[$key];
+
+                }else
+                {
+                    $tmp[$key]=0;
+                }
             }
         }
 
@@ -139,6 +167,35 @@ class DailyTasksController extends BaseController
         return true;
     }
 
+    //计算id是7
+    public function tid_7($uid,&$tmp)
+    {
+        //获得许愿次数
+        //7只有0和2两个状态，没有1
+
+        if (!isset($tmp['7'])) return true;
+
+        //7已经完成
+        if ($tmp['7']['status']!=0) return true;
+
+        //判断完成几次了
+        $count=$tmp['7']['num'];
+
+        $DBcount=DailyTasksModel::find(7);
+
+        if ($count >= $DBcount->scheduleTotle)
+        {
+            //完成了
+            $tmp['7']['status']=2;
+
+            Redis::connection('UserInfo')->hset($this->getRedisKey($uid),7,2);
+
+            Redis::connection('UserInfo')->expireat($this->getRedisKey($uid),Carbon::now()->endOfDay()->timestamp);
+        }
+
+        return true;
+    }
+
     //设置每日任务完成情况
     public function setDailyTasksForUser(Request $request)
     {
@@ -152,21 +209,21 @@ class DailyTasksController extends BaseController
         //status
         $status=trim($request->status);
 
-        try
+        $nowStatus=Redis::connection('UserInfo')->hget($key,$dailyTasksId);
+
+        //2是已领取状态
+        if ($nowStatus==2) return response()->json(['resCode'=>Config::get('resCode.200')]);
+
+        //id是7的要特殊处理
+        if ($dailyTasksId==7)
         {
-            $nowStatus=Redis::connection('UserInfo')->hget($key,$dailyTasksId);
-
-            //2是已领取状态
-            if ($nowStatus==2) return response()->json(['resCode'=>Config::get('resCode.200')]);
-
+            $this->addWishPoolCount($uid);
+        }else
+        {
             Redis::connection('UserInfo')->hset($key,$dailyTasksId,$status);
-
-            Redis::connection('UserInfo')->expire($key,86400);
-
-        }catch (\Exception $e)
-        {
-            return response()->json(['resCode'=>Config::get('resCode.631')]);
         }
+
+        Redis::connection('UserInfo')->expire($key,86400);
 
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
@@ -176,24 +233,13 @@ class DailyTasksController extends BaseController
     {
         $uid=$request->uid;
 
-        //当天第一次请求时间
-        $star=time();
-
-        //当天结束时间
-        $stop=Carbon::now()->endOfDay()->timestamp;
-
-        //差多少分钟
-        $m=($stop-$star)/60;
-
-        $m=intval($m);
-
-        $dailyTasks=Cache::remember($this->KeyForDB.'_2',$m,function()
+        if ((int)trim($request->isNew))
         {
-            $res=DailyTasksModel::all()->toArray();
-
-            //随机5个
-            return array_random($res,5);
-        });
+            $dailyTasks=DailyTasksModel::all()->toArray();
+        }else
+        {
+            $dailyTasks=DailyTasksModel::limit(5)->get()->toArray();
+        }
 
         if (is_numeric($uid) && $uid >= 1)
         {
@@ -210,19 +256,61 @@ class DailyTasksController extends BaseController
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$dailyTasks]);
     }
 
-    //广告看完之后的回调
-    public function callBackForAD(Request $request)
+    //看广告得免费许愿次数，完成了几次了
+    private function wishPoolForFreeByLookAd($uid,$expr=null)
     {
+        $date=Carbon::now()->format('Ymd');
 
+        $key=$this->DailyTasksKey."{$uid}_{$date}_tid7";
 
+        if ($expr!=null)
+        {
+            $count=(int)Redis::connection('UserInfo')->get($key);
 
+            $count++;
 
+            Redis::connection('UserInfo')->set($key,$count);
 
-
+            return Redis::connection('UserInfo')->expireat($key,Carbon::now()->endOfDay()->timestamp);
+        }else
+        {
+            return (int)Redis::connection('UserInfo')->get($key);
+        }
     }
 
+    //许愿次数加1，tid7完成次数加1
+    private function addWishPoolCount($uid)
+    {
+        //完成几次了
+        $fCount=$this->wishPoolForFreeByLookAd($uid);
 
+        //可以完成几次
+        $DBcount=DailyTasksModel::find(7)->scheduleTotle;
 
+        if ($fCount >= $DBcount) return true;
+
+        //许愿次数加1
+        //今日免费次数
+        $time=Carbon::now()->format('Ymd');
+        $key="WishPoolForFree_{$time}_{$uid}";
+        $wishPoolForFree=Redis::connection('UserInfo')->get($key);
+
+        if ($wishPoolForFree===null)
+        {
+            $wishPoolForFree=4;
+
+        }else
+        {
+            $wishPoolForFree++;
+        }
+
+        Redis::connection('UserInfo')->set($key,$wishPoolForFree);
+
+        //完成次数加1
+        $this->wishPoolForFreeByLookAd($uid,'+1');
+
+        return true;
+    }
 
 
 

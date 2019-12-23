@@ -6,6 +6,7 @@ use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapBaseController;
 use App\Http\Controllers\Server\PayBase;
+use App\Model\DailyTasksModel;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
@@ -24,11 +25,14 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
 
+        $a=[];
+
+
+        dd(array_pop($a));
 
 
 
 
-        dd(123);
 
 
 

@@ -107,6 +107,28 @@ function arraySort1($array,$cond=['desc','id'])
     return $array;
 }
 
+//二维数组按照某一列排序
+function arraySort1New($array,$col,$rule='asc')
+{
+    $tmp=[];
+
+    //将排序依据作为数组的键名
+    foreach ($array as $v)
+    {
+        $tmp[$v[$col]]=$v;
+    }
+
+    //然后按照键名排序并且保留索引关系
+    $rule === 'asc' ? ksort($tmp) : krsort($tmp);
+
+    foreach ($tmp as $one)
+    {
+        $wanghan[]=$one;
+    }
+
+    return $wanghan;
+}
+
 //快速排序
 function arraySort2($array)
 {
@@ -129,10 +151,27 @@ function arraySort2($array)
         }
     }
 
-    $left_arr=arraySort2($left_arr);
+    $left_arr =arraySort2($left_arr);
     $right_arr=arraySort2($right_arr);
 
     return array_merge($left_arr,[$key],$right_arr);
+}
+
+//冒泡排序
+function arraySort3($array)
+{
+    for ($i=0;$i<count($array);$i++)
+    {
+        for ($j=$i+1;$j<count($array);$j++)
+        {
+            if ($array[$i]>$array[$j])
+            {
+                list($array[$i],$array[$j])=[$array[$j],$array[$i]];
+            }
+        }
+    }
+
+    return $array;
 }
 
 //无限极分类
@@ -1154,3 +1193,66 @@ function redisUnlock($key)
 {
     return Redis::connection('RequestToken')->del($key);
 }
+
+//实现中文字串截取无乱码的方法
+function substrUTF8($string,$start=0,$length=1)
+{
+    return join('',array_slice(preg_split("//u",$string,-1,PREG_SPLIT_NO_EMPTY),$start,$length));
+}
+
+//实现中文字串反转
+function strrevUTF8($string)
+{
+    return join('',array_reverse(preg_split("//u",$string)));
+}
+
+//What is the best all-purpose way of comparing two strings
+function comparingTwoStrings($str1,$str2,$length='all')
+{
+    if ($length==='all')
+    {
+        $length1=mb_strlen($str1);
+        $length2=mb_strlen($str2);
+
+        $length=$length1 > $length2 ? $length1 : $length2;
+    }
+
+    //等于0 - 两个字符串相等
+    //小于0 - str1 长度小于 str2
+    //大于0 - str1 长度大于 str2
+    return strncasecmp($str1,$str2,$length);
+}
+
+//计算某段字符串中某个字符出现的次数
+function substrCount($string,$target)
+{
+    return substr_count($string,$target);
+}
+
+//确保多个进程同时写入同一个文件成功 核心思路:加锁
+function lockFileForWrite()
+{
+    $fp=fopen('test.txt',"w+");
+
+    if (flock($fp,LOCK_EX))
+    {
+        //获得写锁
+        fwrite($fp,'写一些内容');
+
+        //解除锁定
+        flock($fp,LOCK_UN);
+
+    }else
+    {
+        echo '文件被锁定中';
+    }
+
+    fclose($fp);
+
+    return true;
+}
+
+
+
+
+
