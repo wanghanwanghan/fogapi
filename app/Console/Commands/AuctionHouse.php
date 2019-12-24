@@ -16,12 +16,15 @@ class AuctionHouse extends Command
     {
         $time=Carbon::now()->timestamp;
 
-        $target=\App\Model\FoodMap\AuctionHouse::where('expireTime','<=',$time)->get();
+        //取得正在卖的物品
+        $target=\App\Model\FoodMap\AuctionHouse::where('expireTime','<=',$time)->where(['status'=>1])->get();
 
         foreach ($target as $one)
         {
-            //删除拍卖行数据
-            \App\Model\FoodMap\AuctionHouse::find($one->id)->delete();
+            //刷回给用户
+            $goods=\App\Model\FoodMap\AuctionHouse::find($one->id);
+            $goods->status=4;
+            $goods->save();
 
             $sql="update userPatch set num = num + {$one->num} where uid={$one->uid} and pid={$one->pid}";
 

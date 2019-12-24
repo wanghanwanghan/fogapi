@@ -583,8 +583,9 @@ class FoodMapController extends FoodMapBaseController
         //给对方加钻石
         Redis::connection('UserInfo')->hincrby($ahInfo->uid,'Diamond',$ahInfo->diamond);
 
-        //删除ah记录
-        $ahInfo->delete();
+        //修改状态
+        $ahInfo->status=2;
+        $ahInfo->save();
 
         //解锁
         redisUnlock($key);

@@ -184,6 +184,7 @@ class FoodMapUserController
         {
             //出售页面
             $res=AuctionHouse::with('patch')->where('uid','<>',$uid)
+                ->where('status',1)
                 ->orderBy('created_at','desc')
                 ->limit($limit)
                 ->offset($offset)
@@ -193,6 +194,7 @@ class FoodMapUserController
         {
             //我的出售页面
             $res=AuctionHouse::with('patch')->where('uid',$uid)
+                ->where('status',1)
                 ->orderBy('created_at','desc')
                 ->limit($limit)
                 ->offset($offset)
@@ -288,6 +290,7 @@ Eof;
             'money'=>(int)$request->money,
             'diamond'=>(int)$request->diamond,
             'num'=>(int)$request->num,
+            'status'=>1,
         ];
 
         AuctionHouse::create($arr);
@@ -329,8 +332,9 @@ Eof;
         //把碎片返回给用户
         DB::connection(self::$db)->update($sql);
 
-        //删除拍卖行数据
-        $ahInfo->delete();
+        //修改拍卖行物品状态
+        $ahInfo->status=3;
+        $ahInfo->save();
 
         return true;
     }

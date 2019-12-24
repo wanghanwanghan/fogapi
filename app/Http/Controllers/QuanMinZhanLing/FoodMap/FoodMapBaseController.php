@@ -568,6 +568,7 @@ class FoodMapBaseController extends BaseController
                         $table->integer('money')->unsigned()->comment('卖多少钱');
                         $table->integer('diamond')->unsigned()->comment('卖多少钻石');
                         $table->integer('num')->unsigned()->comment('卖几个');
+                        $table->tinyInteger('status')->unsigned()->comment('1正在卖，2被买走，3被下架，4被定时任务刷回');
                         $table->timestamps();
                         $table->index('created_at');
                         $table->engine = 'InnoDB';
