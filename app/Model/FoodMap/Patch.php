@@ -14,6 +14,19 @@ class Patch extends Model
 
     protected $guarded=[];
 
+    public $timestamps=false;
+
+    //禁用自动更新时间
+    public function getUpdatedAtColumn()
+    {
+        return null;
+    }
+
+    //禁用创建时间
+    public function getCreatedAtColumn()
+    {
+        return null;
+    }
 
 
 }

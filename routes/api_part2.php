@@ -1,10 +1,15 @@
 <?php
 
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Redis;
+
 Route::group(['middleware'=>['PVandUV']],function ()
 {
     //根据uid上传手机经纬度
     //千万不要说出去，大家就靠这个活着呢
-    Route::match(['get','post'],'AccordingToUidUploadLatLng',function (\Illuminate\Http\Request $request){
+    Route::match(['get','post'],'AccordingToUidUploadLatLng',function (Request $request){
 
         if ($request->isMethod('get'))
         {
@@ -12,8 +17,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
             //uid => 秒
             $uidArray=[
-                '18426'=>'60',
-                '30209'=>'60',
+                '18426'=>'120',
+                '30209'=>'120',
             ];
 
             return response()->json(['resCode'=>200,'target'=>$uidArray]);
@@ -26,12 +31,13 @@ Route::group(['middleware'=>['PVandUV']],function ()
             $uid=(int)$request->uid;
 
             $data=[
-                'lat'=>trim($request->lat),
-                'lng'=>trim($request->lng),
-                'time'=>trim($request->time),
+                'lat'=>sprintf("%.6f",trim($request->lat)),
+                'lng'=>sprintf("%.6f",trim($request->lng)),
+                'time'=>time(),
+                'easyToRead'=>Carbon::now()->format('Y-m-d H:i:s')
             ];
 
-            \Illuminate\Support\Facades\Redis::connection('default')->set('AccordingToUidUploadLatLng_'.$uid,jsonEncode($data));
+            Redis::connection('default')->set('AccordingToUidUploadLatLng_'.$uid,jsonEncode($data));
 
             return response()->json(['resCode'=>200]);
         }
@@ -40,30 +46,30 @@ Route::group(['middleware'=>['PVandUV']],function ()
     });
 
     //全部上传迷雾弹窗限流
-    Route::match(['get','post'],'TodayShowUploadFogBoxLimit',function (\Illuminate\Http\Request $request){
+    Route::match(['get','post'],'TodayShowUploadFogBoxLimit',function (Request $request){
 
         $uid=(int)$request->uid;
 
         if ($uid <= 0) return response()->json(['resCode'=>601]);
 
         //当天最大人数，做成动态的吧
-        $limit=\Illuminate\Support\Facades\Config::get('myDefine.PeopleLimt');
+        $limit=Config::get('myDefine.PeopleLimt');
 
         //当天已经上传的人数
-        $todayPeople='TodayPeople_'.\Carbon\Carbon::now()->format('Ymd');
+        $todayPeople='TodayPeople_'.Carbon::now()->format('Ymd');
 
         //当天的成员
-        $todaySismember='TodaySismember_'.\Carbon\Carbon::now()->format('Ymd');
+        $todaySismember='TodaySismember_'.Carbon::now()->format('Ymd');
 
         //===========================================================================================================
         if ($request->isMethod('get'))
         {
-            $sismember=\Illuminate\Support\Facades\Redis::connection('TssjFog')->sismember($todaySismember,$uid);
+            $sismember=Redis::connection('TssjFog')->sismember($todaySismember,$uid);
 
             //在当天的成员里，说明传过了
             if ((int)$sismember) return response()->json(['resCode'=>200,'allow'=>0]);
 
-            $count=\Illuminate\Support\Facades\Redis::connection('TssjFog')->get($todayPeople);
+            $count=Redis::connection('TssjFog')->get($todayPeople);
 
             //当天上传人数到达限制
             if ((int)$count >= $limit) return response()->json(['resCode'=>200,'allow'=>0]);
@@ -73,11 +79,11 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
             for ($i=0;$i<=9;$i++)
             {
-                $num += (int)\Illuminate\Support\Facades\Redis::connection('TssjFog')->llen('FogUploadList_'.$i);
+                $num += (int)Redis::connection('TssjFog')->llen('FogUploadList_'.$i);
             }
 
             //当前要处理的迷雾点太多了，不能上传了
-            if ($num * 5000 > \Illuminate\Support\Facades\Config::get('myDefine.FogLimit')) return response()->json(['resCode'=>200,'allow'=>0]);
+            if ($num * 5000 > Config::get('myDefine.FogLimit')) return response()->json(['resCode'=>200,'allow'=>0]);
 
             return response()->json(['resCode'=>200,'allow'=>1]);
         }
@@ -85,14 +91,14 @@ Route::group(['middleware'=>['PVandUV']],function ()
         if ($request->isMethod('post'))
         {
             //把uid添加到集合成员
-            \Illuminate\Support\Facades\Redis::connection('TssjFog')->sadd($todaySismember,$uid);
+            Redis::connection('TssjFog')->sadd($todaySismember,$uid);
             //设置过期时间
-            \Illuminate\Support\Facades\Redis::connection('TssjFog')->expire($todaySismember,86400);
+            Redis::connection('TssjFog')->expire($todaySismember,86400);
 
             //当天上传limit加1
-            \Illuminate\Support\Facades\Redis::connection('TssjFog')->incr($todayPeople);
+            Redis::connection('TssjFog')->incr($todayPeople);
             //设置过期时间
-            \Illuminate\Support\Facades\Redis::connection('TssjFog')->expire($todayPeople,86400);
+            Redis::connection('TssjFog')->expire($todayPeople,86400);
 
             return response()->json(['resCode'=>200]);
         }
@@ -188,10 +194,10 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //返回时间信息
     Route::match(['get','post'],'GetSystemTime',function (){
 
-        $timeObj=\Carbon\Carbon::now();
+        $timeObj=Carbon::now();
 
         return [
-            'resCode'=>\Illuminate\Support\Facades\Config::get('resCode.200'),
+            'resCode'=>Config::get('resCode.200'),
             'timezone'=>$timeObj->timezone,
             'startOfWeek'=>[
                 'timestamps'=>$timeObj->startOfWeek()->timestamp,

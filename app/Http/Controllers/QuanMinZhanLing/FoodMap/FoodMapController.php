@@ -203,18 +203,25 @@ class FoodMapController extends FoodMapBaseController
 
         $pinyinContent=(new Pinyin())->convert(substr($patch['subject'],0,-1));
 
-        foreach ($pinyinContent as $k=>$v)
+        if (empty($pinyinContent))
         {
-            if ($v=='lyu')
-            {
-                $pinyinContent[$k]='lv';
-            }else
-            {
-                $pinyinContent[$k]=str_replace('ɑ','a',$v);
-            }
-        }
+            $patch['pinyin']=substr($patch['subject'],0,-1);
 
-        $patch['pinyin']=implode('',$pinyinContent);
+        }else
+        {
+            foreach ($pinyinContent as $k=>$v)
+            {
+                if ($v=='lyu')
+                {
+                    $pinyinContent[$k]='lv';
+                }else
+                {
+                    $pinyinContent[$k]=str_replace('ɑ','a',$v);
+                }
+            }
+
+            $patch['pinyin']=implode('',$pinyinContent);
+        }
 
         empty($new) ? $new=[] : $new=[$new];
 
@@ -393,21 +400,30 @@ class FoodMapController extends FoodMapBaseController
 
             $pinyinContent=$pinyin->convert(substr($one->patch->subject,0,-1));
 
-            foreach ($pinyinContent as $k=>$v)
+            if (empty($pinyinContent))
             {
-                if ($v=='lyu')
-                {
-                    $pinyinContent[$k]='lv';
-                }else
-                {
-                    $tmp=str_replace('ɑ','a',$v);
-                    $pinyinContent[$k]=$tmp;
-                }
-            }
+                $tmp=$one->toArray();
+                $tmp['patch']['pinyin']=substr($one->patch->subject,0,-1);
+                $my[]=$tmp;
 
-            $tmp=$one->toArray();
-            $tmp['patch']['pinyin']=implode('',$pinyinContent);
-            $my[]=$tmp;
+            }else
+            {
+                foreach ($pinyinContent as $k=>$v)
+                {
+                    if ($v=='lyu')
+                    {
+                        $pinyinContent[$k]='lv';
+                    }else
+                    {
+                        $tmp=str_replace('ɑ','a',$v);
+                        $pinyinContent[$k]=$tmp;
+                    }
+                }
+
+                $tmp=$one->toArray();
+                $tmp['patch']['pinyin']=implode('',$pinyinContent);
+                $my[]=$tmp;
+            }
         }
 
         //把$success里的宝物，多余的碎片添加进来
@@ -415,18 +431,25 @@ class FoodMapController extends FoodMapBaseController
         {
             $pinyinContent=$pinyin->convert($one->subject);
 
-            foreach ($pinyinContent as $k=>$v)
+            if (empty($pinyinContent))
             {
-                if ($v=='lyu')
-                {
-                    $pinyinContent[$k]='lv';
-                }else
-                {
-                    $pinyinContent[$k]=str_replace('ɑ','a',$v);
-                }
-            }
+                $one->pinyin=$one->subject;
 
-            $one->pinyin=implode('',$pinyinContent);
+            }else
+            {
+                foreach ($pinyinContent as $k=>$v)
+                {
+                    if ($v=='lyu')
+                    {
+                        $pinyinContent[$k]='lv';
+                    }else
+                    {
+                        $pinyinContent[$k]=str_replace('ɑ','a',$v);
+                    }
+                }
+
+                $one->pinyin=implode('',$pinyinContent);
+            }
 
             $pidArr=Patch::where('subject','like',$one->subject.'%')->pluck('id')->toArray();
 
@@ -588,18 +611,24 @@ class FoodMapController extends FoodMapBaseController
 
         $pinyin=(new Pinyin())->convert(substr($res['subject'],0,-1));
 
-        foreach ($pinyin as $key => $value)
+        if (empty($pinyin))
         {
-            if ($value=='lyu')
+            $res['pinyin']=substr($res['subject'],0,-1);
+        }else
+        {
+            foreach ($pinyin as $key => $value)
             {
-                $pinyin[$key]='lv';
-            }else
-            {
-                $pinyin[$key]=str_replace('ɑ','a',$value);
+                if ($value=='lyu')
+                {
+                    $pinyin[$key]='lv';
+                }else
+                {
+                    $pinyin[$key]=str_replace('ɑ','a',$value);
+                }
             }
-        }
 
-        $res['pinyin']=implode('',$pinyin);
+            $res['pinyin']=implode('',$pinyin);
+        }
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res]);
     }

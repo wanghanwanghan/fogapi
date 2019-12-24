@@ -24,5 +24,6 @@ class AfterControllerMiddleware
     {
         //善后中间件
         //响应到达用户后做的事情
+        //ajax请求中不可以用，因为http链接没断开之前，ajax是拿不到结果的，会卡在这里，等待这个方法执行完
     }
 }

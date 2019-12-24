@@ -224,12 +224,19 @@ Eof;
                 {
                     $tmp=$pinyin->convert(mb_substr($one->subject,0,-1));
 
-                    $tmp=implode('',$tmp);
+                    if (empty($tmp))
+                    {
+                        $one->pinyin=mb_substr($one->subject,0,-1);
 
-                    $tmp=str_replace('lyu','lv',$tmp);
-                    $tmp=str_replace('ɑ','a',$tmp);
+                    }else
+                    {
+                        $tmp=implode('',$tmp);
 
-                    $one->pinyin=$tmp;
+                        $tmp=str_replace('lyu','lv',$tmp);
+                        $tmp=str_replace('ɑ','a',$tmp);
+
+                        $one->pinyin=$tmp;
+                    }
                 }
                 unset($one);
             }
@@ -246,11 +253,19 @@ Eof;
             if (is_object($one)) continue;
 
             //整理拼音
-            $tmp=$pinyin->convert(mb_substr($one['patch']['subject'],0,-1));
-            $tmp=implode('',$tmp);
-            $tmp=str_replace('lyu','lv',$tmp);
-            $tmp=str_replace('ɑ','a',$tmp);
-            $one['patch']['pinyin']=$tmp;
+            $py=$pinyin->convert(mb_substr($one['patch']['subject'],0,-1));
+
+            if (empty($py))
+            {
+                $one['patch']['pinyin']=mb_substr($one['patch']['subject'],0,-1);
+            }else
+            {
+                $tmp=$py;
+                $tmp=implode('',$tmp);
+                $tmp=str_replace('lyu','lv',$tmp);
+                $tmp=str_replace('ɑ','a',$tmp);
+                $one['patch']['pinyin']=$tmp;
+            }
 
             $one['userInfo']['name']=Redis::connection('UserInfo')->hget($one['uid'],'name');
             $one['userInfo']['avatar']=Redis::connection('UserInfo')->hget($one['uid'],'avatar');

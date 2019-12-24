@@ -7,6 +7,7 @@ use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapBaseController;
 use App\Http\Controllers\Server\PayBase;
 use App\Model\DailyTasksModel;
+use App\Model\FoodMap\Patch;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Maatwebsite\Excel\Facades\Excel;
+use Overtrue\Pinyin\Pinyin;
 use Qiniu\Auth;
 use Qiniu\Sms\Sms;
 
@@ -25,13 +27,44 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
 
-        $a=[];
+        $py=new Pinyin();
+
+        $res=$py->convert('007');
 
 
-        dd(array_pop($a));
 
 
+        dd($res);
 
+
+        $arr=[
+            '北京'=>'李宁',
+        ];
+
+        $quality='绿';
+
+        $place=['A','B','C','D'];
+        $belongType='地方品牌';
+
+
+        foreach ($arr as $k=>$v)
+        {
+            $subject=$v;
+            $belongCity=$k;
+
+            foreach ($place as $one)
+            {
+                Patch::create([
+                    'subject'=>$subject.$one,
+                    'place'=>$one,
+                    'quality'=>$quality,
+                    'belongType'=>$belongType,
+                    'belongCity'=>$belongCity
+                ]);
+            }
+        }
+
+        dd($subject,$quality);
 
 
 
