@@ -150,7 +150,7 @@ class FoodMapController extends FoodMapBaseController
                 $gName=$request->gName;
 
                 //格子价格
-                $price=GridModel::where('gName',$gName)->first()->price;
+                $price=GridModel::where('name',$gName)->first()->price;
 
                 //5001以上100%
                 if ($price > 5000) $havePatch=1;
