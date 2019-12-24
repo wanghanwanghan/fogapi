@@ -23,9 +23,36 @@ class ModifyPinyin
 
         $arr=$this->modifyFromTo();
 
-        return isset($arr[$str]) ? $arr[$str] : $str;
+        if (isset($arr[$str])) return $arr[$str];
+
+        foreach ($arr as $key => $value)
+        {
+            $str=str_replace($key,$value,$str);
+        }
+
+        return $str;
     }
 
+    public function modifyArray($arr)
+    {
+        $modifyFromTo=$this->modifyFromTo();
+
+        foreach ($arr as $key => $value)
+        {
+            if (isset($modifyFromTo[$value]))
+            {
+                $arr[$key]=$modifyFromTo[$value];
+            }else
+            {
+                foreach ($modifyFromTo as $k => $v)
+                {
+                    $arr[$key]=str_replace($k,$v,$arr[$key]);
+                }
+            }
+        }
+
+        return $arr;
+    }
 
 
 

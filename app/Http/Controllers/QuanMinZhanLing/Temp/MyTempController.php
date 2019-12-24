@@ -5,6 +5,7 @@ namespace App\Http\Controllers\QuanMinZhanLing\Temp;
 use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapBaseController;
+use App\Http\Controllers\Server\ModifyPinyin;
 use App\Http\Controllers\Server\PayBase;
 use App\Model\DailyTasksModel;
 use App\Model\FoodMap\Patch;
@@ -29,10 +30,9 @@ class MyTempController extends BaseController
 
         $py=new Pinyin();
 
-        $res=$py->convert('那些年');
+        $res=$py->convert('担担面女孩吃驴肉火烧在一零一大厦');
 
-
-
+        $res=ModifyPinyin::getInstance()->modifyArray($res);
 
         dd($res);
 

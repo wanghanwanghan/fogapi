@@ -233,12 +233,8 @@ Eof;
 
                     }else
                     {
-                        $pinyinContent=[];
-                        foreach ($tmp as $k=>$v)
-                        {
-                            $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
-                        }
-                        $tmp=implode('',$pinyinContent);
+                        $tmp=ModifyPinyin::getInstance()->modifyArray($tmp);
+                        $tmp=implode('',$tmp);
                         $one->pinyin=$tmp;
                     }
                 }
@@ -264,12 +260,8 @@ Eof;
                 $one['patch']['pinyin']=mb_substr($one['patch']['subject'],0,-1);
             }else
             {
-                $pinyinContent=[];
-                foreach ($py as $k=>$v)
-                {
-                    $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
-                }
-                $tmp=implode('',$pinyinContent);
+                $py=ModifyPinyin::getInstance()->modifyArray($py);
+                $tmp=implode('',$py);
                 $one['patch']['pinyin']=$tmp;
             }
 

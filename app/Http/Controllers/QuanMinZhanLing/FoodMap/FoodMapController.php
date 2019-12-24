@@ -210,21 +210,7 @@ class FoodMapController extends FoodMapBaseController
 
         }else
         {
-            foreach ($pinyinContent as $k=>$v)
-            {
-                $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
-//                if ($v=='lyu')
-//                {
-//                    $pinyinContent[$k]='lv';
-//                }elseif ($v=='nyu')
-//                {
-//                    $pinyinContent[$k]='nv';
-//                }else
-//                {
-//                    $pinyinContent[$k]=str_replace('ɑ','a',$v);
-//                }
-            }
-
+            $pinyinContent=ModifyPinyin::getInstance()->modifyArray($pinyinContent);
             $patch['pinyin']=implode('',$pinyinContent);
         }
 
@@ -413,22 +399,7 @@ class FoodMapController extends FoodMapBaseController
 
             }else
             {
-                foreach ($pinyinContent as $k=>$v)
-                {
-                    $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
-//                    if ($v=='lyu')
-//                    {
-//                        $pinyinContent[$k]='lv';
-//                    }elseif ($v=='nyu')
-//                    {
-//                        $pinyinContent[$k]='nv';
-//                    }else
-//                    {
-//                        $tmp=str_replace('ɑ','a',$v);
-//                        $pinyinContent[$k]=$tmp;
-//                    }
-                }
-
+                $pinyinContent=ModifyPinyin::getInstance()->modifyArray($pinyinContent);
                 $tmp=$one->toArray();
                 $tmp['patch']['pinyin']=implode('',$pinyinContent);
                 $my[]=$tmp;
@@ -446,21 +417,7 @@ class FoodMapController extends FoodMapBaseController
 
             }else
             {
-                foreach ($pinyinContent as $k=>$v)
-                {
-                    $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
-//                    if ($v=='lyu')
-//                    {
-//                        $pinyinContent[$k]='lv';
-//                    }elseif ($v=='nyu')
-//                    {
-//                        $pinyinContent[$k]='nv';
-//                    }else
-//                    {
-//                        $pinyinContent[$k]=str_replace('ɑ','a',$v);
-//                    }
-                }
-
+                $pinyinContent=ModifyPinyin::getInstance()->modifyArray($pinyinContent);
                 $one->pinyin=implode('',$pinyinContent);
             }
 
@@ -630,21 +587,7 @@ class FoodMapController extends FoodMapBaseController
             $res['pinyin']=substr($res['subject'],0,-1);
         }else
         {
-            foreach ($pinyin as $key => $value)
-            {
-                $pinyin[$key]=ModifyPinyin::getInstance()->modify($value);
-//                if ($value=='lyu')
-//                {
-//                    $pinyin[$key]='lv';
-//                }elseif ($value=='nyu')
-//                {
-//                    $pinyin[$key]='nv';
-//                }else
-//                {
-//                    $pinyin[$key]=str_replace('ɑ','a',$value);
-//                }
-            }
-
+            $pinyin=ModifyPinyin::getInstance()->modifyArray($pinyin);
             $res['pinyin']=implode('',$pinyin);
         }
 
