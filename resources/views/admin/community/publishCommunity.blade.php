@@ -8,7 +8,8 @@
     <script type="text/javascript" src="{{asset('js/zyupload/zyupload/zyupload.basic-1.0.0.min.js?12')}}"></script>
 
     {{--wangEditor--}}
-    <script type="text/javascript" src="//unpkg.com/wangeditor/release/wangEditor.min.js"></script>
+    {{--<script type="text/javascript" src="//unpkg.com/wangeditor/release/wangEditor.min.js"></script>--}}
+    <script type="text/javascript" src="https://cdn.bootcss.com/wangEditor/3.1.1/wangEditor.min.js"></script>
 
     <link rel="stylesheet" type="text/css" href="{{asset('js/uploadfile/diyUpload/css/webuploader.css')}}">
 

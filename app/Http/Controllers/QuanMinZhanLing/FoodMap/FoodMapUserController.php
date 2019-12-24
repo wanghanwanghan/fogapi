@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing\FoodMap;
 
+use App\Http\Controllers\Server\ModifyPinyin;
 use App\Http\Traits\Singleton;
 use App\Model\FoodMap\AuctionHouse;
 use App\Model\FoodMap\Patch;
@@ -232,11 +233,12 @@ Eof;
 
                     }else
                     {
-                        $tmp=implode('',$tmp);
-
-                        $tmp=str_replace('lyu','lv',$tmp);
-                        $tmp=str_replace('ɑ','a',$tmp);
-
+                        $pinyinContent=[];
+                        foreach ($tmp as $k=>$v)
+                        {
+                            $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
+                        }
+                        $tmp=implode('',$pinyinContent);
                         $one->pinyin=$tmp;
                     }
                 }
@@ -262,10 +264,12 @@ Eof;
                 $one['patch']['pinyin']=mb_substr($one['patch']['subject'],0,-1);
             }else
             {
-                $tmp=$py;
-                $tmp=implode('',$tmp);
-                $tmp=str_replace('lyu','lv',$tmp);
-                $tmp=str_replace('ɑ','a',$tmp);
+                $pinyinContent=[];
+                foreach ($py as $k=>$v)
+                {
+                    $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
+                }
+                $tmp=implode('',$pinyinContent);
                 $one['patch']['pinyin']=$tmp;
             }
 

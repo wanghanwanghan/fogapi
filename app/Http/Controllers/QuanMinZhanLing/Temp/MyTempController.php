@@ -29,7 +29,7 @@ class MyTempController extends BaseController
 
         $py=new Pinyin();
 
-        $res=$py->convert('007');
+        $res=$py->convert('那些年');
 
 
 

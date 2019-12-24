@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\QuanMinZhanLing\FoodMap;
 
 use App\Http\Controllers\QuanMinZhanLing\UserController;
+use App\Http\Controllers\Server\ModifyPinyin;
 use App\Model\FoodMap\AuctionHouse;
 use App\Model\FoodMap\Patch;
 use App\Model\FoodMap\UserGetPatchByWay;
@@ -211,13 +212,17 @@ class FoodMapController extends FoodMapBaseController
         {
             foreach ($pinyinContent as $k=>$v)
             {
-                if ($v=='lyu')
-                {
-                    $pinyinContent[$k]='lv';
-                }else
-                {
-                    $pinyinContent[$k]=str_replace('ɑ','a',$v);
-                }
+                $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
+//                if ($v=='lyu')
+//                {
+//                    $pinyinContent[$k]='lv';
+//                }elseif ($v=='nyu')
+//                {
+//                    $pinyinContent[$k]='nv';
+//                }else
+//                {
+//                    $pinyinContent[$k]=str_replace('ɑ','a',$v);
+//                }
             }
 
             $patch['pinyin']=implode('',$pinyinContent);
@@ -410,14 +415,18 @@ class FoodMapController extends FoodMapBaseController
             {
                 foreach ($pinyinContent as $k=>$v)
                 {
-                    if ($v=='lyu')
-                    {
-                        $pinyinContent[$k]='lv';
-                    }else
-                    {
-                        $tmp=str_replace('ɑ','a',$v);
-                        $pinyinContent[$k]=$tmp;
-                    }
+                    $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
+//                    if ($v=='lyu')
+//                    {
+//                        $pinyinContent[$k]='lv';
+//                    }elseif ($v=='nyu')
+//                    {
+//                        $pinyinContent[$k]='nv';
+//                    }else
+//                    {
+//                        $tmp=str_replace('ɑ','a',$v);
+//                        $pinyinContent[$k]=$tmp;
+//                    }
                 }
 
                 $tmp=$one->toArray();
@@ -439,13 +448,17 @@ class FoodMapController extends FoodMapBaseController
             {
                 foreach ($pinyinContent as $k=>$v)
                 {
-                    if ($v=='lyu')
-                    {
-                        $pinyinContent[$k]='lv';
-                    }else
-                    {
-                        $pinyinContent[$k]=str_replace('ɑ','a',$v);
-                    }
+                    $pinyinContent[$k]=ModifyPinyin::getInstance()->modify($v);
+//                    if ($v=='lyu')
+//                    {
+//                        $pinyinContent[$k]='lv';
+//                    }elseif ($v=='nyu')
+//                    {
+//                        $pinyinContent[$k]='nv';
+//                    }else
+//                    {
+//                        $pinyinContent[$k]=str_replace('ɑ','a',$v);
+//                    }
                 }
 
                 $one->pinyin=implode('',$pinyinContent);
@@ -619,13 +632,17 @@ class FoodMapController extends FoodMapBaseController
         {
             foreach ($pinyin as $key => $value)
             {
-                if ($value=='lyu')
-                {
-                    $pinyin[$key]='lv';
-                }else
-                {
-                    $pinyin[$key]=str_replace('ɑ','a',$value);
-                }
+                $pinyin[$key]=ModifyPinyin::getInstance()->modify($value);
+//                if ($value=='lyu')
+//                {
+//                    $pinyin[$key]='lv';
+//                }elseif ($value=='nyu')
+//                {
+//                    $pinyin[$key]='nv';
+//                }else
+//                {
+//                    $pinyin[$key]=str_replace('ɑ','a',$value);
+//                }
             }
 
             $res['pinyin']=implode('',$pinyin);

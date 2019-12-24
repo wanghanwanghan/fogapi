@@ -54,7 +54,7 @@ class FoodMapBaseController extends BaseController
             $open[]=$one['typeName'];
         }
 
-        if (empty($open)) $open=['地方美食'];
+        if (empty($open)) $open=['地方电影'];
 
         return $open;
     }
@@ -399,7 +399,7 @@ class FoodMapBaseController extends BaseController
 
         $sql="select * from patch where quality in ('蓝') and belongType in ({$belongType}) order by rand({$date}) limit 1";
 
-        $res=Cache::remember('choseEpicPatch',5,function () use ($sql)
+        $res=Cache::remember('choseEpicPatch',1,function () use ($sql)
         {
             return DB::connection($this->db)->select($sql);
         });
@@ -411,7 +411,7 @@ class FoodMapBaseController extends BaseController
     public function choseCommonPatch()
     {
         //先做各个等级碎片的数组
-        $all=Cache::remember('choseCommonPatch',5,function ()
+        $all=Cache::remember('choseCommonPatch',1,function ()
         {
             return DB::connection($this->db)->table('patch')->whereIn('belongType',$this->getTreasureType())->get();
         });
