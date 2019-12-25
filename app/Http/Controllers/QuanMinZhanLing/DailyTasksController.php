@@ -297,7 +297,7 @@ class DailyTasksController extends BaseController
 
         if ($wishPoolForFree===null)
         {
-            $wishPoolForFree=4;
+            $wishPoolForFree=1;
 
         }else
         {

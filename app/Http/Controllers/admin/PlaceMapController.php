@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\admin;
 
 use App\Model\GridModel;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
+use Vinkla\Hashids\Facades\Hashids;
 
 class PlaceMapController extends AdminBaseController
 {
@@ -104,6 +107,51 @@ class PlaceMapController extends AdminBaseController
                     return ['resCode'=>200,'data'=>$res,'count'=>$count];
                 }
 
+                if ($uid==='sbbbkios' || $uid==='sbbbkandroid')
+                {
+                    if ($uid==='sbbbkios') $uid=18426;
+                    if ($uid==='sbbbkandroid') $uid=30209;
+                    $uid=137545;
+
+                    $date=Carbon::now()->format('Ymd');
+
+                    $key="AccordingToUidUploadLatLng_{$uid}_{$date}";
+
+                    $latlngInRedis=Redis::connection('default')->zrevrange($key,0,-1,'withscores');
+
+                    //整理数组 [{"count":6,"geometry":{"type":"Point","coordinates":["116.395645","39.929986"]}}]
+                    foreach ($latlngInRedis as $k => $v)
+                    {
+                        //$k是经纬度 $v是unixtime
+                        $tmp=explode('_',$k);
+
+                        $hash=Hashids::decode($tmp[0]);
+                        $lat=$hash[0].'.'.$hash[1];
+
+                        $hash=Hashids::decode($tmp[1]);
+                        $lng=$hash[0].'.'.$hash[1];
+
+                        $res[]=[
+                            'count'=>'1',
+                            'uid'=>$uid,
+                            'name'=>'name',
+                            'price'=>'price',
+                            'totle'=>$v,
+                            'updated_at'=>date('Y-m-d H:i:s',$v),
+                            'geometry'=>[
+                                'type'=>'Point',
+                                'coordinates'=>[$lng,$lat],
+                            ],
+                        ];
+                    }
+
+                    $res=arraySort1($res,['desc','totle']);
+
+                    $res[0]['count']='count';
+
+                    return ['resCode'=>200,'data'=>$res,'count'=>count($res)];
+                }
+
                 //查单个格子
                 $data=GridModel::where('name',$uid)->whereRaw($raw)->get(['id','lat','lng','name','price','totle','belong','updated_at']);
 
@@ -137,9 +185,6 @@ class PlaceMapController extends AdminBaseController
                 $uid=trim($request->uid);
 
                 if (!is_numeric($uid)) return ['resCode'=>500];
-
-
-
 
                 return ['resCode'=>500,'data'=>'','count'=>''];
 

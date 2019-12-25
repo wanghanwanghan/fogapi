@@ -267,6 +267,9 @@ class UserController extends BaseController
 
                         Redis::connection('UserInfo')->hincrby($uid,'Diamond',300+$gift);
 
+                        //钻石排行榜
+                        Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',300+$gift,$uid);
+
                         break;
 
                     case 2:
@@ -275,6 +278,9 @@ class UserController extends BaseController
                         //送66
 
                         Redis::connection('UserInfo')->hincrby($uid,'Diamond',1500+$gift);
+
+                        //钻石排行榜
+                        Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',1500+$gift,$uid);
 
                         break;
 
@@ -285,6 +291,9 @@ class UserController extends BaseController
 
                         Redis::connection('UserInfo')->hincrby($uid,'Diamond',3400+$gift);
 
+                        //钻石排行榜
+                        Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',3400+$gift,$uid);
+
                         break;
 
                     case 4:
@@ -293,6 +302,9 @@ class UserController extends BaseController
                         //送388
 
                         Redis::connection('UserInfo')->hincrby($uid,'Diamond',6400+$gift);
+
+                        //钻石排行榜
+                        Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',6400+$gift,$uid);
 
                         break;
 
@@ -303,6 +315,9 @@ class UserController extends BaseController
 
                         Redis::connection('UserInfo')->hincrby($uid,'Diamond',12900+$gift);
 
+                        //钻石排行榜
+                        Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',12900+$gift,$uid);
+
                         break;
 
                     case 6:
@@ -311,6 +326,9 @@ class UserController extends BaseController
                         //送3688
 
                         Redis::connection('UserInfo')->hincrby($uid,'Diamond',32400+$gift);
+
+                        //钻石排行榜
+                        Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',32400+$gift,$uid);
 
                         break;
 
@@ -330,6 +348,9 @@ class UserController extends BaseController
                         $timeInRedis=Carbon::parse(date('Y-m-d H:i:s',$unixTime))->addDays(30)->endOfDay()->timestamp;
 
                         Redis::connection('UserInfo')->hset($uid,'DiamondUntil',$timeInRedis);
+
+                        //钻石排行榜
+                        Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',2400+$gift,$uid);
 
                         break;
                 }

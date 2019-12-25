@@ -230,7 +230,7 @@ class FoodMapController extends FoodMapBaseController
         $key="WishPoolForFree_{$time}_{$uid}";
         $wishPoolForFree=Redis::connection('UserInfo')->get($key);
 
-        if ($wishPoolForFree===null) $wishPoolForFree=3;
+        if ($wishPoolForFree===null) $wishPoolForFree=0;
 
         //钻石个数
         $diamond=(new UserController())->getUserDiamond($uid);
@@ -243,7 +243,7 @@ class FoodMapController extends FoodMapBaseController
                 'resCode'=>Config::get('resCode.200'),
                 'wishPoolForFree'=>(int)$wishPoolForFree,
                 'luckNum'=>(new FoodMapBaseController())->setUid($uid)->getLuckNum(),
-                'diamondNum'=>Redis::connection('UserInfo')->hget($uid,'Diamond'),
+                'diamondNum'=>(int)Redis::connection('UserInfo')->hget($uid,'Diamond'),
                 'epicPatch'=>(new FoodMapBaseController())->choseEpicPatch(),
             ]);
         }

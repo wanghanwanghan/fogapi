@@ -32,7 +32,7 @@ class FoodMapBaseController extends BaseController
         [
             'typeName'=>'地方景点',
             'openMonth'=>[4,8,12],
-            'open'=>0,
+            'open'=>1,
         ],
     ];
 
@@ -59,6 +59,7 @@ class FoodMapBaseController extends BaseController
         return $open;
     }
 
+    //概率
     public $rate=[
         'epicPatch'=>4,
         'commonPatch'=>30,
@@ -397,7 +398,7 @@ class FoodMapBaseController extends BaseController
         }
         $belongType=rtrim($belongType,',');
 
-        $sql="select * from patch where quality in ('蓝') and belongType in ({$belongType}) order by rand({$date}) limit 1";
+        $sql="select * from patch where quality in ('蓝','紫','橙') and belongType in ({$belongType}) order by rand({$date}) limit 1";
 
         $res=Cache::remember('choseEpicPatch',1,function () use ($sql)
         {

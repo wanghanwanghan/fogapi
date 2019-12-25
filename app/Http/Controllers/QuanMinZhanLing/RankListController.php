@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\QuanMinZhanLing;
 
+use App\Model\FoodMap\UserPatch;
+use App\Model\FoodMap\UserSuccess;
 use App\Model\GridInfoModel;
 use App\Model\GridModel;
 use App\Model\RankListModel;
 use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -132,6 +135,154 @@ class RankListController extends BaseController
                 ];
 
                 return ['resCode'=>Config::get('resCode.200'),'all'=>$limit,'my'=>$my];
+
+                break;
+
+            //宝物排行榜
+            case '9':
+
+                $all=[];
+                $my=[];
+
+                $res=Cache::remember('getRankList_9',5,function()
+                {
+                    return UserSuccess::select(DB::connection('FoodMap')->raw('uid,count(1) as num'))
+                        ->groupBy('uid')
+                        ->orderBy('num','desc')
+                        ->get()->toArray();
+                });
+
+                //总榜是空
+                if (empty($res)) return response()->json(['resCode'=>200,'all'=>$all,'my'=>$my]);
+
+                //整理数组
+                $row=1;
+                foreach ($res as $one)
+                {
+                    if ($row <= 200)
+                    {
+                        $all[]=[
+                            'row'=>$row,
+                            'num'=>$one['num'],
+                            'uid'=>$one['uid'],
+                            'name'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'name')),
+                            'avatar'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'avatar')),
+                        ];
+                    }
+
+                    //是自己
+                    if ($one['uid']==$uid)
+                    {
+                        $my[]=[
+                            'row'=>$row,
+                            'num'=>$one['num'],
+                            'uid'=>$one['uid'],
+                            'name'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'name')),
+                            'avatar'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'avatar')),
+                        ];
+                    }
+
+                    $row++;
+                }
+
+                return response()->json(['resCode'=>200,'all'=>$all,'my'=>$my]);
+
+                break;
+
+            //碎片排行榜
+            case '10':
+
+                $all=[];
+                $my=[];
+
+                $res=Cache::remember('getRankList_10',5,function()
+                {
+                    return UserPatch::select(DB::connection('FoodMap')->raw('uid,sum(num) as num'))
+                        ->groupBy('uid')
+                        ->orderBy('num','desc')
+                        ->get()->toArray();
+                });
+
+                //总榜是空
+                if (empty($res)) return response()->json(['resCode'=>200,'all'=>$all,'my'=>$my]);
+
+                //整理数组
+                $row=1;
+                foreach ($res as $one)
+                {
+                    if ($row <= 200)
+                    {
+                        $all[]=[
+                            'row'=>$row,
+                            'num'=>$one['num'],
+                            'uid'=>$one['uid'],
+                            'name'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'name')),
+                            'avatar'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'avatar')),
+                        ];
+                    }
+
+                    //是自己
+                    if ($one['uid']==$uid)
+                    {
+                        $my[]=[
+                            'row'=>$row,
+                            'num'=>$one['num'],
+                            'uid'=>$one['uid'],
+                            'name'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'name')),
+                            'avatar'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'avatar')),
+                        ];
+                    }
+
+                    $row++;
+                }
+
+                return response()->json(['resCode'=>200,'all'=>$all,'my'=>$my]);
+
+                break;
+
+            //钻石充值排行榜
+            case '11':
+
+                $all=[];
+                $my=[];
+                $key='DiamondRankListForTssj';
+
+                //前200
+                $limit200=Redis::connection('WriteLog')->zrevrange($key,0,199,'withscores');
+
+                //总榜是空
+                if (empty($limit200)) return response()->json(['resCode'=>200,'all'=>[],'my'=>[]]);
+
+                $row=1;
+                foreach ($limit200 as $k=>$v)
+                {
+                    $all[]=[
+                        'row'=>$row,
+                        'num'=>$v,
+                        'uid'=>$k,
+                        'name'=>trim(Redis::connection('UserInfo')->hget($k,'name')),
+                        'avatar'=>trim(Redis::connection('UserInfo')->hget($k,'avatar')),
+                    ];
+
+                    $row++;
+                }
+
+                //我的排名
+                if (Redis::connection('WriteLog')->zrevrank($key,$uid)!=null)
+                {
+                    $myRank=Redis::connection('WriteLog')->zrevrank($key,$uid)+1;
+                    $myNum=Redis::connection('WriteLog')->zscore($key,$uid);
+
+                    $my=[
+                        'row'=>$myRank,
+                        'num'=>$myNum,
+                        'uid'=>$uid,
+                        'name'=>trim(Redis::connection('UserInfo')->hget($uid,'name')),
+                        'avatar'=>trim(Redis::connection('UserInfo')->hget($uid,'avatar')),
+                    ];
+                }
+
+                return response()->json(['resCode'=>200,'all'=>$all,'my'=>$my]);
 
                 break;
 

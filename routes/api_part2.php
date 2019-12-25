@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
+use Vinkla\Hashids\Facades\Hashids;
 
 Route::group(['middleware'=>['PVandUV']],function ()
 {
@@ -30,14 +31,22 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
             $uid=(int)$request->uid;
 
-            $data=[
-                'lat'=>sprintf("%.6f",trim($request->lat)),
-                'lng'=>sprintf("%.6f",trim($request->lng)),
-                'time'=>time(),
-                'easyToRead'=>Carbon::now()->format('Y-m-d H:i:s')
-            ];
+            $lat=sprintf("%.6f",trim($request->lat));
+            $lng=sprintf("%.6f",trim($request->lng));
 
-            Redis::connection('default')->set('AccordingToUidUploadLatLng_'.$uid,jsonEncode($data));
+            $latArr=explode('.',$lat);
+            $lngArr=explode('.',$lng);
+
+            //纬度
+            $lat_hash=Hashids::encode($latArr[0],$latArr[1]);
+            //经度
+            $lng_hash=Hashids::encode($lngArr[0],$lngArr[1]);
+
+            $date=Carbon::now()->format('Ymd');
+            $key="AccordingToUidUploadLatLng_{$uid}_{$date}";
+
+            Redis::connection('default')->zadd($key,time(),"{$lat_hash}_{$lng_hash}");
+            Redis::connection('default')->expire($key,86400 * 7);
 
             return response()->json(['resCode'=>200]);
         }

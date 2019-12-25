@@ -191,6 +191,23 @@ class FoodMapUserController
                 ->offset($offset)
                 ->get()->toArray();
 
+            //显示这个碎片我有多少个？？？
+            foreach ($res as &$one)
+            {
+                $howMuch=UserPatch::where(['uid'=>$uid,'pid'=>$one['pid']])->first();
+
+                if ($howMuch)
+                {
+                    //存在
+                    $one['iHave']=(int)$howMuch->num;
+                }else
+                {
+                    //不存在
+                    $one['iHave']=0;
+                }
+            }
+            unset($one);
+
         }elseif ($type==2)
         {
             //我的出售页面

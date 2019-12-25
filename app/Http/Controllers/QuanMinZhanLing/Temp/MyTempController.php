@@ -19,6 +19,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Overtrue\Pinyin\Pinyin;
 use Qiniu\Auth;
 use Qiniu\Sms\Sms;
+use Vinkla\Hashids\Facades\Hashids;
 
 class MyTempController extends BaseController
 {
@@ -28,23 +29,34 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
 
-        $py=new Pinyin();
 
-        $res=$py->convert('担担面女孩吃驴肉火烧在一零一大厦');
 
-        $res=ModifyPinyin::getInstance()->modifyArray($res);
 
-        dd($res);
+
+        $lat=Hashids::encode('39','960466');
+        $lng=Hashids::encode('116','449340');
+
+
+
+        Redis::connection('default')->zadd("wanghanTest",time(),"{$lat}_{$lng}");
+
+
+
+        dd(123123);
 
 
         $arr=[
-            '北京'=>'李宁',
+            '北京'=>'长城',
+            '四川'=>'九寨沟',
+            '云南'=>'丽江古城',
+            '上海'=>'陆家嘴',
+            '浙江'=>'乌镇',
         ];
 
-        $quality='绿';
+        $quality='蓝';
 
         $place=['A','B','C','D'];
-        $belongType='地方品牌';
+        $belongType='地方景点';
 
 
         foreach ($arr as $k=>$v)
@@ -63,6 +75,8 @@ class MyTempController extends BaseController
                 ]);
             }
         }
+
+
 
         dd($subject,$quality);
 
