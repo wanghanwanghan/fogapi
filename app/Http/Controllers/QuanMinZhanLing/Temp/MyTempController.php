@@ -29,12 +29,16 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
 
+        $encode='yDkINn_yDkINn';
+        $encode=explode('_',$encode);
+
+
+        $lat=Hashids::decode($encode[0]);
+        $lng=Hashids::decode($encode[1]);
 
 
 
-
-        $lat=Hashids::encode('39','960466');
-        $lng=Hashids::encode('116','449340');
+        dd($lat,$lng);
 
 
 

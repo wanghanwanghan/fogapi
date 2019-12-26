@@ -282,7 +282,7 @@ class FoodMapController extends FoodMapBaseController
             'resCode'=>Config::get('resCode.200'),
             'wishPoolForFree'=>(int)$wishPoolForFree,
             'luckNum'=>(new FoodMapBaseController())->setUid($uid)->getLuckNum(),
-            'diamondNum'=>Redis::connection('UserInfo')->hget($uid,'Diamond'),
+            'diamondNum'=>(int)Redis::connection('UserInfo')->hget($uid,'Diamond'),
             'data'=>$res,
             'new'=>$new
         ]);

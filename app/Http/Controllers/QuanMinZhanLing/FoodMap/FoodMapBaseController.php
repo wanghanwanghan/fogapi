@@ -54,7 +54,7 @@ class FoodMapBaseController extends BaseController
             $open[]=$one['typeName'];
         }
 
-        if (empty($open)) $open=['地方电影'];
+        if (empty($open)) $open=['地方美食'];
 
         return $open;
     }

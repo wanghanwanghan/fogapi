@@ -142,7 +142,7 @@ class RankListController extends BaseController
             case '9':
 
                 $all=[];
-                $my=[];
+                $my=null;
 
                 $res=Cache::remember('getRankList_9',5,function()
                 {
@@ -193,7 +193,7 @@ class RankListController extends BaseController
             case '10':
 
                 $all=[];
-                $my=[];
+                $my=null;
 
                 $res=Cache::remember('getRankList_10',5,function()
                 {
@@ -244,7 +244,7 @@ class RankListController extends BaseController
             case '11':
 
                 $all=[];
-                $my=[];
+                $my=null;
                 $key='DiamondRankListForTssj';
 
                 //前200

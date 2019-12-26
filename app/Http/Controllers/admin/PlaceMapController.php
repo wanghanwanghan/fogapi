@@ -111,7 +111,6 @@ class PlaceMapController extends AdminBaseController
                 {
                     if ($uid==='sbbbkios') $uid=18426;
                     if ($uid==='sbbbkandroid') $uid=30209;
-                    $uid=137545;
 
                     $date=Carbon::now()->format('Ymd');
 
@@ -134,8 +133,8 @@ class PlaceMapController extends AdminBaseController
                         $res[]=[
                             'count'=>'1',
                             'uid'=>$uid,
-                            'name'=>'name',
-                            'price'=>'price',
+                            'name'=>'测试',
+                            'price'=>'测试',
                             'totle'=>$v,
                             'updated_at'=>date('Y-m-d H:i:s',$v),
                             'geometry'=>[

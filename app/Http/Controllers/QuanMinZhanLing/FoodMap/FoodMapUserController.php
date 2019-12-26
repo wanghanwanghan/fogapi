@@ -30,7 +30,7 @@ class FoodMapUserController
     public function composeTreasure($uid,$patchSubject)
     {
         //先把这个碎片加到用户碎片表
-        $pid=Patch::where('subject',$patchSubject)->first();
+        $pid=Patch::where('subject',$patchSubject)->whereIn('belongType',$this->getTreasureType())->first();
 
         //加入用户碎片表
         $res=UserPatch::where(['uid'=>$uid,'pid'=>$pid->id])->first();
