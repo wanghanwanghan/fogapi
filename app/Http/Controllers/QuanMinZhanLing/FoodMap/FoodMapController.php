@@ -10,10 +10,12 @@ use App\Model\FoodMap\UserGetPatchByWay;
 use App\Model\FoodMap\UserPatch;
 use App\Model\GridModel;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
 use Overtrue\Pinyin\Pinyin;
+use function GuzzleHttp\Psr7\str;
 
 class FoodMapController extends FoodMapBaseController
 {
@@ -341,24 +343,27 @@ class FoodMapController extends FoodMapBaseController
     //获取用户已经收集到宝物个数
     public function getUserTreasureNum(Request $request)
     {
-        $uid=$request->uid;
+        //求剩余多少天
+        $lastMonthStart=Carbon::now()->addMonth()->startOfMonth();
+        $time=(new Carbon)->diffInDays($lastMonthStart,true);
+        $expire="剩余 {$time} 天";
 
-        $type=$request->type;
-
-        $res=FoodMapUserController::getInstance()->getUserAllTreasureNum($uid,$type);
-
+        //得到所有类别
+        $allType=(new FoodMapBaseController())->treasureType;
+        //当前开放类别
         $type=$this->getTreasureType();
 
-        $type=current($type);
+        foreach ($allType as &$one)
+        {
+            unset($one['openMonth']);
 
-        $lastMonthStart=Carbon::now()->addMonth()->startOfMonth();
+            if (!in_array($one['typeName'],$type)) continue;
 
-        $time=(new Carbon)->diffInDays($lastMonthStart,true);
+            $one['expire']=$expire;
+        }
+        unset($one);
 
-        $tmp['typeName']=$type;
-        $tmp['expire']="剩余 {$time} 天";
-
-        return response()->json(['resCode'=>Config::get('resCode.200'),'allType'=>(new FoodMapBaseController())->treasureType,'type'=>$tmp,'data'=>$res]);
+        return response()->json(['resCode'=>Config::get('resCode.200'),'type'=>$allType]);
     }
 
     //获取用户宝物页
@@ -421,7 +426,7 @@ class FoodMapController extends FoodMapBaseController
                 $one->pinyin=implode('',$pinyinContent);
             }
 
-            $pidArr=Patch::where('subject','like',$one->subject.'%')->pluck('id')->toArray();
+            $pidArr=Patch::where('subject','like',$one->subject.'_')->pluck('id')->toArray();
 
             $one->patch=UserPatch::with('patch')->where('uid',$uid)->whereIn('pid',$pidArr)->get()->toArray();
         }
@@ -468,6 +473,35 @@ class FoodMapController extends FoodMapBaseController
 
         if (!isset($sort)) $res=arraySort1($res,['asc','expireTime']);
 
+        if ($type==2)
+        {
+            //正在出售的方上面，已经卖出的方下面？？？？
+            $onSale=$saled=[];
+
+            foreach ($res as $one)
+            {
+                if ($one['bid'] > 0)
+                {
+                    //已经卖出去了
+                    $one['buyUserInfo']=[
+                        'name'=>trim(Redis::connection('UserInfo')->hget($one['bid'],'name')),
+                        'avatar'=>trim(Redis::connection('UserInfo')->hget($one['bid'],'avatar')),
+                    ];
+                    $saled[]=$one;
+
+                }else
+                {
+                    $one['buyUserInfo']=[
+                        'name'=>'',
+                        'avatar'=>'',
+                    ];
+                    $onSale[]=$one;
+                }
+            }
+
+            $res=array_merge($onSale,$saled);
+        }
+
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res,'diamond'=>$diamond]);
     }
 
@@ -495,6 +529,11 @@ class FoodMapController extends FoodMapBaseController
 
         if ($type==1)
         {
+            //每个人只能卖10个？？？
+            $count=AuctionHouse::where(['uid'=>$uid,'status'=>1])->count();
+
+            if ($count >= 10) return response()->json(['resCode'=>Config::get('resCode.704')]);
+
             FoodMapUserController::getInstance()->saleToAuctionHouse($request,$patchInfo,$check);
         }else
         {
@@ -513,15 +552,24 @@ class FoodMapController extends FoodMapBaseController
 
         $ahId=$request->ah;
 
-        $ahInfo=AuctionHouse::find($ahId);
-
+        //加锁
         $key="buyPatchOrCancel_{$ahId}";
+        if (redisLock($key,10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
+
+        try
+        {
+            $ahInfo=AuctionHouse::find($ahId);
+
+        }catch (ModelNotFoundException $e)
+        {
+            //解锁
+            redisUnlock($key);
+
+            return response()->json(['resCode'=>Config::get('resCode.703')]);
+        }
 
         if ($type==2)
         {
-            //加锁
-            if (redisLock($key,10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
-
             //下架
             FoodMapUserController::getInstance()->cancelPatch($ahInfo);
 
@@ -537,10 +585,13 @@ class FoodMapController extends FoodMapBaseController
         //判断钻石够不够，我的剩余钻石
         $diamond=(int)Redis::connection('UserInfo')->hget($buyUid,'Diamond');
 
-        if ($diamond < $ahInfo->diamond) return response()->json(['resCode'=>Config::get('resCode.700')]);
+        if ($diamond < $ahInfo->diamond)
+        {
+            //解锁
+            redisUnlock($key);
 
-        //加锁
-        if (redisLock($key,10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
+            return response()->json(['resCode'=>Config::get('resCode.700')]);
+        }
 
         //购买碎片
         $res=FoodMapUserController::getInstance()->buyPatch($buyUid,$ahInfo);
@@ -555,6 +606,7 @@ class FoodMapController extends FoodMapBaseController
 
         //修改状态
         $ahInfo->status=2;
+        $ahInfo->bid=$buyUid;
         $ahInfo->save();
 
         //解锁

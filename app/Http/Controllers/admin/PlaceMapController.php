@@ -130,6 +130,9 @@ class PlaceMapController extends AdminBaseController
                         $hash=Hashids::decode($tmp[1]);
                         $lng=$hash[0].'.'.$hash[1];
 
+                        //手机上传的是高德坐标系，inmap是百度坐标系，需要转化
+                        $baiduMap=bd_encrypt($lng,$lat);
+
                         $res[]=[
                             'count'=>'1',
                             'uid'=>$uid,
@@ -139,7 +142,7 @@ class PlaceMapController extends AdminBaseController
                             'updated_at'=>date('Y-m-d H:i:s',$v),
                             'geometry'=>[
                                 'type'=>'Point',
-                                'coordinates'=>[$lng,$lat],
+                                'coordinates'=>[$baiduMap['bd_lon'],$baiduMap['bd_lat']],
                             ],
                         ];
                     }

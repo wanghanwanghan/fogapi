@@ -212,10 +212,10 @@ class FoodMapUserController
         {
             //我的出售页面
             $res=AuctionHouse::with('patch')->where('uid',$uid)
-                ->where('status',1)
+                ->whereIn('status',[1,2])//1是正在出售，2是被人买走
                 ->orderBy('created_at','desc')
-                ->limit($limit)
-                ->offset($offset)
+                //->limit($limit)
+                //->offset($offset)
                 ->get()->toArray();
 
         }elseif ($type==3)
@@ -322,7 +322,29 @@ Eof;
 
         $userPatchInfo->save();
 
-        Redis::connection('UserInfo')->hincrby($request->uid,'money',150*$request->num);
+        switch ($patchInfo->quality)
+        {
+            case '白':
+                $money=50;
+                break;
+            case '绿':
+                $money=100;
+                break;
+            case '蓝':
+                $money=200;
+                break;
+            case '紫':
+                $money=300;
+                break;
+            case '橙':
+                $money=500;
+                break;
+            default:
+                $money=150;
+                break;
+        }
+
+        Redis::connection('UserInfo')->hincrby($request->uid,'money',$money*$request->num);
 
         return true;
     }
@@ -330,7 +352,7 @@ Eof;
     //购买碎片
     public function buyPatch($buyUid,$ahInfo)
     {
-        $patchInfo=Patch::find($ahInfo->pid)->first();
+        $patchInfo=Patch::find($ahInfo->pid);
 
         $res=$this->composeTreasure($buyUid,$patchInfo->subject);
 
@@ -398,7 +420,11 @@ Eof;
         {
             //第一次获得碎片
             //通过传进来的$patchBelong，随机一个碎片给
-            $patchArr=Patch::where('belongCity','like',$patchBelong.'%')->whereIn('belongType',$treasureType)->get()->toArray();
+            $patchArr=Patch::where('belongCity','like',$patchBelong.'%')
+                ->whereNotIn('quality',['蓝','紫','橙'])
+                ->whereIn('belongType',$treasureType)
+                ->get()->toArray();
+
             $patchArr=array_random($patchArr);
 
             //UserPatch::create([
@@ -419,6 +445,7 @@ Eof;
             foreach ($res as $one)
             {
                 if (empty($pid)) $subject=mb_substr($one['patch']['subject'],0,-1);
+
                 $pid[]=$one['pid'];
             }
 

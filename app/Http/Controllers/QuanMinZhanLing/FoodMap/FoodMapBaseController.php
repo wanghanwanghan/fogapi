@@ -16,7 +16,7 @@ class FoodMapBaseController extends BaseController
     public $treasureType=[
         [
             'typeName'=>'地方美食',
-            'openMonth'=>[1,5,9],
+            'openMonth'=>[1,5,9,12],
             'open'=>1,
         ],
         [
@@ -31,7 +31,7 @@ class FoodMapBaseController extends BaseController
         ],
         [
             'typeName'=>'地方景点',
-            'openMonth'=>[4,8,12],
+            'openMonth'=>[4,8],
             'open'=>1,
         ],
     ];
@@ -400,7 +400,7 @@ class FoodMapBaseController extends BaseController
 
         $sql="select * from patch where quality in ('蓝','紫','橙') and belongType in ({$belongType}) order by rand({$date}) limit 1";
 
-        $res=Cache::remember('choseEpicPatch',1,function () use ($sql)
+        $res=Cache::remember('choseEpicPatch',60,function () use ($sql)
         {
             return DB::connection($this->db)->select($sql);
         });
@@ -412,7 +412,7 @@ class FoodMapBaseController extends BaseController
     public function choseCommonPatch()
     {
         //先做各个等级碎片的数组
-        $all=Cache::remember('choseCommonPatch',1,function ()
+        $all=Cache::remember('choseCommonPatch',60,function ()
         {
             return DB::connection($this->db)->table('patch')->whereIn('belongType',$this->getTreasureType())->get();
         });
@@ -563,13 +563,14 @@ class FoodMapBaseController extends BaseController
                     Schema::connection($this->db)->create($type, function (Blueprint $table)
                     {
                         $table->increments('id')->unsigned()->comment('主键');
-                        $table->integer('uid')->unsigned()->comment('用户主键')->index();
+                        $table->integer('uid')->unsigned()->comment('出售人的主键')->index();
                         $table->integer('pid')->unsigned()->comment('碎片主键')->index();
                         $table->integer('expireTime')->unsigned()->comment('过期时间')->index();
                         $table->integer('money')->unsigned()->comment('卖多少钱');
                         $table->integer('diamond')->unsigned()->comment('卖多少钻石');
                         $table->integer('num')->unsigned()->comment('卖几个');
                         $table->tinyInteger('status')->unsigned()->comment('1正在卖，2被买走，3被下架，4被定时任务刷回');
+                        $table->integer('bid')->unsigned()->default(0)->comment('购买人的主键')->index();
                         $table->timestamps();
                         $table->index('created_at');
                         $table->engine = 'InnoDB';

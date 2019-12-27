@@ -12,6 +12,7 @@ use App\Model\FoodMap\Patch;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -29,24 +30,32 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
 
-        $encode='yDkINn_yDkINn';
-        $encode=explode('_',$encode);
-
-
-        $lat=Hashids::decode($encode[0]);
-        $lng=Hashids::decode($encode[1]);
 
 
 
-        dd($lat,$lng);
 
 
 
-        Redis::connection('default')->zadd("wanghanTest",time(),"{$lat}_{$lng}");
 
 
 
-        dd(123123);
+
+
+
+
+
+
+
+
+
+
+
+
+        dd(123);
+
+
+
+
 
 
         $arr=[
@@ -283,6 +292,28 @@ class MyTempController extends BaseController
         return $output;
     }
 
+    //where is bk
+    public function whereIsBk(Request $request)
+    {
+        $ymd=Carbon::now()->format('Ymd');
+
+        if ($request->id=='ios') $key="AccordingToUidUploadLatLng_18426_{$ymd}";
+        if ($request->id=='android') $key="AccordingToUidUploadLatLng_30209_{$ymd}";
+
+        $limit1=Redis::connection('default')->zrevrange($key,0,0,'withscores');
+
+        foreach ($limit1 as $k=>$v)
+        {
+            $hashString=$k;
+            $update_at=date('Y-m-d H:i:s',$v);
+        }
+
+        $res['lat']=latlngStrTolatlng($hashString)['lat'];
+        $res['lng']=latlngStrTolatlng($hashString)['lng'];
+        $res['update_at']=$update_at;
+
+        return view('whereisbk')->with(['info'=>$res]);
+    }
 
 
 

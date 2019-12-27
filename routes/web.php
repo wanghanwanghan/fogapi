@@ -116,3 +116,7 @@ Route::group(['prefix'=>'admin'],function ()
 //
 Route::get('test','QuanMinZhanLing\Temp\MyTempController@test');
 
+//where is bk
+Route::get('whereisbk/{id}','QuanMinZhanLing\Temp\MyTempController@whereIsBk');
+
+
