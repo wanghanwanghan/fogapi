@@ -30,9 +30,11 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
 
+        $res=Hashids::encode('137545',date('H',time()));
 
 
 
+        dd(Hashids::decode($res));
 
 
 
@@ -300,6 +302,7 @@ class MyTempController extends BaseController
         if ($request->id=='ios') $key="AccordingToUidUploadLatLng_18426_{$ymd}";
         if ($request->id=='android') $key="AccordingToUidUploadLatLng_30209_{$ymd}";
 
+        //从第0开始，到第0结束，取1个
         $limit1=Redis::connection('default')->zrevrange($key,0,0,'withscores');
 
         foreach ($limit1 as $k=>$v)
@@ -310,10 +313,40 @@ class MyTempController extends BaseController
 
         $res['lat']=latlngStrTolatlng($hashString)['lat'];
         $res['lng']=latlngStrTolatlng($hashString)['lng'];
+
+        if ($request->id=='ios')
+        {
+            //谷歌坐标转高德坐标
+            $url='https://restapi.amap.com/v3/assistant/coordinate/convert?';
+            $url.='key=b976002b11601f21e73fc2ded6a34d0e&';
+            $url.="locations={$res['lng']},{$res['lat']}&";
+            $url.="coordsys=gps";
+
+            try
+            {
+                $tmp=file_get_contents($url);
+                $tmp=jsonDecode($tmp);
+                $tmp=explode(',',$tmp['locations']);
+
+                $res['lat']=$tmp[1];
+                $res['lng']=$tmp[0];
+
+            }catch (\Exception $e)
+            {
+
+            }
+        }
+
         $res['update_at']=$update_at;
         $res['time']=date('Y-m-d H:i:s',time());;
 
-        return view('whereisbk')->with(['info'=>$res]);
+        //汉太华高德地图经纬度
+        $res['gongsiLat']='39.9733390000';
+        $res['gongsiLng']='116.3623500000';
+
+        if (isMobile()) return view('whereisbk')->with(['info'=>$res]);
+
+        return abort(404);
     }
 
 

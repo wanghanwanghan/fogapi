@@ -836,10 +836,12 @@ function formatDate($timestamp,$type='')
         {
             $hours=(new Carbon)->diffInHours($target,true);
 
-            return "剩余 0 天 {$hours} 小时";
+            //return "剩余 0 天 {$hours} 小时";
+            return "剩余{$hours}小时";
         }else
         {
-            return "剩余 {$day} 天";
+            //return "剩余 {$day} 天";
+            return "剩余{$day}天";
         }
     }
 

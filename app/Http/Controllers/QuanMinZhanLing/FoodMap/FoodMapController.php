@@ -340,7 +340,7 @@ class FoodMapController extends FoodMapBaseController
         return $new;
     }
 
-    //获取用户已经收集到宝物个数
+    //获取用户已经收集到宝物个数，这个接口改了，现在是显示哪个类别开放了已经剩余多少天关闭
     public function getUserTreasureNum(Request $request)
     {
         //求剩余多少天
@@ -659,14 +659,27 @@ class FoodMapController extends FoodMapBaseController
 
         if (!$unixTime) $unixTime=time();
 
-        $expireDate=formatDate($unixTime,'date');
+        if ($unixTime <= time())
+        {
+            //没有月卡或者月卡失效
+            return response()->json([
+                'resCode'=>Config::get('resCode.200'),
+                'money'=>$money,
+                'diamond'=>$diamond,
+                'expireDate'=>''
+            ]);
 
-        return response()->json([
-            'resCode'=>Config::get('resCode.200'),
-            'money'=>$money,
-            'diamond'=>$diamond,
-            'expireDate'=>'月卡生效中 '.$expireDate
-        ]);
+        }else
+        {
+            $expireDate=formatDate($unixTime,'date');
+
+            return response()->json([
+                'resCode'=>Config::get('resCode.200'),
+                'money'=>$money,
+                'diamond'=>$diamond,
+                'expireDate'=>'月卡生效中 '.$expireDate
+            ]);
+        }
     }
 
     //每天领取钻石
