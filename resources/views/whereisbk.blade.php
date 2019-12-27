@@ -22,6 +22,7 @@
 <input type="hidden" id="currentLat" value="{{$info['lat']}}">
 <input type="hidden" id="currentLng" value="{{$info['lng']}}">
 <input type="hidden" id="currentUpdate_at" value="{{$info['update_at']}}">
+<input type="hidden" id="currentTime" value="{{$info['time']}}">
 <div id="container"></div>
 <div class='info'>this is very important。</div>
 <div class="input-card" style='width:28rem;'>
@@ -29,6 +30,10 @@
     <div class="input-item">
         <div class="input-item-prepend"><span class="input-item-text">最后更新</span></div>
         <input id='update_at' type="text" value='' disabled>
+    </div>
+    <div class="input-item">
+        <div class="input-item-prepend"><span class="input-item-text">当前时间</span></div>
+        <input id='cTime' type="text" value='' disabled>
     </div>
     <div class="input-item">
         <div class="input-item-prepend"><span class="input-item-text">经纬度</span></div>
@@ -77,6 +82,7 @@
                 $("#address").val(address);
                 $("#lnglat").val(lat+','+lng);
                 $("#update_at").val($("#currentUpdate_at").val());
+                $("#cTime").val($("#currentTime").val());
 
             }else
             {

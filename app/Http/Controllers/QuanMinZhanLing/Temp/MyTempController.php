@@ -311,6 +311,7 @@ class MyTempController extends BaseController
         $res['lat']=latlngStrTolatlng($hashString)['lat'];
         $res['lng']=latlngStrTolatlng($hashString)['lng'];
         $res['update_at']=$update_at;
+        $res['time']=date('Y-m-d H:i:s',time());;
 
         return view('whereisbk')->with(['info'=>$res]);
     }
