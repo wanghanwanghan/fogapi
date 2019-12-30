@@ -1185,7 +1185,7 @@ function randomUUID()
 }
 
 //redis加锁
-function redisLock($key,$lockTime)
+function redisLock($key,$lockTime=10)
 {
     return Redis::connection('RequestToken')->set($key,'Locking...','ex',$lockTime,'nx');
 }

@@ -12,6 +12,7 @@ use App\Model\GridModel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
 use Overtrue\Pinyin\Pinyin;
@@ -554,7 +555,11 @@ class FoodMapController extends FoodMapBaseController
 
         //加锁
         $key="buyPatchOrCancel_{$ahId}";
-        if (redisLock($key,10)===null) return response()->json(['resCode'=>Config::get('resCode.600')]);
+
+        //1-150毫秒
+        //usleep(mt_rand(1,150000));
+
+        if (!Cache::lock($key,3)) return response()->json(['resCode'=>Config::get('resCode.600')]);
 
         try
         {
@@ -562,19 +567,17 @@ class FoodMapController extends FoodMapBaseController
 
         }catch (ModelNotFoundException $e)
         {
-            //解锁
-            redisUnlock($key);
-
             return response()->json(['resCode'=>Config::get('resCode.703')]);
         }
 
         if ($type==2)
         {
-            //下架
-            FoodMapUserController::getInstance()->cancelPatch($ahInfo);
+            if (!Cache::lock($key,3)) return response()->json(['resCode'=>Config::get('resCode.600')]);
 
-            //解锁
-            redisUnlock($key);
+            //下架
+            if ($ahInfo->status!==1) return response()->json(['resCode'=>Config::get('resCode.702')]);
+
+            FoodMapUserController::getInstance()->cancelPatch($ahInfo);
 
             return response()->json(['resCode'=>Config::get('resCode.200')]);
         }
@@ -585,11 +588,8 @@ class FoodMapController extends FoodMapBaseController
         //判断钻石够不够，我的剩余钻石
         $diamond=(int)Redis::connection('UserInfo')->hget($buyUid,'Diamond');
 
-        if ($diamond < $ahInfo->diamond)
+        if ($diamond < $ahInfo->diamond || $ahInfo->status!=1)
         {
-            //解锁
-            redisUnlock($key);
-
             return response()->json(['resCode'=>Config::get('resCode.700')]);
         }
 
@@ -608,9 +608,6 @@ class FoodMapController extends FoodMapBaseController
         $ahInfo->status=2;
         $ahInfo->bid=$buyUid;
         $ahInfo->save();
-
-        //解锁
-        redisUnlock($key);
 
         $way=8;
         $ymd=Carbon::now()->format('Ymd');

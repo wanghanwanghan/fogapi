@@ -251,7 +251,7 @@ class RankListController extends BaseController
                 $limit200=Redis::connection('WriteLog')->zrevrange($key,0,199,'withscores');
 
                 //总榜是空
-                if (empty($limit200)) return response()->json(['resCode'=>200,'all'=>[],'my'=>[]]);
+                if (empty($limit200)) return response()->json(['resCode'=>200,'all'=>[],'my'=>null]);
 
                 $row=1;
                 foreach ($limit200 as $k=>$v)

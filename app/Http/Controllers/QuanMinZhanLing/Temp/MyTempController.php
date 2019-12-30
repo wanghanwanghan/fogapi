@@ -14,6 +14,7 @@ use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -32,18 +33,32 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
 
-//        Schema::connection('aboutTssj')->create('inviteCode', function (Blueprint $table)
-//        {
-//            $table->increments('id')->unsigned()->comment('自增主键');
-//            $table->integer('uid')->unsigned()->comment('创建者uid');
-//            $table->string('inviteCode',10)->comment('邀请码');
-//            $table->integer('unixTime')->unsigned()->comment('更新时间');
-//            $table->integer('usageCount')->unsigned()->comment('被使用了几次');
-//            $table->timestamps();
-//            $table->index('uid');
-//            $table->unique('inviteCode');
-//            $table->engine='InnoDB';
-//        });
+
+        $lock=Cache::lock('wanghan',10);
+
+
+        $result = $lock->get();
+
+        $lock->release();
+
+        dd($result);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         $a=Carbon::now()->format('i');

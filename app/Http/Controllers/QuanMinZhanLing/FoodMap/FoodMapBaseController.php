@@ -16,23 +16,23 @@ class FoodMapBaseController extends BaseController
     public $treasureType=[
         [
             'typeName'=>'地方美食',
-            'openMonth'=>[1,5,9,12],
+            'openMonth'=>[1,5,9],
             'open'=>1,
         ],
         [
             'typeName'=>'地方电影',
             'openMonth'=>[2,6,10],
-            'open'=>1,
+            'open'=>0,
         ],
         [
             'typeName'=>'地方品牌',
             'openMonth'=>[3,7,11],
-            'open'=>1,
+            'open'=>0,
         ],
         [
             'typeName'=>'地方景点',
-            'openMonth'=>[4,8],
-            'open'=>1,
+            'openMonth'=>[4,8,12],
+            'open'=>0,
         ],
     ];
 
