@@ -92,16 +92,22 @@
     </div>
 {{--    <input id="regeo" type="button" class="btn" value="经纬度 -> 地址" >--}}
 </div>
-{{--<script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>--}}
 <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=686bcccea2d6f038a44a88554628334a&plugin=AMap.Geocoder"></script>
 <script type="text/javascript">
 
     var map=new AMap.Map("container",{
         resizeEnable: true, //是否监控地图容器尺寸变化
-        zoom: 15, //初始地图级别
+        zoom: 14, //初始地图级别
         center: [$("#currentLng").val(),$("#currentLat").val()], //初始地图中心点
         showIndoorMap: false //关闭室内地图
     });
+
+    //实时路况图层
+    var trafficLayer = new AMap.TileLayer.Traffic({
+        zIndex: 10
+    });
+    trafficLayer.setMap(map);
+    trafficLayer.show();
 
     var geocoder=new AMap.Geocoder({city:'全国',radius:1000});
 

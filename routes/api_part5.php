@@ -43,7 +43,12 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //每天领取80钻石
     Route::match(['get','post'],'GetDiamondEveryday','QuanMinZhanLing\FoodMap\FoodMapController@getDiamondEveryday');
 
-
+    //生成邀请码
+    Route::match(['get','post'],'CreateInviteCode','TanSuoShiJie\AboutUserController@createInviteCode');
+    //检查是否有效
+    Route::match(['get','post'],'CheckInviteCode','TanSuoShiJie\AboutUserController@checkInviteCode');
+    //新用户使用邀请码
+    Route::match(['get','post'],'UseInviteCode','TanSuoShiJie\AboutUserController@useInviteCode');
 
 
 

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Server\PayBase;
 use App\Model\RankListModel;
 use App\Model\Tssj\AssociatedAccountModel;
+use App\Model\Tssj\InviteCode;
+use App\Model\Tssj\UseInviteCode;
 use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
@@ -146,5 +148,107 @@ class AboutUserController extends Controller
 
         return response()->json(['resCode'=>Config::get('resCode.200')]);
     }
+
+    //生成邀请码
+    public function createInviteCode(Request $request)
+    {
+        $uid=(int)trim($request->uid);
+
+        //看看生成没生成过
+        $check=InviteCode::where('uid',$uid)->first();
+
+        //有就直接返回
+        if ($check) return response()->json(['resCode'=>Config::get('resCode.200'),'inviteCode'=>$check->inviteCode]);
+
+        //没有就生成一个
+        for ($i=1;$i<=2000;$i++)
+        {
+            $inviteCode=strtolower(str_random(6));
+
+            $check=InviteCode::where('inviteCode',$inviteCode)->first();
+
+            //存在就下一个
+            if ($check) continue;
+
+            InviteCode::create([
+                'uid'=>$uid,
+                'inviteCode'=>$inviteCode,
+                'unixTime'=>time(),
+                'usageCount'=>0,
+            ]);
+
+            break;
+        }
+
+        return response()->json(['resCode'=>Config::get('resCode.200'),'inviteCode'=>$inviteCode]);
+    }
+
+    //检查邀请码是否有效
+    public function checkInviteCode(Request $request)
+    {
+        $inviteCode=strtolower(trim($request->inviteCode));
+
+        $check=InviteCode::where('inviteCode',$inviteCode)->first();
+
+        if ($check)
+        {
+            //有
+            return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>1]);
+
+        }else
+        {
+            //没有
+            return response()->json(['resCode'=>Config::get('resCode.200'),'status'=>0]);
+        }
+    }
+
+    //新用户使用邀请码
+    public function useInviteCode(Request $request)
+    {
+        //使用者id
+        $uid=(int)trim($request->uid);
+
+        //邀请码
+        $inviteCode=strtolower(trim($request->inviteCode));
+
+        //该用户是否被邀请过
+        $check=UseInviteCode::where('uid',$uid)->first();
+
+        //被邀请过
+        if ($check) return response()->json(['resCode'=>Config::get('resCode.200')]);
+
+        //是否存在邀请码
+        $check=InviteCode::where('inviteCode',$inviteCode)->first();
+
+        //邀请码错误
+        if (!$check) return response()->json(['resCode'=>Config::get('resCode.200')]);
+
+        //邀请码的创建者
+        $iid=$check->uid;
+
+        //双方加300钻石
+        Redis::connection('UserInfo')->hincrby($iid,'Diamond',300);
+        Redis::connection('UserInfo')->hincrby($uid,'Diamond',300);
+
+        UseInviteCode::create([
+            'uid'=>$uid,
+            'inviteCode'=>$inviteCode,
+        ]);
+
+        $check->usageCount++;
+        $check->save();
+
+        return response()->json(['resCode'=>Config::get('resCode.200')]);
+    }
+
+
+
+
+
+
+
+
+
+
 
 }

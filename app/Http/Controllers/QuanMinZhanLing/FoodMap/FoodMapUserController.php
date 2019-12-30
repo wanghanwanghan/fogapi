@@ -478,7 +478,7 @@ Eof;
 
             $quality=[array_random($tmp)];
 
-            if (time() % 3 != 0)
+            if (time() % 10 === 0)
             {
                 //本地碎片
                 $patchArr=Patch::whereIn('quality',$quality)

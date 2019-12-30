@@ -12,10 +12,12 @@ use App\Model\FoodMap\Patch;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 use Overtrue\Pinyin\Pinyin;
 use Qiniu\Auth;
@@ -30,11 +32,37 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
 
-        $res=Hashids::encode('137545',date('H',time()));
+//        Schema::connection('aboutTssj')->create('inviteCode', function (Blueprint $table)
+//        {
+//            $table->increments('id')->unsigned()->comment('自增主键');
+//            $table->integer('uid')->unsigned()->comment('创建者uid');
+//            $table->string('inviteCode',10)->comment('邀请码');
+//            $table->integer('unixTime')->unsigned()->comment('更新时间');
+//            $table->integer('usageCount')->unsigned()->comment('被使用了几次');
+//            $table->timestamps();
+//            $table->index('uid');
+//            $table->unique('inviteCode');
+//            $table->engine='InnoDB';
+//        });
+
+
+        $a=Carbon::now()->format('i');
+
+        //uid加00-23
+        $res=Hashids::encode(1,22222222);
 
 
 
-        dd(Hashids::decode($res));
+
+
+
+
+
+
+
+
+
+        dd($res,$a);
 
 
 

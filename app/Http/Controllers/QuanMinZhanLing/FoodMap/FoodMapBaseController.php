@@ -75,9 +75,9 @@ class FoodMapBaseController extends BaseController
             0, //紫
             0, //橙
         ],
-        'money'=>[99,1],//普通，峰值
-        'buyCard'=>[99,1],
-        'diamond'=>[99,1],
+        'money'=>[95,5],//普通，峰值
+        'buyCard'=>[95,5],
+        'diamond'=>[95,5],
     ];
 
     //100个许愿池物品

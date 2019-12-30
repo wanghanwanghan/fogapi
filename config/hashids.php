@@ -45,8 +45,8 @@ return [
         ],
 
         'alternative' => [
-            'salt' => 'your-salt-string',
-            'length' => 'your-length-integer',
+            'salt' => 'wanghantaishuai',
+            'length' => '6',
         ],
 
     ],
