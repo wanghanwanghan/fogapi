@@ -15,20 +15,6 @@
             width:10rem;
             margin-left:6.8rem;
         }
-        .my-flash{
-            padding: .75rem 1.25rem;
-            margin-bottom: 1rem;
-            border-radius: 50%;
-            position: fixed;
-            top: 1rem;
-            background-color: white;
-            opacity: 0.85;
-            width: auto;
-            /*min-width: 3rem;*/
-            border-width: 0;
-            right: 1rem;
-            box-shadow: 0 2px 6px 0 rgba(114, 124, 245, .5);
-        }
         .input-card {
             display: flex;
             flex-direction: column;
@@ -60,6 +46,34 @@
             line-height: 21px;
             background: url('https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png');
         }
+        .my-flash1{
+            padding: .75rem 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: 50%;
+            position: fixed;
+            top: 1rem;
+            background-color: white;
+            opacity: 0.85;
+            width: auto;
+            /*min-width: 3rem;*/
+            border-width: 0;
+            right: 1rem;
+            box-shadow: 0 2px 6px 0 rgba(114, 124, 245, .5);
+        }
+        .my-flash2{
+            padding: .75rem 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: 50%;
+            position: fixed;
+            top: 5rem;
+            background-color: white;
+            opacity: 0.85;
+            width: auto;
+            /*min-width: 3rem;*/
+            border-width: 0;
+            right: 1rem;
+            box-shadow: 0 2px 6px 0 rgba(114, 124, 245, .5);
+        }
     </style>
     <script src="https://cdn.bootcss.com/jquery/3.4.0/jquery.min.js"></script>
 </head>
@@ -71,7 +85,8 @@
 <input type="hidden" id="gongsiLat" value="{{$info['gongsiLat']}}">
 <input type="hidden" id="gongsiLng" value="{{$info['gongsiLng']}}">
 <div id="container"></div>
-<div class='my-flash' onclick="window.location.reload()">刷新</div>
+<div class='my-flash1' onclick="window.location.reload()">刷新</div>
+<div class='my-flash2' onclick="changeUid()">切换</div>
 <div class="input-card" style="width: 100%">
 {{--    <label labelstyle='color:grey'></label>--}}
     <div class="input-item">
@@ -157,6 +172,26 @@
 
     //触发
     regeoCode($("#currentLat").val(),$("#currentLng").val());
+
+    function changeUid() {
+
+        var currentUrl = window.location.href;
+
+        var baseUrl = currentUrl.lastIndexOf('/');
+
+        baseUrl = currentUrl.slice(0,baseUrl + 1);
+
+        var type = currentUrl.slice(-3);
+
+        if (type === 'ios')
+        {
+            window.location.href = baseUrl + 'android';
+        }else
+        {
+            window.location.href = baseUrl + 'ios';
+        }
+    }
+
 </script>
 </body>
 </html>

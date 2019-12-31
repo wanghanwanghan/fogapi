@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
 use Overtrue\Pinyin\Pinyin;
-use function GuzzleHttp\Psr7\str;
 
 class FoodMapController extends FoodMapBaseController
 {
@@ -346,7 +345,7 @@ class FoodMapController extends FoodMapBaseController
     {
         //求剩余多少天
         $lastMonthStart=Carbon::now()->addMonth()->startOfMonth();
-        $time=(new Carbon)->diffInDays($lastMonthStart,true);
+        $time=(new Carbon)->diffInDays($lastMonthStart,true) + 1;
         $expire="剩余 {$time} 天";
 
         //得到所有类别

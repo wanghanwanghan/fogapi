@@ -348,6 +348,9 @@ class MyTempController extends BaseController
         //从第0开始，到第0结束，取1个
         $limit1=Redis::connection('default')->zrevrange($key,0,0,'withscores');
 
+        //是空说明今天一个经纬度都没有
+        if (empty($limit1)) $limit1=["oQh4KmG_75VtYYqb" => Carbon::now()->startOfDay()->timestamp];
+
         foreach ($limit1 as $k=>$v)
         {
             $hashString=$k;
