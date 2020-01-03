@@ -31,6 +31,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
 
             $uid=(int)$request->uid;
 
+            //本次的坐标点
             $lat=sprintf("%.6f",trim($request->lat));
             $lng=sprintf("%.6f",trim($request->lng));
 
@@ -45,10 +46,37 @@ Route::group(['middleware'=>['PVandUV']],function ()
             $date=Carbon::now()->format('Ymd');
             $key="AccordingToUidUploadLatLng_{$uid}_{$date}";
 
+            //===========================================================================
+            //公司坐标
+            $cc=Config::get('myDefine.CompanyCoordinate');
+            //加入公司坐标点
+            Redis::connection('default')->geoadd("Geo_{$uid}",$cc['lng'],$cc['lat'],'Company');
+            //加入当前要插入的点
+            Redis::connection('default')->geoadd("Geo_{$uid}",$lng,$lat,'CurrentForBK');
+            //CurrentForBK和Company
+            $m3=Redis::connection('default')->geodist("Geo_{$uid}",'Company','CurrentForBK');
+
+            $geoWaringTime=(int)Redis::connection('default')->get('GeoWaringTime');
+            $nextPost=180;
+
+            if ($m3 <= 3000 && $geoWaringTime===0)
+            {
+                //第一次预警
+                $nextPost=15;
+                Redis::connection('default')->set('GeoWaringTime',Carbon::now()->addMinutes(5)->timestamp);
+            }
+            //持续预警
+            if ($m3 <= 3000 && $geoWaringTime - time() > 0) $nextPost=15;
+
+            //解除
+            if ($m3 > 3000) Redis::connection('default')->del('GeoWaringTime');
+            //===========================================================================
+
+            //以下是本次插入的点
             Redis::connection('default')->zadd($key,time(),"{$lat_hash}_{$lng_hash}");
             Redis::connection('default')->expire($key,86400 * 7);
 
-            return response()->json(['resCode'=>200]);
+            return response()->json(['resCode'=>200,'nextPost'=>(int)$nextPost]);
         }
 
         return false;

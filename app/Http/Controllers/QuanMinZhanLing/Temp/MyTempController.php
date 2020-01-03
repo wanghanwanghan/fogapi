@@ -9,6 +9,7 @@ use App\Http\Controllers\Server\ModifyPinyin;
 use App\Http\Controllers\Server\PayBase;
 use App\Model\DailyTasksModel;
 use App\Model\FoodMap\Patch;
+use App\Model\GridModel;
 use Carbon\Carbon;
 use DfaFilter\SensitiveHelper;
 use Geohash\GeoHash;
@@ -34,14 +35,14 @@ class MyTempController extends BaseController
 
 
 
-        $lock=Cache::lock('wanghan',10);
+        // Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',3400+188,97105);
 
 
-        $result = $lock->get();
 
-        $lock->release();
 
-        dd($result);
+
+
+        dd(Carbon::now()->format('Y-m-d H:i:s'));
 
 
 
@@ -387,8 +388,9 @@ class MyTempController extends BaseController
         $res['time']=date('Y-m-d H:i:s',time());;
 
         //汉太华高德地图经纬度
-        $res['gongsiLat']='39.9733390000';
-        $res['gongsiLng']='116.3623500000';
+        $cc=Config::get('myDefine.CompanyCoordinate');
+        $res['gongsiLat']=$cc['lat'];
+        $res['gongsiLng']=$cc['lng'];
 
         if (isMobile()) return view('whereisbk')->with(['info'=>$res]);
 

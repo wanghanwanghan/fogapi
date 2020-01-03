@@ -62,7 +62,7 @@ class FoodMapController extends FoodMapBaseController
                 if ($res!=null && $res->date == $date) break;
 
                 //选择一个碎片给用户
-                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
                 if ($patchName==null) break;
 
@@ -86,7 +86,7 @@ class FoodMapController extends FoodMapBaseController
                 if ($res!=null) break;
 
                 //选择一个碎片给用户
-                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
                 if ($patchName==null) break;
 
@@ -103,7 +103,7 @@ class FoodMapController extends FoodMapBaseController
                 if ($res!=null) break;
 
                 //选择一个碎片给用户
-                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
                 if ($patchName==null) break;
 
@@ -120,7 +120,7 @@ class FoodMapController extends FoodMapBaseController
                 if ($res!=null) break;
 
                 //选择一个碎片给用户
-                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
                 if ($patchName==null) break;
 
@@ -137,7 +137,7 @@ class FoodMapController extends FoodMapBaseController
                 if ($res!=null) break;
 
                 //选择一个碎片给用户
-                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong);
+                $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
                 if ($patchName==null) break;
 

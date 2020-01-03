@@ -408,7 +408,7 @@ Eof;
     }
 
     //用户得到哪个碎片
-    public function choseOnePatchGiveUser($uid,$patchBelong)
+    public function choseOnePatchGiveUser($uid,$patchBelong,$thisTimeQuality=[])
     {
         $patchName=null;
         $treasureType=$this->getTreasureType();
@@ -476,7 +476,13 @@ Eof;
 
             shuffle($tmp);
 
-            $quality=[array_random($tmp)];
+            if (empty($thisTimeQuality))
+            {
+                $quality=[array_random($tmp)];
+            }else
+            {
+                $quality=$thisTimeQuality;
+            }
 
             if (time() % 10 === 0)
             {

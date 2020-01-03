@@ -204,20 +204,23 @@ class RankListController extends BaseController
                 });
 
                 //总榜是空
-                if (empty($res)) return response()->json(['resCode'=>200,'all'=>$all,'my'=>$my]);
+                if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'all'=>$all,'my'=>$my]);
 
                 //整理数组
+                $userObj=new UserController();
                 $row=1;
                 foreach ($res as $one)
                 {
                     if ($row <= 200)
                     {
+                        $uInfo=$userObj->getUserNameAndAvatar($one['uid']);
+
                         $all[]=[
                             'row'=>$row,
                             'num'=>$one['num'],
                             'uid'=>$one['uid'],
-                            'name'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'name')),
-                            'avatar'=>trim(Redis::connection('UserInfo')->hget($one['uid'],'avatar')),
+                            'name'=>$uInfo['name'],
+                            'avatar'=>$uInfo['avatar'],
                         ];
                     }
 
@@ -236,7 +239,7 @@ class RankListController extends BaseController
                     $row++;
                 }
 
-                return response()->json(['resCode'=>200,'all'=>$all,'my'=>$my]);
+                return response()->json(['resCode'=>Config::get('resCode.200'),'all'=>$all,'my'=>$my]);
 
                 break;
 
@@ -251,7 +254,7 @@ class RankListController extends BaseController
                 $limit200=Redis::connection('WriteLog')->zrevrange($key,0,199,'withscores');
 
                 //总榜是空
-                if (empty($limit200)) return response()->json(['resCode'=>200,'all'=>[],'my'=>null]);
+                if (empty($limit200)) return response()->json(['resCode'=>Config::get('resCode.200'),'all'=>[],'my'=>null]);
 
                 $row=1;
                 foreach ($limit200 as $k=>$v)
@@ -273,16 +276,16 @@ class RankListController extends BaseController
                     $myRank=Redis::connection('WriteLog')->zrevrank($key,$uid)+1;
                     $myNum=Redis::connection('WriteLog')->zscore($key,$uid);
 
-                    $my=[
+                    $my[]=[
                         'row'=>$myRank,
                         'num'=>$myNum,
-                        'uid'=>$uid,
+                        'uid'=>(int)$uid,
                         'name'=>trim(Redis::connection('UserInfo')->hget($uid,'name')),
                         'avatar'=>trim(Redis::connection('UserInfo')->hget($uid,'avatar')),
                     ];
                 }
 
-                return response()->json(['resCode'=>200,'all'=>$all,'my'=>$my]);
+                return response()->json(['resCode'=>Config::get('resCode.200'),'all'=>$all,'my'=>$my]);
 
                 break;
 
