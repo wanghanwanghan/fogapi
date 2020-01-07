@@ -33,14 +33,7 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_10083','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
-
-
         // Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',3400+188,97105);
-
-
-
-
-
 
         dd(Carbon::now()->format('Y-m-d H:i:s'));
 

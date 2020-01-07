@@ -4,6 +4,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redis;
+use Qiniu\Auth;
+use Qiniu\Sms\Sms;
 use Vinkla\Hashids\Facades\Hashids;
 
 Route::group(['middleware'=>['PVandUV']],function ()
@@ -46,7 +48,7 @@ Route::group(['middleware'=>['PVandUV']],function ()
             $date=Carbon::now()->format('Ymd');
             $key="AccordingToUidUploadLatLng_{$uid}_{$date}";
 
-            //===========================================================================
+            //==========================================================================================================
             //公司坐标
             $cc=Config::get('myDefine.CompanyCoordinate');
             //加入公司坐标点
@@ -56,21 +58,43 @@ Route::group(['middleware'=>['PVandUV']],function ()
             //CurrentForBK和Company
             $m3=Redis::connection('default')->geodist("Geo_{$uid}",'Company','CurrentForBK');
 
-            $geoWaringTime=(int)Redis::connection('default')->get('GeoWaringTime');
-            $nextPost=180;
+            $geoWaringTime=(int)Redis::connection('default')->get("GeoWaringTime_{$uid}");
 
-            if ($m3 <= 3000 && $geoWaringTime===0)
+            //多少米内开始预警
+            $wk=3500;
+            //持续预警几分钟
+            $wm=10;
+            //预警时间隔几秒post
+            $wp=10;
+
+            $nextPost=180;
+            if ($m3 <= $wk && $geoWaringTime===0)
             {
                 //第一次预警
-                $nextPost=15;
-                Redis::connection('default')->set('GeoWaringTime',Carbon::now()->addMinutes(5)->timestamp);
+                $nextPost=$wp;
+                Redis::connection('default')->set("GeoWaringTime_{$uid}",Carbon::now()->addMinutes($wm)->timestamp);
+
+                //发送预警短信
+                $ak="PPlFNlpidaN6rrcRcgnLAKX2NC1EXSq98smv72XQ";
+                $sk="QHwYaLC8XtB6IZ9o3K8fsCj8B4EMaYAd4KmkM8JI";
+                $auth =new Auth($ak,$sk);
+                $client=new Sms($auth);
+                $template_id="1182207669239291904";
+                $mobiles=['15210929119'];
+                try
+                {
+                    $resp=$client->sendMessage($template_id,$mobiles,['code'=>$uid]);
+                }catch (Exception $e)
+                {
+
+                }
             }
             //持续预警
-            if ($m3 <= 3000 && $geoWaringTime - time() > 0) $nextPost=15;
+            if ($m3 <= $wk && $geoWaringTime - time() > 0) $nextPost=$wp;
 
             //解除
-            if ($m3 > 3000) Redis::connection('default')->del('GeoWaringTime');
-            //===========================================================================
+            if ($m3 > $wk) Redis::connection('default')->del("GeoWaringTime_{$uid}");
+            //==========================================================================================================
 
             //以下是本次插入的点
             Redis::connection('default')->zadd($key,time(),"{$lat_hash}_{$lng_hash}");

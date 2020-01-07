@@ -73,6 +73,14 @@ $container->bind('Computer',function($container,$module)
     return new Computer($container->make($module));
 });
 
-$computer = $container->make('Computer',['Board']);
+$computer1 = $container->make('Computer',['Board']);
 
-var_dump($computer);
+//更换键盘
+$container->bind('Board',function($container)
+{
+    return new MechanicalKeyboard;
+});
+
+$computer2 = $container->make('Computer',['Board']);
+
+var_dump($computer1,$computer2);

@@ -467,7 +467,7 @@ class PayBase
                 'com.wodelu.fogMap128RMB6400Z'=>128,          //6400钻石
                 'com.wodelu.fogMap258RMB12900Z'=>258,          //12900钻石
                 'com.wodelu.fogMap648RMB32400Z'=>648,          //32400钻石
-                'com.wodelu.fogMap25RMBDAY80Z'=>25,           //30天，2400钻石，每天80钻石
+                'com.wodelu.fogMap25RMBDAY80Zs'=>25,           //30天，2400钻石，每天80钻石
             ];
 
             $subject=[
@@ -477,7 +477,7 @@ class PayBase
                 'com.wodelu.fogMap128RMB6400Z'=>'6400钻石',
                 'com.wodelu.fogMap258RMB12900Z'=>'12900钻石',
                 'com.wodelu.fogMap648RMB32400Z'=>'32400钻石',
-                'com.wodelu.fogMap25RMBDAY80Z'=>'钻石月卡',
+                'com.wodelu.fogMap25RMBDAY80Zs'=>'钻石月卡',
             ];
 
             $productIdArr=[
@@ -487,7 +487,7 @@ class PayBase
                 'com.wodelu.fogMap128RMB6400Z'=>4,
                 'com.wodelu.fogMap258RMB12900Z'=>5,
                 'com.wodelu.fogMap648RMB32400Z'=>6,
-                'com.wodelu.fogMap25RMBDAY80Z'=>7,
+                'com.wodelu.fogMap25RMBDAY80Zs'=>7,
             ];
 
             $product=$productIdArr[$productId];

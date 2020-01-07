@@ -11,6 +11,7 @@ use App\Model\Tssj\UseInviteCode;
 use Carbon\Carbon;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -207,6 +208,8 @@ class AboutUserController extends Controller
     {
         //使用者id
         $uid=(int)trim($request->uid);
+
+        if (!Cache::lock("useInviteCode_{$uid}",3)) return response()->json(['resCode'=>Config::get('resCode.200')]);
 
         //邀请码
         $inviteCode=strtolower(trim($request->inviteCode));
