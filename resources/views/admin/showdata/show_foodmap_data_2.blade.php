@@ -22,6 +22,7 @@
                         <th>碎片</th>
                         <th>宝物</th>
                         <th>交易</th>
+                        <th>钻石许愿</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -36,6 +37,7 @@
                             <th>{{$one['userPatch']}}</th>
                             <th>{{$one['userSucc']}}</th>
                             <th>{{$one['buySale']}}</th>
+                            <th>{{$one['wishNum']}}</th>
                         </tr>
 
                     @endforeach
@@ -50,6 +52,7 @@
                         <th>碎片</th>
                         <th>宝物</th>
                         <th>交易</th>
+                        <th>钻石许愿</th>
                     </tr>
                     </tfoot>
                 </table>

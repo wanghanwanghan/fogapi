@@ -84,6 +84,7 @@ class AdminFoodMapController extends AdminBaseController
             $one['diamond']=(int)Redis::connection('UserInfo')->hget($one['uid'],'Diamond');
 
             //许愿钻石数
+            $one['wishNum']=(int)Redis::connection('UserInfo')->hget($one['uid'],'wishForDiamond');
 
             //宝物数
             foreach ($succ as $userSucc)
