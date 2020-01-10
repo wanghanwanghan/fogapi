@@ -85,6 +85,8 @@
             <h6 class="collapse-header" style="color: red">要看哪个？</h6>
             <a class="collapse-item" href="{{route('userData1')}}">用户数据列表</a>
             <a class="collapse-item" href="{{route('gridData1')}}">格子数据列表</a>
+            <a class="collapse-item" href="{{route('foodMapData1')}}">充值数据列表</a>
+            <a class="collapse-item" href="{{route('foodMapData2')}}">寻宝数据列表</a>
           </div>
         </div>
       </li>

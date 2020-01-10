@@ -35,8 +35,10 @@ class MyTempController extends BaseController
 
         // Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',3400+188,97105);
 
-        dd(Carbon::now()->format('Y-m-d H:i:s'));
 
+        $res=numToWord(123456789);
+
+        dd($res);
 
 
 
