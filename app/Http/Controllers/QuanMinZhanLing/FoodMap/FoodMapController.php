@@ -257,6 +257,9 @@ class FoodMapController extends FoodMapBaseController
 
             (new UserController())->exprUserDiamond($uid,300,'-');
 
+            //记录许愿次数
+            Redis::connection('UserInfo')->hincrby($uid,'wishForDiamond',$num);
+
         }elseif ($wishPoolForFree || $num==1 && $diamond >= 66)
         {
             $res=$this->setUid($uid)->getWish($num);
@@ -267,9 +270,15 @@ class FoodMapController extends FoodMapBaseController
                 Redis::connection('UserInfo')->set($key,$wishPoolForFree);
                 Redis::connection('UserInfo')->expire($key,86400);
 
+                //记录许愿次数
+                Redis::connection('UserInfo')->hincrby($uid,'wishForFree',$num);
+
             }else
             {
                 (new UserController())->exprUserDiamond($uid,66,'-');
+
+                //记录许愿次数
+                Redis::connection('UserInfo')->hincrby($uid,'wishForDiamond',$num);
             }
 
         }else
