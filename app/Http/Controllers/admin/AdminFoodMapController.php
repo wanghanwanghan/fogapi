@@ -48,6 +48,10 @@ class AdminFoodMapController extends AdminBaseController
     {
         //宝物数
         $succ=UserSuccess::groupBy('uid')->select(DB::connection('FoodMap')->raw('uid,count(1) as num'))->get()->toArray();
+        foreach ($succ as $one)
+        {
+            $userSucc[$one['uid']]=$one['num'];
+        }
 
         //碎片数
         $targetUid=UserPatch::groupBy('uid')->select(DB::connection('FoodMap')->raw('uid,sum(num) as userPatch'))->get()->toArray();
@@ -87,13 +91,7 @@ class AdminFoodMapController extends AdminBaseController
             $one['wishNum']=(int)Redis::connection('UserInfo')->hget($one['uid'],'wishForDiamond');
 
             //宝物数
-            foreach ($succ as $userSucc)
-            {
-                if ($one['uid']==$userSucc['uid'])
-                {
-                    $one['userSucc']=$userSucc['num'];
-                }
-            }
+            $one['userSucc']=isset($userSucc[$one['uid']]) ? $userSucc[$one['uid']] : 0;
 
             //交易数
             $one['buySale']=isset($buyTmp[$one['uid']]) ? $buyTmp[$one['uid']] : 0;

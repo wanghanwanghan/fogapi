@@ -58,7 +58,7 @@ class AdminLoginController extends AdminBaseController
             '18618457910'=>['key'=>'U4566KUVXHCHGMMU','password'=>'wanghan123'],
 
             //bbk
-            '13810489944'=>['key'=>'STS6ZOHDGN2OT4ER','password'=>'bbkbbk123'],
+            '13810489944'=>['key'=>'STS6ZOHDGN2OT4ER','password'=>'kly123'],
 
             //纪申
             '18600409656'=>['key'=>'6XZZWO2KV6S5NJ4H','password'=>'jishen123'],
