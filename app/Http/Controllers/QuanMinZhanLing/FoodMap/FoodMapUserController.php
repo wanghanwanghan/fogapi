@@ -178,18 +178,39 @@ class FoodMapUserController
     public function getAuctionHouseSale($uid,$type,$seachKeyWord,$page)
     {
         $res=[];
-        $limit=10;
+        $limit=20;
         $offset=($page-1)*$limit;
 
         if ($type==1)
         {
             //出售页面
-            $res=AuctionHouse::with('patch')->where('uid','<>',$uid)
-                ->where('status',1)
-                ->orderBy('created_at','desc')
-                ->limit($limit)
-                ->offset($offset)
-                ->get()->toArray();
+            $key=trim($seachKeyWord);
+
+            if ($key)
+            {
+                $res=AuctionHouse::with(['patch'=>function ($query) use ($key) {
+                    $query->where('subject','like',"%{$key}%");
+                }])->where('uid','<>',$uid)
+                    ->where('status',1)
+                    ->orderBy('created_at','desc')
+                    ->get()->toArray();
+
+                foreach ($res as $key=>$val)
+                {
+                    if (empty($val['patch'])) unset($res[$key]);
+                }
+
+                if (!empty($res)) $res=paginateByMyself(arraySort1($res,['asc','diamond']),$page,$limit);
+
+            }else
+            {
+                $res=AuctionHouse::with('patch')->where('uid','<>',$uid)
+                    ->where('status',1)
+                    ->orderBy('created_at','desc')
+                    ->limit($limit)
+                    ->offset($offset)
+                    ->get()->toArray();
+            }
 
             //显示这个碎片我有多少个？？？
             foreach ($res as &$one)
@@ -212,11 +233,24 @@ class FoodMapUserController
         {
             //我的出售页面
             $res=AuctionHouse::with('patch')->where('uid',$uid)
-                ->whereIn('status',[1,2])//1是正在出售，2是被人买走
-                ->orderBy('created_at','desc')
-                //->limit($limit)
-                //->offset($offset)
+                ->whereIn('status',[1,2])//1是正在出售，2是被人买走，3是下架，4是刷回
                 ->get()->toArray();
+
+            //我购买的碎片
+            $myBuy=AuctionHouse::with('patch')->where('bid',$uid)
+                ->whereIn('status',[2])//1是正在出售，2是被人买走，3是下架，4是刷回
+                ->get()->toArray();
+
+            $tmp=array_merge($res,$myBuy);
+
+            //2020 01 14 后发布新版再跟新这个文件
+
+            if (!empty($tmp))
+            {
+                $tmp=arraySort1($tmp,['desc','created_at']);
+                $tmp=arraySort1($tmp,['asc','status']);
+                $res=paginateByMyself($tmp,$page,$limit);
+            }
 
         }elseif ($type==3)
         {

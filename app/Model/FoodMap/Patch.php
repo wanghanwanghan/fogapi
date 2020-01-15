@@ -16,6 +16,11 @@ class Patch extends Model
 
     public $timestamps=false;
 
+    public function auctionHouse()
+    {
+        return $this->belongsTo('App\Model\FoodMap\AuctionHouse','id','pid');
+    }
+
     //禁用自动更新时间
     public function getUpdatedAtColumn()
     {

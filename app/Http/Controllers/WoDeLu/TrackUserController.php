@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Intervention\Image\Facades\Image;
 
 class TrackUserController extends Controller
 {
@@ -393,10 +394,93 @@ class TrackUserController extends Controller
         return true;
     }
 
+    //获取用户姓名和头像
+    public function getUserNameAndAvatar($uid)
+    {
+        //redis里没有就从track里拿
+        $userinfo['name']  =trim(Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'name'));
+        $userinfo['avatar']=trim(Redis::connection('TrackUserInfo')->hget('Track_'.$uid,'avatar'));
 
+        if (empty($userinfo['name']))
+        {
+            $res=DB::connection('track_old')->table('track_member')->where('userid',$uid)->first();
 
+            if (empty($res))
+            {
+                $userinfo['name']=randomUserName();
+            }else
+            {
+                $userinfo['name']=trim($res->username);
+            }
 
+            Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'name',$userinfo['name']);
+        }
 
+        if (empty($userinfo['avatar']))
+        {
+            $res=DB::connection('track_old')->table('track_member')->where('userid',$uid)->first();
 
+            $userinfo['avatar']='/imgModel/systemAvtar.png';
 
+            if (!empty($res))
+            {
+                $avatar='http://www.wodeluapp.com/attachment/'.trim($res->avatar);
+
+                $check=checkFileExists($avatar);
+
+                //检查是否可以取得
+                if ($check)
+                {
+                    $img=file_get_contents($avatar);
+
+                    $url=$this->storeAvatar($img,$uid);
+
+                    if ($url) $userinfo['avatar']=$url;
+                }
+            }
+
+            Redis::connection('TrackUserInfo')->hset('Track_'.$uid,'avatar',$userinfo['avatar']);
+        }
+
+        return $userinfo;
+    }
+
+    //图片贮存到服务器
+    private function storeAvatar($content,$uid)
+    {
+        $suffix=$uid%5;
+
+        $width =200;
+        $height=200;
+
+        $path=public_path(DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR);
+
+        $pathStoreInDB=DIRECTORY_SEPARATOR.'img'.DIRECTORY_SEPARATOR.$suffix.DIRECTORY_SEPARATOR;
+
+        if (!is_dir($path)) mkdir($path,0777,true);
+
+        $filename="track_avatar_{$uid}.jpg";
+
+        try
+        {
+            Image::make($content)->resize($width,$height)->save($path.$filename);
+
+            return $pathStoreInDB.$filename;
+
+        }catch (\Exception $e)
+        {
+            sleep(1);
+
+            try
+            {
+                Image::make($content)->resize($width,$height)->save($path.$filename);
+
+                return $pathStoreInDB.$filename;
+
+            }catch (\Exception $w)
+            {
+                return '';
+            }
+        }
+    }
 }

@@ -45,6 +45,18 @@ return [
             'strict' => false,
             'engine' => null,
         ],
+        'track_old' => [
+            'driver' => 'mysql',
+            'host' => '183.136.232.214',
+            'port' => '3306',
+            'database' => 'track',
+            'username' => 'chinabody',
+            'password' => 'chinaiiss(!@#)',
+            'charset' => 'utf8',
+            'collation' => 'utf8_general_ci',
+            'strict' => false,
+            'engine' => null,
+        ],
         'masterDB' => [
             'driver' => 'mysql',
             'host' => '183.136.232.236',

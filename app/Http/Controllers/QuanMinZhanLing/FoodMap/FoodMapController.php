@@ -88,9 +88,12 @@ class FoodMapController extends FoodMapBaseController
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
-                if ($patchName==null) break;
+                //80几率不给
+                if (random_int(1,100) > 20) $patchName=null;
 
-                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+                $patchName==null ? $num=0 : $num=1;
+
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>$num]);
 
                 break;
 
@@ -105,9 +108,9 @@ class FoodMapController extends FoodMapBaseController
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
-                if ($patchName==null) break;
+                $patchName==null ? $num=0 : $num=1;
 
-                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>$num]);
 
                 break;
 
@@ -122,9 +125,12 @@ class FoodMapController extends FoodMapBaseController
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
-                if ($patchName==null) break;
+                //80几率不给
+                if (random_int(1,100) > 20) $patchName=null;
 
-                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+                $patchName==null ? $num=0 : $num=1;
+
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>$num]);
 
                 break;
 
@@ -139,9 +145,12 @@ class FoodMapController extends FoodMapBaseController
                 //选择一个碎片给用户
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
-                if ($patchName==null) break;
+                //80几率不给
+                if (random_int(1,100) > 20) $patchName=null;
 
-                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>1]);
+                $patchName==null ? $num=0 : $num=1;
+
+                UserGetPatchByWay::create(['uid'=>$uid,'way'=>$way,'date'=>$date,'num'=>$num]);
 
                 break;
 

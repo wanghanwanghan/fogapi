@@ -236,3 +236,13 @@ function wordToNum($string)
     ];
     return $num + @$d[$string];
 }
+
+
+
+
+
+
+
+
+
+

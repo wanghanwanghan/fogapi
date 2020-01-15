@@ -50,7 +50,8 @@ Route::group(['middleware'=>['PVandUV']],function ()
     //新用户使用邀请码
     Route::match(['get','post'],'UseInviteCode','TanSuoShiJie\AboutUserController@useInviteCode');
 
-
+    //我的路排行榜
+    Route::match(['get','post'],'GetWoDeLuRankList','WoDeLu\TrackRankListController@getRankList');
 
 });
 

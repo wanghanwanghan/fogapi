@@ -70,14 +70,14 @@ class FoodMapBaseController extends BaseController
     public $rate_in=[
         'commonPatch'=>[
             0, //白
-            95,//绿
-            5, //蓝
+            97,//绿
+            3, //蓝
             0, //紫
             0, //橙
         ],
-        'money'=>[95,5],//普通，峰值
-        'buyCard'=>[95,5],
-        'diamond'=>[95,5],
+        'money'=>[97,3],//普通，峰值
+        'buyCard'=>[97,3],
+        'diamond'=>[99,1],
     ];
 
     //100个许愿池物品
@@ -357,13 +357,13 @@ class FoodMapBaseController extends BaseController
             //普通
             for ($i=1;$i<=$this->rate_in['diamond'][0];$i++)
             {
-                $tmp[]=mt_rand(30,88);
+                $tmp[]=mt_rand(1,30);
             }
 
             //最高
             for ($i=1;$i<=$this->rate_in['diamond'][1];$i++)
             {
-                $tmp[]=188;
+                $tmp[]=88;
             }
 
             shuffle($tmp);

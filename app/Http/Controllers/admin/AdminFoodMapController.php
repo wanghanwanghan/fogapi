@@ -46,6 +46,12 @@ class AdminFoodMapController extends AdminBaseController
     //寻宝数据
     public function foodMapData2()
     {
+        if (Redis::connection('default')->get('FoodMapUserData'))
+        {
+            $targetUid=jsonDecode(Redis::connection('default')->get('FoodMapUserData'));
+            return view('admin.showdata.show_foodmap_data_2')->with(['res'=>$targetUid]);
+        }
+
         //宝物数
         $succ=UserSuccess::groupBy('uid')->select(DB::connection('FoodMap')->raw('uid,count(1) as num'))->get()->toArray();
         foreach ($succ as $one)
@@ -59,6 +65,20 @@ class AdminFoodMapController extends AdminBaseController
         //交易数
         $buyNum=AuctionHouse::where('status',2)->groupBy('uid')->select(DB::connection('FoodMap')->raw('uid,count(1) as buyNum'))->get()->toArray();
         $saleNum=AuctionHouse::where('bid','>',0)->groupBy('bid')->select(DB::connection('FoodMap')->raw('bid,count(1) as saleNum'))->get()->toArray();
+
+        //今年的充值金额
+        $RMB=DB::connection('userOrder')
+            ->table("tssj2020")
+            ->where('status',1)
+            ->groupBy('uid')
+            ->select(DB::connection('userOrder')->raw('uid,sum(price) as price'))->get()->toArray();
+
+        $RMB=jsonDecode(jsonEncode($RMB));
+
+        foreach ($RMB as $one)
+        {
+            $wanghan[$one['uid']]=$one['price'];
+        }
 
         //转换成uid => num
         foreach ($buyNum as $one)
@@ -95,8 +115,38 @@ class AdminFoodMapController extends AdminBaseController
 
             //交易数
             $one['buySale']=isset($buyTmp[$one['uid']]) ? $buyTmp[$one['uid']] : 0;
+
+            //充值金额
+            isset($wanghan[$one['uid']]) ? $one['RMB']=$wanghan[$one['uid']] : $one['RMB']=0;
         }
         unset($one);
+
+        $arr=[
+            18426,
+            137545,
+            33586,
+            22357,
+            186454,
+            180381,
+            198023,
+            191662,
+            97105,
+            211033,
+            104563,
+            30209,
+            211540,
+            26074,
+            26078,
+            26079,
+        ];
+
+        foreach ($targetUid as $key=>$value)
+        {
+            if (in_array($value['uid'],$arr)) unset($targetUid[$key]);
+        }
+
+        Redis::connection('default')->set('FoodMapUserData',jsonEncode($targetUid));
+        Redis::connection('default')->expire('FoodMapUserData',300);
 
         return view('admin.showdata.show_foodmap_data_2')->with(['res'=>$targetUid]);
     }

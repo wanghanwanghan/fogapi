@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
@@ -28,12 +29,54 @@ use Vinkla\Hashids\Facades\Hashids;
 
 class MyTempController extends BaseController
 {
-    public function test()
+    public function test(Request $request)
     {
         // Redis::connection('TrackUserInfo')->hset('Track_10083','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
         // Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',3400+188,97105);
+
+
+
+        $res=$request->all();
+
+        ksort($res);
+
+        $tmp=null;
+        foreach ($res as $key=>$val)
+        {
+            if (is_object($val) || is_array($val))
+            {
+                $tmp.=$key.count($val);
+            }else
+            {
+                $tmp.=$key.strlen($val);
+            }
+
+        }
+
+
+        dd($res,$tmp,Input::all(),$request->all());
+
+
+
+
+
+        Redis::connection('UserInfo')->hset(26074,'name','周子蕊');
+        Redis::connection('UserInfo')->hset(26078,'name','豆豆卉');
+        Redis::connection('UserInfo')->hset(26079,'name','海天黄豆酱');
+
+        $key='DiamondRankListForTssj';
+
+        $res=Redis::connection('WriteLog')->zadd($key,300+2400,26074);
+        $res=Redis::connection('WriteLog')->zadd($key,1566+2400,26078);
+        $res=Redis::connection('WriteLog')->zadd($key,3588+2400,26079);
+
+        dd($res);
+
+
+
+
 
 
         $res=numToWord(123456789);

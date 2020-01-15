@@ -23,6 +23,7 @@
                         <th>宝物</th>
                         <th>交易</th>
                         <th>钻石许愿</th>
+                        <th>充值金额</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -38,6 +39,7 @@
                             <th>{{$one['userSucc']}}</th>
                             <th>{{$one['buySale']}}</th>
                             <th>{{$one['wishNum']}}</th>
+                            <th>{{$one['RMB']}}</th>
                         </tr>
 
                     @endforeach
@@ -53,6 +55,7 @@
                         <th>宝物</th>
                         <th>交易</th>
                         <th>钻石许愿</th>
+                        <th>充值金额</th>
                     </tr>
                     </tfoot>
                 </table>
