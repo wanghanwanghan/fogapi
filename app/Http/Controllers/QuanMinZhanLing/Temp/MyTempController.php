@@ -5,6 +5,7 @@ namespace App\Http\Controllers\QuanMinZhanLing\Temp;
 use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapBaseController;
+use App\Http\Controllers\Server\CacheByFile;
 use App\Http\Controllers\Server\ModifyPinyin;
 use App\Http\Controllers\Server\PayBase;
 use App\Model\DailyTasksModel;
@@ -36,41 +37,15 @@ class MyTempController extends BaseController
 
         // Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',3400+188,97105);
 
-
-
-        $res=$request->all();
-
-        ksort($res);
-
-        $tmp=null;
-        foreach ($res as $key=>$val)
-        {
-            if (is_object($val) || is_array($val))
-            {
-                $tmp.=$key.count($val);
-            }else
-            {
-                $tmp.=$key.strlen($val);
-            }
-
-        }
-
-
-        dd($res,$tmp,Input::all(),$request->all());
-
-
-
-
-
         Redis::connection('UserInfo')->hset(26074,'name','周子蕊');
         Redis::connection('UserInfo')->hset(26078,'name','豆豆卉');
         Redis::connection('UserInfo')->hset(26079,'name','海天黄豆酱');
 
         $key='DiamondRankListForTssj';
 
-        $res=Redis::connection('WriteLog')->zadd($key,300+2400,26074);
-        $res=Redis::connection('WriteLog')->zadd($key,1566+2400,26078);
-        $res=Redis::connection('WriteLog')->zadd($key,3588+2400,26079);
+        $res=Redis::connection('WriteLog')->zadd($key,300+2400+3588,26074);
+        $res=Redis::connection('WriteLog')->zadd($key,1566+2400+3588,26078);
+        $res=Redis::connection('WriteLog')->zadd($key,3588+2400+1566,26079);
 
         dd($res);
 

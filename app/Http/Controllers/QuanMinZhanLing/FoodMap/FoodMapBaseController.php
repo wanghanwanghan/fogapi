@@ -49,7 +49,9 @@ class FoodMapBaseController extends BaseController
 
         foreach ($this->treasureType as $one)
         {
-            if ($one['open']!=1 || !in_array($month,$one['openMonth'])) continue;
+            if ($one['open']!=1) continue;
+
+            if (!in_array($month,$one['openMonth'])) continue;
 
             $open[]=$one['typeName'];
         }

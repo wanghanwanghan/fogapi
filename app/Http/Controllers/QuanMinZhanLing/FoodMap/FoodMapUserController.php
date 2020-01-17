@@ -232,25 +232,36 @@ class FoodMapUserController
         }elseif ($type==2)
         {
             //我的出售页面
-            $res=AuctionHouse::with('patch')->where('uid',$uid)
-                ->whereIn('status',[1,2])//1是正在出售，2是被人买走，3是下架，4是刷回
+            //1是正在出售，2是被人买走，3是下架，4是刷回
+
+            //我正在出售的
+            $res=AuctionHouse::with('patch')
+                ->where(['uid'=>$uid,'status'=>1])
+                ->get()->toArray();
+
+            $res=arraySort1($res,['desc','created_at']);
+
+            //我卖出的碎片
+            $mySale=AuctionHouse::with('patch')
+                ->where(['uid'=>$uid,'status'=>2])
+                ->orderBy('updated_at','desc')
+                ->limit(1000)
                 ->get()->toArray();
 
             //我购买的碎片
-            $myBuy=AuctionHouse::with('patch')->where('bid',$uid)
-                ->whereIn('status',[2])//1是正在出售，2是被人买走，3是下架，4是刷回
+            $myBuy=AuctionHouse::with('patch')
+                ->where(['bid'=>$uid,'status'=>2])
+                ->orderBy('updated_at','desc')
+                ->limit(1000)
                 ->get()->toArray();
 
-            $tmp=array_merge($res,$myBuy);
+            //组合数据并排序
+            $buySale=array_merge($myBuy,$mySale);
+            $buySale=arraySort1($buySale,['desc','updated_at']);
 
-            //2020 01 14 后发布新版再跟新这个文件
+            $tmp=array_merge($res,$buySale);
 
-            if (!empty($tmp))
-            {
-                $tmp=arraySort1($tmp,['desc','created_at']);
-                $tmp=arraySort1($tmp,['asc','status']);
-                $res=paginateByMyself($tmp,$page,$limit);
-            }
+            if (!empty($tmp)) $res=paginateByMyself($tmp,$page,$limit);
 
         }elseif ($type==3)
         {

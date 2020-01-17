@@ -81,6 +81,8 @@ function filter4($str)
 //二维数组按照某一列排序
 function arraySort1($array,$cond=['desc','id'])
 {
+    if (empty($array)) return $array;
+
     if ($cond[0]=='asc')
     {
         $cond[0]='SORT_ASC';
@@ -110,6 +112,10 @@ function arraySort1($array,$cond=['desc','id'])
 //二维数组按照某一列排序
 function arraySort1New($array,$col,$rule='asc')
 {
+    if (empty($array)) return $array;
+
+    $array=array_values($array);
+
     $tmp=[];
 
     //将排序依据作为数组的键名
@@ -121,12 +127,7 @@ function arraySort1New($array,$col,$rule='asc')
     //然后按照键名排序并且保留索引关系
     $rule === 'asc' ? ksort($tmp) : krsort($tmp);
 
-    foreach ($tmp as $one)
-    {
-        $wanghan[]=$one;
-    }
-
-    return $wanghan;
+    return array_values($tmp);
 }
 
 //快速排序

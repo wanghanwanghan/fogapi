@@ -89,7 +89,7 @@ class FoodMapController extends FoodMapBaseController
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
                 //80几率不给
-                if (random_int(1,100) > 20) $patchName=null;
+                if (random_int(1,100) > 80) $patchName=null;
 
                 $patchName==null ? $num=0 : $num=1;
 
@@ -126,7 +126,7 @@ class FoodMapController extends FoodMapBaseController
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
                 //80几率不给
-                if (random_int(1,100) > 20) $patchName=null;
+                if (random_int(1,100) > 80) $patchName=null;
 
                 $patchName==null ? $num=0 : $num=1;
 
@@ -146,7 +146,7 @@ class FoodMapController extends FoodMapBaseController
                 $patchName=FoodMapUserController::getInstance()->choseOnePatchGiveUser($uid,$patchBelong,['绿']);
 
                 //80几率不给
-                if (random_int(1,100) > 20) $patchName=null;
+                if (random_int(1,100) > 80) $patchName=null;
 
                 $patchName==null ? $num=0 : $num=1;
 
@@ -470,54 +470,40 @@ class FoodMapController extends FoodMapBaseController
         //不含有数据
         if (empty($res)) return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res,'diamond'=>$diamond]);
 
-        foreach ($res as &$one)
-        {
-            //type=3过来的数据，都是obj
-            if (is_object($one))
-            {
-                $sort=1;
-                continue;
-            }
-
-            if (!isset($one['expireTime']))
-            {
-                $sort=1;
-                continue;
-            }
-
-            $one['expireDate']=formatDate($one['expireTime'],'date');
-        }
-        unset($one);
-
-        if (!isset($sort)) $res=arraySort1($res,['asc','expireTime']);
-
         if ($type==2)
         {
-            //正在出售的方上面，已经卖出的方下面？？？？
-            $onSale=$saled=[];
-
-            foreach ($res as $one)
+            //在数据层已经排好序了，这里不需要排序
+            foreach ($res as &$one)
             {
-                if ($one['bid'] > 0)
-                {
-                    //已经卖出去了
-                    $one['buyUserInfo']=[
-                        'name'=>trim(Redis::connection('UserInfo')->hget($one['bid'],'name')),
-                        'avatar'=>trim(Redis::connection('UserInfo')->hget($one['bid'],'avatar')),
-                    ];
-                    $saled[]=$one;
-
-                }else
-                {
-                    $one['buyUserInfo']=[
-                        'name'=>'',
-                        'avatar'=>'',
-                    ];
-                    $onSale[]=$one;
-                }
+                $one['buyUserInfo']=[
+                    'name'=>trim(Redis::connection('UserInfo')->hget($one['bid'],'name')),
+                    'avatar'=>trim(Redis::connection('UserInfo')->hget($one['bid'],'avatar')),
+                ];
             }
+            unset($one);
 
-            $res=array_merge($onSale,$saled);
+        }else
+        {
+            foreach ($res as &$one)
+            {
+                //type=3过来的数据，都是obj
+                if (is_object($one))
+                {
+                    $sort=1;
+                    continue;
+                }
+
+                if (!isset($one['expireTime']))
+                {
+                    $sort=1;
+                    continue;
+                }
+
+                $one['expireDate']=formatDate($one['expireTime'],'date');
+            }
+            unset($one);
+
+            if (!isset($sort)) $res=arraySort1($res,['asc','expireTime']);
         }
 
         return response()->json(['resCode'=>Config::get('resCode.200'),'data'=>$res,'diamond'=>$diamond]);
