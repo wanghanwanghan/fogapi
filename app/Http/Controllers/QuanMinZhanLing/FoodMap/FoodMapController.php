@@ -479,6 +479,8 @@ class FoodMapController extends FoodMapBaseController
                     'name'=>trim(Redis::connection('UserInfo')->hget($one['bid'],'name')),
                     'avatar'=>trim(Redis::connection('UserInfo')->hget($one['bid'],'avatar')),
                 ];
+
+                $one['expireDate']=formatDate($one['expireTime'],'date');
             }
             unset($one);
 
