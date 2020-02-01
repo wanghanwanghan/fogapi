@@ -72,8 +72,8 @@ class FoodMapBaseController extends BaseController
     public $rate_in=[
         'commonPatch'=>[
             0, //白
-            97,//绿
-            3, //蓝
+            95,//绿
+            5, //蓝
             0, //紫
             0, //橙
         ],

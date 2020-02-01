@@ -362,7 +362,7 @@ class FoodMapController extends FoodMapBaseController
     public function getUserTreasureNum(Request $request)
     {
         //求剩余多少天
-        $lastMonthStart=Carbon::now()->addMonth()->startOfMonth();
+        $lastMonthStart=Carbon::now()->startOfMonth()->addMonth();
         $time=(new Carbon)->diffInDays($lastMonthStart,true) + 1;
         $expire="剩余 {$time} 天";
 
