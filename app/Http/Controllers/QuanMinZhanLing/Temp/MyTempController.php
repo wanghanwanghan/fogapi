@@ -5,6 +5,7 @@ namespace App\Http\Controllers\QuanMinZhanLing\Temp;
 use App\Exports\ArticleExport;
 use App\Http\Controllers\QuanMinZhanLing\BaseController;
 use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapBaseController;
+use App\Http\Controllers\QuanMinZhanLing\FoodMap\FoodMapUserController;
 use App\Http\Controllers\Server\CacheByFile;
 use App\Http\Controllers\Server\ModifyPinyin;
 use App\Http\Controllers\Server\PayBase;
@@ -36,6 +37,8 @@ class MyTempController extends BaseController
         // Redis::connection('TrackUserInfo')->hset('Track_28109','VipInfo',jsonEncode(['level'=>3,'expire'=>1885507851]));
 
         // Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',3400+188,97105);
+
+
 
 
         $lastMonthStart=Carbon::now()->startOfMonth()->addMonth();

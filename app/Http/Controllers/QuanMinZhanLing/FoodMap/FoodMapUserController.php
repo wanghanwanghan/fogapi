@@ -52,7 +52,7 @@ class FoodMapUserController
         $substr=substr($patchSubject,0,-1);
 
         //需要id
-        $patchId=Patch::where('subject','like',"{$substr}%")->pluck('id')->toArray();
+        $patchId=Patch::where('subject','like',"{$substr}_")->pluck('id')->toArray();
 
         //看看用户是否拥有这些pid的碎片，并且碎片个数大于0
         $count=UserPatch::where('uid',$uid)->whereIn('pid',$patchId)->where('num','>',0)->count();
