@@ -27,6 +27,7 @@ Route::group(['prefix'=>'admin'],function ()
         Route::match(['get','post'],'/show/data/gridData1','admin\\AdminGridController@gridData1')->name('gridData1');
         Route::match(['get','post'],'/show/data/foodMapData1','admin\\AdminFoodMapController@foodMapData1')->name('foodMapData1');
         Route::match(['get','post'],'/show/data/foodMapData2','admin\\AdminFoodMapController@foodMapData2')->name('foodMapData2');
+        Route::match(['get','post'],'/moneyDetail/{string}','admin\\AdminFoodMapController@moneyDetail')->name('moneyDetail');
 
 
 

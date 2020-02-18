@@ -30,7 +30,7 @@ class AdminFoodMapController extends AdminBaseController
         $wodelu=$tmp;
         $tmp=[];
 
-        for ($i=$date;$i>=2019;$i--)
+        for ($i=$date;$i>2019;$i--)
         {
             //我的路充值
             $sql="select count(distinct uid) as 'buyPeople',sum(price) as 'priceTotal',productSubject as 'subject',plant as 'plant' from tssj{$i} where status=1 group by productSubject,plant order by productSubject,plant";
@@ -149,6 +149,58 @@ class AdminFoodMapController extends AdminBaseController
         Redis::connection('default')->expire('FoodMapUserData',300);
 
         return view('admin.showdata.show_foodmap_data_2')->with(['res'=>$targetUid]);
+    }
+
+    //充值详情
+    public function moneyDetail($string)
+    {
+        //先看哪年的
+        $year=null;
+        for ($i=strlen($string)-4;$i<=strlen($string);$i++)
+        {
+            if (strlen($year)>=4) break;
+
+            $year.=$string[$i];
+        }
+
+        //再看是探索世界还是我的路
+        if (strtolower($string[0])=='t')
+        {
+            //tssj
+            $table="tssj{$year}";
+        }else
+        {
+            //wodelu
+            $table="wodelu{$year}";
+        }
+
+        try
+        {
+            $tmp=DB::connection('userOrder')
+                ->table($table)
+                ->where('status',1)
+                ->groupBy('mouth')
+                ->select(DB::connection('userOrder')->raw('sum(price) as price,left(created_at,7) as mouth'))
+                ->get();
+
+        }catch (\Exception $e)
+        {
+            $tmp=[];
+        }
+
+        $allMoney=0;
+        foreach ($tmp as $one)
+        {
+            $allMoney+=$one->price;
+        }
+
+        $res=[
+            'target'=>trim($string),
+            'money'=>$tmp,
+            'allMoney'=>$allMoney
+        ];
+
+        return view('admin.showdata.show_money_detail')->with(['res'=>$res]);
     }
 
     //ajax

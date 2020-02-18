@@ -11,7 +11,8 @@
 
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><span style="color: red">{{$key}}</span></h6>
+                    <h6 class="m-0 font-weight-bold text-primary float-left"><span style="color: red">{{$key}}</span></h6>
+                    <h6 class="m-0 font-weight-bold text-primary float-right" onclick="redirate('{{$key}}')"><span style="color: red">充值详情</span></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -48,7 +49,8 @@
 
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><span style="color: red">{{$key}}</span></h6>
+                    <h6 class="m-0 font-weight-bold text-primary float-left"><span style="color: red">{{$key}}</span></h6>
+                    <h6 class="m-0 font-weight-bold text-primary float-right" onclick="redirate('{{$key}}')"><span style="color: red">充值详情</span></h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -82,5 +84,19 @@
 
         @endforeach
     </div>
+
+    <script>
+
+        //跳转充值详情
+        function redirate(string) {
+
+            window.location.href='/admin/moneyDetail/'+string;
+
+        }
+
+
+
+
+    </script>
 
 @endsection

@@ -75,7 +75,7 @@
             box-shadow: 0 2px 6px 0 rgba(114, 124, 245, .5);
         }
     </style>
-    <script src="https://cdn.bootcss.com/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 </head>
 <body>
 <input type="hidden" id="currentLat" value="{{$info['lat']}}">

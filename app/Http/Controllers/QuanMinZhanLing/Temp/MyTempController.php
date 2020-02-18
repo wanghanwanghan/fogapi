@@ -39,34 +39,15 @@ class MyTempController extends BaseController
         // Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',3400+188,97105);
 
 
-
-
-        $lastMonthStart=Carbon::now()->startOfMonth()->addMonth();
-        $time=(new Carbon)->diffInDays($lastMonthStart,true) + 1;
-        $expire="剩余 {$time} 天";
-
-
-        dd($expire);
-
-
-
-
-
-
-
-
-
-
-
         Redis::connection('UserInfo')->hset(26074,'name','周子蕊');
         Redis::connection('UserInfo')->hset(26078,'name','豆豆卉');
         Redis::connection('UserInfo')->hset(26079,'name','海天黄豆酱');
 
         $key='DiamondRankListForTssj';
 
-        $res=Redis::connection('WriteLog')->zadd($key,300+2400+3588,26074);
-        $res=Redis::connection('WriteLog')->zadd($key,1566+2400+3588,26078);
-        $res=Redis::connection('WriteLog')->zadd($key,3588+2400+1566,26079);
+        $res=Redis::connection('WriteLog')->zadd($key,108264+2400+13788,26074);
+        $res=Redis::connection('WriteLog')->zadd($key,108264+2400+6788,26078);
+        $res=Redis::connection('WriteLog')->zadd($key,108264+2400+3588,26079);
 
         dd($res);
 

@@ -22,7 +22,7 @@ class FoodMapBaseController extends BaseController
         [
             'typeName'=>'地方电影',
             'openMonth'=>[2,6,10],
-            'open'=>0,
+            'open'=>1,
         ],
         [
             'typeName'=>'地方品牌',

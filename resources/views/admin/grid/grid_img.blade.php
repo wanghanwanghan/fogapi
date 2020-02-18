@@ -26,6 +26,7 @@
                             <th>用户主键</th>
                             <th>格子编号</th>
                             <th>格子图片</th>
+                            <th>发布时间</th>
                             <th>审核操作</th>
                         </tr>
                         </thead>
@@ -174,6 +175,9 @@
 
                     //图片
                     newTr.append("<td style='vertical-align: middle'><img src="+value.picUrl+" onclick=showpic('"+value.picUrl+"'); width='80px;' height='50px;'></td>");
+
+                    //发布时间
+                    newTr.append("<td style='vertical-align: middle'>"+value.updated_at+"</td>");
 
                     //按钮
                     newTr.append("<td style='vertical-align: middle'><a href='#' id="+value.uid+","+value.gid+" onclick=picPass($(this).attr('id')) class='btn btn-success btn-circle btn-sm'><i class='fas fa-check'></i></a></td>");
