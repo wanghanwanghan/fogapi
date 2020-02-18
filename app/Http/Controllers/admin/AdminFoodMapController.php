@@ -179,8 +179,8 @@ class AdminFoodMapController extends AdminBaseController
             $tmp=DB::connection('userOrder')
                 ->table($table)
                 ->where('status',1)
-                ->groupBy('mouth')
-                ->select(DB::connection('userOrder')->raw('sum(price) as price,left(created_at,7) as mouth'))
+                ->groupBy(['mouth','plant'])
+                ->select(DB::connection('userOrder')->raw('plant,sum(price) as price,left(created_at,7) as mouth'))
                 ->get();
 
         }catch (\Exception $e)
@@ -194,9 +194,21 @@ class AdminFoodMapController extends AdminBaseController
             $allMoney+=$one->price;
         }
 
+        $data=[];
+        foreach ($tmp as $one)
+        {
+            if (!isset($data[$one->mouth]))
+            {
+                $data[$one->mouth]['ios']=0;
+                $data[$one->mouth]['android']=0;
+            }
+
+            $data[$one->mouth][$one->plant]=$one->price;
+        }
+
         $res=[
             'target'=>trim($string),
-            'money'=>$tmp,
+            'money'=>$data,
             'allMoney'=>$allMoney
         ];
 
