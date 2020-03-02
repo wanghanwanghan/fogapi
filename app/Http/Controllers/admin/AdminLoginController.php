@@ -57,8 +57,11 @@ class AdminLoginController extends AdminBaseController
             //王瀚
             '18618457910'=>['key'=>'U4566KUVXHCHGMMU','password'=>'101901'],
 
-            //bbk
+            //
             '13810489944'=>['key'=>'STS6ZOHDGN2OT4ER','password'=>'kly123'],
+
+            //郭蕾
+            '13161902431'=>['key'=>'ZCHXU6KNRRBHBKDF','password'=>'guolei123'],
 
             //纪申
             //'18600409656'=>['key'=>'6XZZWO2KV6S5NJ4H','password'=>'jishen123'],
@@ -68,9 +71,6 @@ class AdminLoginController extends AdminBaseController
 
             //璀璀
             //'18511936093'=>['key'=>'3I4RRIIVTPEO3FKN','password'=>'cuicui123'],
-
-            //郭蕾
-            '13161902431'=>['key'=>'ZCHXU6KNRRBHBKDF','password'=>'guolei123'],
 
             //唐兆丰
             //'15011372771'=>['key'=>'RIFR65PFW3JVTUYH','password'=>'zhaofeng123'],

@@ -38,6 +38,7 @@ class MyTempController extends BaseController
 
         // Redis::connection('WriteLog')->zincrby('DiamondRankListForTssj',3400+188,97105);
 
+        dd(123);
 
         Redis::connection('UserInfo')->hset(26074,'name','周子蕊');
         Redis::connection('UserInfo')->hset(26078,'name','豆豆卉');
