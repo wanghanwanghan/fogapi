@@ -5,6 +5,7 @@
     "license": "MIT",
     "type": "project",
     "require": {
+        "ext-openssl": "*",
         "php": ">=7.0.0",
         "barryvdh/laravel-snappy": "^0.4.6",
         "earnp/laravel-google-authenticator": "dev-master",
