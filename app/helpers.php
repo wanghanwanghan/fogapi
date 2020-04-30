@@ -109,6 +109,34 @@ function arraySort1($array,$cond=['desc','id'])
     return $array;
 }
 
+//根据数组val排序，key不变
+function sortByVal($arr,$orderby='asc')
+{
+    $array=$sort=[];
+
+    foreach($arr as $key=>$val)
+    {
+        $array[]=$val;
+    }
+
+    $orderby==='asc' ? asort($array) : arsort($array);
+
+    foreach($array as $k=>$v)
+    {
+        foreach($arr as $key=>$value)
+        {
+            if($v==$value)
+            {
+                $sort[$key]=$value;
+                unset($arr[$key]);
+                break;
+            }
+        }
+    }
+
+    return $sort;
+}
+
 //二维数组按照某一列排序
 function arraySort1New($array,$col,$rule='asc')
 {
